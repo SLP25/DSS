@@ -2,3 +2,5 @@ Modelo.vpp.*
 .Modelo.*
 .domain-model.*
 *.vpp.bak_*
+# Images used for creating the report
+Imagens/
