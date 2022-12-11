@@ -74,12 +74,14 @@ public class UserDAO implements Map<String, User> {
      */
     @Override
     public boolean containsKey(Object key) {
-        boolean r;
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs =
-                     stm.executeQuery("SELECT Username FROM users WHERE Username='" + key.toString() + "'")) {
-            r = rs.next();
+        boolean r=false;
+        try {
+            Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT Username FROM users WHERE Username= ?;");
+            ps.setString(1,key.toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                r=true;
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -96,9 +98,22 @@ public class UserDAO implements Map<String, User> {
      * @throws NullPointerException //TODO MUDAR ISTO
      */
     @Override
-    public boolean containsValue(Object value) {//MUDAR ESTA DEFENIÇÃO
-        User t = (User) value;
-        return this.containsKey(t.getUsername());
+    public boolean containsValue(Object value) {
+        User u = (User) value;
+        boolean r=false;
+        try {
+            Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE Username= ?;");
+            ps.setString(1,u.getUsername());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                r = u.equals(new User(rs.getString(1),rs.getString(2)));
+        } catch (SQLException e) {
+            // Database error!
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
+        }
+        return r;
     }
 
     /**
@@ -112,10 +127,11 @@ public class UserDAO implements Map<String, User> {
     public User get(Object key) {
         try {
             Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT * FROM users WHERE username='" + key + "'");
-                if (rs.isBeforeFirst()) {
-                    return new User(rs.getString(0), rs.getString(1));
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE username= ?;");
+            ps.setString(1,key.toString());
+            ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return new User(rs.getString(1), rs.getString(2));
                 }
         } catch (SQLException e) {
             // Database error!
@@ -136,15 +152,14 @@ public class UserDAO implements Map<String, User> {
     public User put(String key, User user) {
         try {
             Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            stm.executeUpdate(
-                    "INSERT INTO users VALUES ("+
-                            user.getUsername()+", "+
-                            user.getHashedPassword()+") " +
-                            "ON DUPLICATE KEY UPDATE Password = "+user.getHashedPassword()+";"
-            );
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO users VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
+            ps.setString(1,user.getUsername());
+            ps.setString(2,user.getHashedPassword());
+            ps.setString(3,user.getHashedPassword());
+            ps.executeUpdate();
             return user;
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -164,9 +179,9 @@ public class UserDAO implements Map<String, User> {
                 return null;
             }
             Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            stm.executeUpdate(
-                    "DELETE FROM users WHERE Username = "+key.toString()+";");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE Username = ?;");
+            ps.setString(1,key.toString());
+            ps.executeUpdate();
             return user;
         } catch (SQLException e) {
             return null;
@@ -183,6 +198,7 @@ public class UserDAO implements Map<String, User> {
                 stm.setString(1, (String) e.getKey());
                 stm.setString(2, ((User) e.getValue()).getHashedPassword());
                 stm.setString(3, ((User) e.getValue()).getHashedPassword());
+                stm.executeUpdate();
             }
             conn.commit();
             conn.setAutoCommit(true);
@@ -198,7 +214,7 @@ public class UserDAO implements Map<String, User> {
             try {
                 Connection conn = DatabaseData.getConnection();
                 Statement stm = conn.createStatement();
-                stm.executeQuery("DELETE FROM users;");
+                stm.executeUpdate("DELETE FROM users;");
             } catch (SQLException e) {
                 throw new RuntimeException(e);//TODO MUDAR ISTO
             }

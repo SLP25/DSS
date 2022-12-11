@@ -1,18 +1,36 @@
 package org.example.buisness;
 
 import java.util.Comparator;
+import java.util.Objects;
+
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class User implements Comparable<User> {
     public static Comparator<User> NumComparator = Comparator.comparing(User::getUsername);
     private String username;
     private String password;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return getUsername().equals(user.getUsername());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUsername());
+    }
+
     public static String encryptPassword(String password){
         return BCrypt.hashpw(password, BCrypt.gensalt(12));
     }
     public static boolean checkPassword(String password,String hash){
         return BCrypt.checkpw(password, hash);
     }
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;
