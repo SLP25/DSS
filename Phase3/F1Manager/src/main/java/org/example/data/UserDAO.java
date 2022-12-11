@@ -159,9 +159,12 @@ public class UserDAO implements Map<String, User> {
             ps.executeUpdate();
             return user;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             return null;
         }
+    }
+
+    public User put(User u){
+        return put(u.getUsername(),u);
     }
 
     /**

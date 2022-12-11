@@ -2,44 +2,90 @@ package org.example.tests;
 
 import org.example.buisness.User;
 import org.example.data.UserDAO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserTest {
-    public UserTest(){
+    private final UserDAO udb = UserDAO.getInstance();
+
+
+    private void createUsers(int n){
+        for (int i=1;i<=n;i++){
+            User u = new User("user:"+i);
+            u.setPassword("123456");
+            udb.put(u);
+        }
+    }
+    @BeforeEach
+    public void init() {
+        udb.clear();
+    }
+    @Test
+    public void createUserTest() {
+        String username = "user1";
+        String password = "123456";
+        User u1 = new User(username);
+        u1.setPassword(password);
+        udb.put(u1);
+        Assertions.assertEquals(u1,udb.get(u1.getUsername()));
+        Assertions.assertEquals(u1.getHashedPassword(),udb.get(u1.getUsername()).getHashedPassword());
+        Assertions.assertNull(udb.get("user2"));
+    }
+    @Test
+    public void isEmptyTest(){
+        Assertions.assertTrue(udb.isEmpty());
+        createUsers(10);
+        Assertions.assertFalse(udb.isEmpty());
+    }
+    @Test
+    public void sizeTest(){
+        Assertions.assertEquals(udb.size(),0);
+        createUsers(10);
+        Assertions.assertEquals(udb.size(),10);
+        createUsers(20);
+        Assertions.assertEquals(udb.size(),20);
+    }
+    @Test
+    public void containsKeyTest(){
+        createUsers(5);
+        Assertions.assertFalse(udb.containsKey("user:6"));
+        Assertions.assertTrue(udb.containsKey("user:5"));
+    }
+    @Test
+    public void containsValueTest(){
+        User n = new User("test");
+        createUsers(5);
+        User v = udb.get("user:1");
+
+        Assertions.assertFalse(udb.containsValue(n));
+        Assertions.assertTrue(udb.containsValue(v));
+    }
+    @Test
+    public void removeTest(){
+        createUsers(10);
+        User v = udb.get("user:1");
+        Assertions.assertEquals(udb.remove(v.getUsername()),v);
+        Assertions.assertFalse(udb.containsValue(v));
+        Assertions.assertEquals(udb.size(),9);
+    }
+    @Test
+    public void putAllTest(){
         User u1 = new User("user1");
-        u1.setPassword("123456");
         User u2 = new User("user2");
-        u2.setPassword("123456");
         User u3 = new User("user3");
-        u3.setPassword("123456");
-        User u4 = new User("user4");
-        u4.setPassword("123456");
-
         Map<String,User> umap = new HashMap<>();
-
         umap.put(u1.getUsername(),u1);
         umap.put(u2.getUsername(),u2);
         umap.put(u3.getUsername(),u3);
 
-
-        UserDAO ud = UserDAO.getInstance();
-        ud.clear();
-        System.out.println(ud.isEmpty());
-        ud.put(u1.getUsername(),u1);
-        System.out.println(ud.get(u1.getUsername()));
-        System.out.println(ud.size());
-        System.out.println(ud.isEmpty());
-        System.out.println(ud.containsKey(u1.getUsername()));
-        System.out.println(ud.remove(u1.getUsername()));
-        System.out.println(ud.isEmpty());
-        ud.putAll(umap);
-        System.out.println(ud.size());
-        System.out.println(ud.keySet());
-        System.out.println(ud.values());
-        System.out.println(ud.entrySet());
-        System.out.println(ud.containsValue(u4));
-        System.out.println(ud.containsValue(u3));
+        udb.putAll(umap);
+        Assertions.assertTrue(udb.containsValue(u1));
+        Assertions.assertTrue(udb.containsValue(u2));
+        Assertions.assertTrue(udb.containsValue(u3));
+        Assertions.assertEquals(udb.size(),3);
     }
 }
