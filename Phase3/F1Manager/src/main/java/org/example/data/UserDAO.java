@@ -3,9 +3,7 @@ package org.example.data;
 import org.example.buisness.User;
 
 import java.sql.*;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class UserDAO implements Map<String, User> {
     private static UserDAO singleton = null;
@@ -197,21 +195,61 @@ public class UserDAO implements Map<String, User> {
 
         @Override
     public void clear() {
-
-    }
-
-    @Override
+            try {
+                Connection conn = DatabaseData.getConnection();
+                Statement stm = conn.createStatement();
+                stm.executeQuery("DELETE FROM users;");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);//TODO MUDAR ISTO
+            }
+        }
+            @Override
     public Set<String> keySet() {
-        return null;
+        Set<String> r=new HashSet<String>();
+        try {
+            Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT Username FROM users;");
+            while(rs.next()){
+                r.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return r;
     }
 
     @Override
     public Collection<User> values() {
-        return null;
+        Collection<User> r = new HashSet<User>();
+        try {
+            Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT * FROM users;");
+            while(rs.next()){
+                r.add(new User(rs.getString(1),rs.getString(2)));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return r;
     }
 
     @Override
     public Set<Entry<String, User>> entrySet() {
-        return null;
+        Map<String,User> r = new HashMap<>();
+        try {
+            Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT * FROM users;");
+            while(rs.next()){
+                User u = new User(rs.getString(1),rs.getString(2));
+                r.put(u.getUsername(),u);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return r.entrySet();
     }
 }

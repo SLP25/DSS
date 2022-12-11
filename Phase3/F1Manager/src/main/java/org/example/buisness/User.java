@@ -15,7 +15,11 @@ public class User implements Comparable<User> {
     }
     public User(String username, String password) {
         this.username = username;
-        this.password = User.encryptPassword(password);
+        this.password = password;
+    }
+    public User(String username) {
+        this.username = username;
+        this.password = "";
     }
 
     public String getUsername() {
