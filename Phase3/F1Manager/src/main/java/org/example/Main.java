@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.data.DatabaseData;
+
 import java.sql.SQLException;
 
 public class Main {

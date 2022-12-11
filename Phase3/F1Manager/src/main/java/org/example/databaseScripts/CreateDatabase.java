@@ -1,6 +1,6 @@
 package org.example.databaseScripts;
 
-import org.example.DatabaseData;
+import org.example.data.DatabaseData;
 
 import java.sql.Connection;
 import java.sql.Statement;
