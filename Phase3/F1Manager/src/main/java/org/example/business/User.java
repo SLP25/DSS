@@ -1,4 +1,4 @@
-package org.example.buisness;
+package org.example.business;
 
 import java.util.Comparator;
 import java.util.Objects;

@@ -1,6 +1,6 @@
 package org.example.tests;
 
-import org.example.buisness.User;
+import org.example.business.User;
 import org.example.data.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class UserTest {
     private final UserDAO udb = UserDAO.getInstance();
-
 
     private void createUsers(int n){
         for (int i=1;i<=n;i++){

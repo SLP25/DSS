@@ -1,13 +1,12 @@
 package org.example.data;
 
-import org.example.buisness.User;
+import org.example.business.User;
 
 import java.sql.*;
 import java.util.*;
 
 public class UserDAO implements Map<String, User> {
     private static UserDAO singleton = null;
-
 
     private UserDAO() {
         try (Connection conn = DatabaseData.getConnection();

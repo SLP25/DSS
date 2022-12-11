@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/DSS.iml" filepath="$PROJECT_DIR$/.idea/DSS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Phase3/F1Manager/F1Manager.iml" filepath="$PROJECT_DIR$/Phase3/F1Manager/F1Manager.iml" />
+    </modules>
+  </component>
+</project>
