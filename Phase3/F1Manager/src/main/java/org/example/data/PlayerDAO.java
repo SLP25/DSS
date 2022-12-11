@@ -1,19 +1,20 @@
 package org.example.data;
 
-import org.example.business.User;
+import org.example.business.Player;
 
 import java.sql.*;
 import java.util.*;
 
-public class UserDAO implements Map<String, User> {
-    private static UserDAO singleton = null;
+public class PlayerDAO implements Map<String,Player> {
+    private static PlayerDAO singleton = null;
 
-    private UserDAO() {
+    private PlayerDAO() {
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS users (" +
-                    "Username varchar(255) NOT NULL PRIMARY KEY," +
-                    "Password char(60) NOT NULL);";
+                    "Username VARCHAR(255) NOT NULL PRIMARY KEY," +
+                    "Password CHAR(60) NOT NULL," +
+                    "Premium BOOLEAN);";
             stm.executeUpdate(sql);
         } catch (SQLException e) {
             // Erro a criar tabela...
@@ -27,11 +28,11 @@ public class UserDAO implements Map<String, User> {
      *
      * @return returns the only instance of the class
      */
-    public static UserDAO getInstance() {
-        if (UserDAO.singleton == null) {
-            UserDAO.singleton = new UserDAO();
+    public static PlayerDAO getInstance() {
+        if (PlayerDAO.singleton == null) {
+            PlayerDAO.singleton = new PlayerDAO();
         }
-        return UserDAO.singleton;
+        return PlayerDAO.singleton;
     }
 
     /**
@@ -42,7 +43,7 @@ public class UserDAO implements Map<String, User> {
         int i = 0;
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM users")) {
+             ResultSet rs = stm.executeQuery("SELECT count(*) FROM users WHERE Premium IS NULL")) {
             if (rs.next()) {
                 i = rs.getInt(1);
             }
@@ -76,7 +77,7 @@ public class UserDAO implements Map<String, User> {
         boolean r=false;
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Username FROM users WHERE Username= ?;");
+            PreparedStatement ps = conn.prepareStatement("SELECT Username FROM users WHERE Username= ? AND Premium IS NULL;");
             ps.setString(1,key.toString());
             ResultSet rs = ps.executeQuery();
             if (rs.next())
@@ -98,15 +99,15 @@ public class UserDAO implements Map<String, User> {
      */
     @Override
     public boolean containsValue(Object value) {
-        User u = (User) value;
+        Player p = (Player) value;
         boolean r=false;
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE Username= ?;");
-            ps.setString(1,u.getUsername());
+            PreparedStatement ps = conn.prepareStatement("SELECT Username,Password FROM users WHERE Username= ? AND Premium IS NULL;");
+            ps.setString(1,p.getUsername());
             ResultSet rs = ps.executeQuery();
             if (rs.next())
-                r = u.equals(new User(rs.getString(1),rs.getString(2)));
+                r = p.equals(new Player(rs.getString(1),rs.getString(2)));
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -123,14 +124,14 @@ public class UserDAO implements Map<String, User> {
      * @throws NullPointerException //TODO MUDAR ISTO
      */
     @Override
-    public User get(Object key) {
+    public Player get(Object key) {
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE username= ?;");
+            PreparedStatement ps = conn.prepareStatement("SELECT Username,Password FROM users WHERE Username= ? AND Premium IS NULL;");
             ps.setString(1,key.toString());
             ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    return new User(rs.getString(1), rs.getString(2));
+                    return new Player(rs.getString(1), rs.getString(2));
                 }
         } catch (SQLException e) {
             // Database error!
@@ -141,17 +142,17 @@ public class UserDAO implements Map<String, User> {
     }
 
     /**
-     * adds a User to the database or updates its password if it already exists
+     * adds a Player to the database or updates its password if it already exists
      *
      * @param key key with which the specified value is to be associated
      * @param user value to be associated with the specified key
-     * @return the User if added successfully (null otherwise)
+     * @return the Player if added successfully (null otherwise)
      */
     @Override
-    public User put(String key, User user) {
+    public Player put(String key, Player user) {
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO users VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
             ps.setString(1,user.getUsername());
             ps.setString(2,user.getHashedPassword());
             ps.setString(3,user.getHashedPassword());
@@ -162,7 +163,7 @@ public class UserDAO implements Map<String, User> {
         }
     }
 
-    public User put(User u){
+    public Player put(Player u){
         return put(u.getUsername(),u);
     }
 
@@ -174,14 +175,14 @@ public class UserDAO implements Map<String, User> {
      * @return the user removed if it was possible to remove it (null otherwise)
      */
     @Override
-    public User remove(Object key) {
+    public Player remove(Object key) {
         try {
-            User user = this.get(key);
+            Player user = this.get(key);
             if (user==null){
                 return null;
             }
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE Username = ?;");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE Username = ? AND Premium IS NULL;");
             ps.setString(1,key.toString());
             ps.executeUpdate();
             return user;
@@ -191,15 +192,15 @@ public class UserDAO implements Map<String, User> {
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends User> m) {
+    public void putAll(Map<? extends String, ? extends Player> m) {
         try {
             Connection conn = DatabaseData.getConnection();
             conn.setAutoCommit(false);
-            PreparedStatement stm = conn.prepareStatement("INSERT INTO users VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
+            PreparedStatement stm = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
             for (Entry e : m.entrySet()) {
                 stm.setString(1, (String) e.getKey());
-                stm.setString(2, ((User) e.getValue()).getHashedPassword());
-                stm.setString(3, ((User) e.getValue()).getHashedPassword());
+                stm.setString(2, ((Player) e.getValue()).getHashedPassword());
+                stm.setString(3, ((Player) e.getValue()).getHashedPassword());
                 stm.executeUpdate();
             }
             conn.commit();
@@ -216,7 +217,7 @@ public class UserDAO implements Map<String, User> {
             try {
                 Connection conn = DatabaseData.getConnection();
                 Statement stm = conn.createStatement();
-                stm.executeUpdate("DELETE FROM users;");
+                stm.executeUpdate("DELETE FROM users WHERE Premium IS NULL;");
             } catch (SQLException e) {
                 throw new RuntimeException(e);//TODO MUDAR ISTO
             }
@@ -227,7 +228,7 @@ public class UserDAO implements Map<String, User> {
         try {
             Connection conn = DatabaseData.getConnection();
             Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Username FROM users;");
+            ResultSet rs = stm.executeQuery("SELECT Username FROM users WHERE Premium IS NULL;");
             while(rs.next()){
                 r.add(rs.getString(1));
             }
@@ -239,14 +240,14 @@ public class UserDAO implements Map<String, User> {
     }
 
     @Override
-    public Collection<User> values() {
-        Collection<User> r = new HashSet<User>();
+    public Collection<Player> values() {
+        Collection<Player> r = new HashSet<Player>();
         try {
             Connection conn = DatabaseData.getConnection();
             Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT * FROM users;");
+            ResultSet rs = stm.executeQuery("SELECT Username,Password FROM users WHERE Premium IS NULL;");
             while(rs.next()){
-                r.add(new User(rs.getString(1),rs.getString(2)));
+                r.add(new Player(rs.getString(1),rs.getString(2)));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -255,14 +256,14 @@ public class UserDAO implements Map<String, User> {
     }
 
     @Override
-    public Set<Entry<String, User>> entrySet() {
-        Map<String,User> r = new HashMap<>();
+    public Set<Entry<String, Player>> entrySet() {
+        Map<String,Player> r = new HashMap<>();
         try {
             Connection conn = DatabaseData.getConnection();
             Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT * FROM users;");
+            ResultSet rs = stm.executeQuery("SELECT Username,Password FROM users WHERE Premium IS NULL;");
             while(rs.next()){
-                User u = new User(rs.getString(1),rs.getString(2));
+                Player u = new Player(rs.getString(1),rs.getString(2));
                 r.put(u.getUsername(),u);
             }
         } catch (SQLException e) {
