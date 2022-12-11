@@ -2,14 +2,17 @@ version: "3"
 
 services:
   db:
-    image: postgres:14-alpine
+    image: mysql:8
     container_name: f1manager_db
     env_file: .env.dev
     environment:
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_HOST: ${DB_HOST:-localhost}
+      MYSQL_DATABASE: ${DB_NAME:-F1Manager_dev}
+      MYSQL_USER: ${DB_USER:-user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-mysql}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-mysql}
     volumes:
-      - /var/lib/postgresql/data
+      - my-db:/var/lib/mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"         
+volumes:
+  my-db:
