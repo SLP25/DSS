@@ -1,8 +1,19 @@
-package org.example.business;
+package org.example.business.cars;
+
+import org.example.exceptions.cars.EngineCannotBeEletricAndCombustionSimultaneousException;
+import org.example.exceptions.cars.EngineCannotHaveCapacityAndNotBeCombustionException;
+import org.example.exceptions.cars.EngineCannotHavePowerAndNotBeElectricException;
 
 public class Engine extends CarPart{
 
-    public static enum engineMode{
+
+
+    @Override
+    public Engine clone() {
+        return new Engine(this);
+    }
+
+    public static enum EngineMode{
         LOW,
         MEDIUM,
         HIGH
@@ -11,7 +22,7 @@ public class Engine extends CarPart{
     private int capacity;
     private int power;
 
-    private engineMode mode;
+    private EngineMode mode;
 
     public int getCapacity() {return capacity;}
 
@@ -21,11 +32,28 @@ public class Engine extends CarPart{
 
     public void setPower(int power) {this.power = power;}
 
-    public engineMode getMode() {return mode;}
+    public EngineMode getMode() {return mode;}
 
-    public void setMode(engineMode mode) {this.mode = mode;}
+    public void setMode(EngineMode mode) {this.mode = mode;}
 
-    public Engine(int cap,int pow,engineMode mod){
+    public Engine(Engine e){
+        super(e.getType());
+        capacity=e.getCapacity();
+        power=e.getPower();
+        mode=e.getMode();
+    }
+
+    public Engine(int cap,int pow,EngineMode mod,CarPart.CarPartType type) throws EngineCannotBeEletricAndCombustionSimultaneousException, EngineCannotHaveCapacityAndNotBeCombustionException, EngineCannotHavePowerAndNotBeElectricException {
+        super(type);
+        if (cap!=0 && pow!=0){
+            throw new EngineCannotBeEletricAndCombustionSimultaneousException();
+        }
+        if (cap!=0 && type!=CarPartType.COMBUSTION_ENGINE){
+            throw new EngineCannotHaveCapacityAndNotBeCombustionException();
+        }
+        if (pow!=0 && type!=CarPartType.ELECTRIC_ENGINE){
+            throw new EngineCannotHavePowerAndNotBeElectricException();
+        }
         capacity=cap;
         power=pow;
         mode=mod;

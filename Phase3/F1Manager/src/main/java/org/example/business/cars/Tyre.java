@@ -1,21 +1,28 @@
-package org.example.business;
+package org.example.business.cars;
 
 
 public class Tyre extends CarPart{
 
-    public static enum tyreType {
+    public static enum TyreType {
         SOFT,
         MEDIUM,
         HARD,
         INTERMEDIATE,
         WET
     }
-    private tyreType type;
+    private TyreType type;
 
-    public tyreType getType() {return type;}
+    public TyreType getTyreType() {return type;}
 
-    public void setType(tyreType type) {this.type = type;}
+    @Override
+    public CarPart clone() {
+        return new Tyre(this.getTyreType());
+    }
 
-    public Tyre (tyreType t){type=t;}
+    public void setType(TyreType type) {this.type = type;}
+
+    public Tyre (TyreType t){
+        super(CarPartType.TYRE);
+        type=t;}
 
 }

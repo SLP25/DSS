@@ -27,6 +27,13 @@
             <artifactId>spring-security-crypto</artifactId>
             <version>5.7.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.udojava</groupId>
+            <artifactId>EvalEx</artifactId>
+            <version>2.7</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>

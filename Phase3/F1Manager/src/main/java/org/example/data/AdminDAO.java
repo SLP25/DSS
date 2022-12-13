@@ -1,6 +1,6 @@
 package org.example.data;
 
-import org.example.business.Admin;
+import org.example.business.users.Admin;
 
 import java.sql.*;
 import java.util.*;
@@ -151,7 +151,7 @@ public class AdminDAO implements Map<String,Admin> {
      * adds a Admin to the database or updates its password if it already exists
      *
      * @param key key with which the specified value is to be associated
-     * @param user value to be associated with the specified key
+     * @param admin value to be associated with the specified key
      * @return the Admin if added successfully (null otherwise)
      */
     @Override
@@ -161,9 +161,9 @@ public class AdminDAO implements Map<String,Admin> {
             PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password,Premium) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Password = ?,Premium = ?;");
             ps.setString(1,admin.getUsername());
             ps.setString(2,admin.getHashedPassword());
-            ps.setBoolean(3,admin.isPremium());
+            ps.setBoolean(3,admin.getPremium());
             ps.setString(4,admin.getHashedPassword());
-            ps.setBoolean(5,admin.isPremium());
+            ps.setBoolean(5,admin.getPremium());
             ps.executeUpdate();
             return admin;
         } catch (SQLException e) {
@@ -208,9 +208,9 @@ public class AdminDAO implements Map<String,Admin> {
             for (Entry e : m.entrySet()) {
                 stm.setString(1, (String) e.getKey());
                 stm.setString(2, ((Admin) e.getValue()).getHashedPassword());
-                stm.setBoolean(3, ((Admin) e.getValue()).isPremium());
+                stm.setBoolean(3, ((Admin) e.getValue()).getPremium());
                 stm.setString(4, ((Admin) e.getValue()).getHashedPassword());
-                stm.setBoolean(5, ((Admin) e.getValue()).isPremium());
+                stm.setBoolean(5, ((Admin) e.getValue()).getPremium());
                 stm.executeUpdate();
             }
             conn.commit();

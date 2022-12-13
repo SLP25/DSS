@@ -1,6 +1,6 @@
 package org.example.data;
 
-import org.example.business.Player;
+import org.example.business.users.Player;
 
 import java.sql.*;
 import java.util.*;

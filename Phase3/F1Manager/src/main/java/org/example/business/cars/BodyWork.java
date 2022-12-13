@@ -1,6 +1,11 @@
-package org.example.business;
+package org.example.business.cars;
 
 public class BodyWork extends CarPart{
+    @Override
+    public CarPart clone() {
+        return new BodyWork(this.getDfPackage());
+    }
+
     public static enum DownforcePackage{
         LOW,
         MEDIUM,
@@ -8,7 +13,10 @@ public class BodyWork extends CarPart{
     }
     private DownforcePackage dfPackage;
 
-    public BodyWork(DownforcePackage df){dfPackage=df;}
+    public BodyWork(DownforcePackage df){
+        super(CarPartType.BODYWORK);
+        dfPackage=df;
+    }
 
     public DownforcePackage getDfPackage() {return dfPackage;}
 

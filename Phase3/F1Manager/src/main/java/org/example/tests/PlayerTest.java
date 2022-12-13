@@ -1,7 +1,10 @@
 package org.example.tests;
 
-import org.example.business.User;
+import org.example.business.users.Player;
 import org.example.data.PlayerDAO;
+import org.example.exceptions.authentication.UsernameAlreadyExistsException;
+import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.authentication.WrongPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -9,12 +12,12 @@ import org.junit.jupiter.api.Assertions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserTest {
+public class PlayerTest {
     private final PlayerDAO udb = PlayerDAO.getInstance();
 
     private void createUsers(int n){
         for (int i=1;i<=n;i++){
-            User u = new User("user:"+i);
+            Player u = new Player("user:"+i);
             u.setPassword("123456");
             udb.put(u);
         }
@@ -27,7 +30,7 @@ public class UserTest {
     public void createUserTest() {
         String username = "user1";
         String password = "123456";
-        User u1 = new User(username);
+        Player u1 = new Player(username);
         u1.setPassword(password);
         udb.put(u1);
         Assertions.assertEquals(u1,udb.get(u1.getUsername()));
@@ -56,9 +59,9 @@ public class UserTest {
     }
     @Test
     public void containsValueTest(){
-        User n = new User("test");
+        Player n = new Player("test");
         createUsers(5);
-        User v = udb.get("user:1");
+        Player v = udb.get("user:1");
 
         Assertions.assertFalse(udb.containsValue(n));
         Assertions.assertTrue(udb.containsValue(v));
@@ -66,17 +69,17 @@ public class UserTest {
     @Test
     public void removeTest(){
         createUsers(10);
-        User v = udb.get("user:1");
+        Player v = udb.get("user:1");
         Assertions.assertEquals(udb.remove(v.getUsername()),v);
         Assertions.assertFalse(udb.containsValue(v));
         Assertions.assertEquals(udb.size(),9);
     }
     @Test
     public void putAllTest(){
-        User u1 = new User("user1");
-        User u2 = new User("user2");
-        User u3 = new User("user3");
-        Map<String,User> umap = new HashMap<>();
+        Player u1 = new Player("user1");
+        Player u2 = new Player("user2");
+        Player u3 = new Player("user3");
+        Map<String,Player> umap = new HashMap<>();
         umap.put(u1.getUsername(),u1);
         umap.put(u2.getUsername(),u2);
         umap.put(u3.getUsername(),u3);
@@ -87,4 +90,25 @@ public class UserTest {
         Assertions.assertTrue(udb.containsValue(u3));
         Assertions.assertEquals(udb.size(),3);
     }
+
+    @Test
+    public void register() throws UsernameAlreadyExistsException {
+        Player u1 = new Player("user1");
+        u1.setPassword("test");
+        Player r=Player.register("user1","test");
+        Assertions.assertEquals(u1,r);
+        Assertions.assertThrows(UsernameAlreadyExistsException.class,
+                ()->{Player.register("user1","test");});
+    }
+    @Test
+    public void login() throws UsernameAlreadyExistsException, UsernameDoesNotExistException, WrongPasswordException {
+        Player r=Player.register("user1","test");
+        Player l=Player.login("user1","test");
+        Assertions.assertEquals(r,l);
+        Assertions.assertThrows(UsernameDoesNotExistException.class,
+                ()->{Player.login("user2","test");});
+        Assertions.assertThrows(WrongPasswordException.class,
+                ()->{Player.login("user1","wrongPassword");});
+    }
+
 }

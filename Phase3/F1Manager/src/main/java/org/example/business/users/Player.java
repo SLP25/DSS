@@ -1,6 +1,5 @@
-package org.example.business;
+package org.example.business.users;
 
-import org.example.data.AdminDAO;
 import org.example.data.PlayerDAO;
 import org.example.exceptions.authentication.UsernameAlreadyExistsException;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
