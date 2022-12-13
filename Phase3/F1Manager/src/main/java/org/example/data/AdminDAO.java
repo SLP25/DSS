@@ -159,12 +159,10 @@ public class AdminDAO implements Map<String,Admin> {
     public Admin put(String key, Admin admin) {
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password,Premium) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Password = ?,Premium = ?;");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password,Premium) VALUES (?,?,?);");
             ps.setString(1,admin.getUsername());
             ps.setString(2,admin.getHashedPassword());
             ps.setBoolean(3,admin.getPremium());
-            ps.setString(4,admin.getHashedPassword());
-            ps.setBoolean(5,admin.getPremium());
             ps.executeUpdate();
             return admin;
         } catch (SQLException e) {
@@ -205,13 +203,11 @@ public class AdminDAO implements Map<String,Admin> {
         try {
             Connection conn = DatabaseData.getConnection();
             conn.setAutoCommit(false);
-            PreparedStatement stm = conn.prepareStatement("INSERT INTO users (Username,Password,Premium) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Password = ?,Premium = ?;");
+            PreparedStatement stm = conn.prepareStatement("INSERT INTO users (Username,Password,Premium) VALUES (?,?,?);");
             for (Entry e : m.entrySet()) {
                 stm.setString(1, (String) e.getKey());
                 stm.setString(2, ((Admin) e.getValue()).getHashedPassword());
                 stm.setBoolean(3, ((Admin) e.getValue()).getPremium());
-                stm.setString(4, ((Admin) e.getValue()).getHashedPassword());
-                stm.setBoolean(5, ((Admin) e.getValue()).getPremium());
                 stm.executeUpdate();
             }
             conn.commit();

@@ -17,9 +17,9 @@ import java.util.Map;
 public class AdminTest {
     private final AdminDAO adb = AdminDAO.getInstance();
 
-    private void createUsers(int n){
+    private void createAdmin(int n){
         for (int i=1;i<=n;i++){
-            Admin u = new Admin("user:"+i,false);
+            Admin u = new Admin("admin:"+i,false);
             u.setPassword("123456");
             adb.put(u);
         }
@@ -30,57 +30,57 @@ public class AdminTest {
     }
     @Test
     public void createAdminTest() {
-        String username = "user1";
+        String username = "admin1";
         String password = "123456";
         Admin u1 = new Admin(username,false);
         u1.setPassword(password);
         adb.put(u1);
         Assertions.assertEquals(u1,adb.get(u1.getUsername()));
         Assertions.assertEquals(u1.getHashedPassword(),adb.get(u1.getUsername()).getHashedPassword());
-        Assertions.assertNull(adb.get("user2"));
+        Assertions.assertNull(adb.get("admin2"));
     }
     @Test
     public void isEmptyTest(){
         Assertions.assertTrue(adb.isEmpty());
-        createUsers(10);
+        createAdmin(10);
         Assertions.assertFalse(adb.isEmpty());
     }
     @Test
     public void sizeTest(){
         Assertions.assertEquals(adb.size(),0);
-        createUsers(10);
+        createAdmin(10);
         Assertions.assertEquals(adb.size(),10);
-        createUsers(20);
+        createAdmin(20);
         Assertions.assertEquals(adb.size(),20);
     }
     @Test
     public void containsKeyTest(){
-        createUsers(5);
-        Assertions.assertFalse(adb.containsKey("user:6"));
-        Assertions.assertTrue(adb.containsKey("user:5"));
+        createAdmin(5);
+        Assertions.assertFalse(adb.containsKey("admin:6"));
+        Assertions.assertTrue(adb.containsKey("admin:5"));
     }
     @Test
     public void containsValueTest(){
         Admin n = new Admin("test",false);
-        createUsers(5);
-        Admin v = adb.get("user:1");
+        createAdmin(5);
+        Admin v = adb.get("admin:1");
 
         Assertions.assertFalse(adb.containsValue(n));
         Assertions.assertTrue(adb.containsValue(v));
     }
     @Test
     public void removeTest(){
-        createUsers(10);
-        Admin v = adb.get("user:1");
+        createAdmin(10);
+        Admin v = adb.get("admin:1");
         Assertions.assertEquals(adb.remove(v.getUsername()),v);
         Assertions.assertFalse(adb.containsValue(v));
         Assertions.assertEquals(adb.size(),9);
     }
     @Test
     public void putAllTest(){
-        Admin u1 = new Admin("user1",false);
-        Admin u2 = new Admin("user2",false);
-        Admin u3 = new Admin("user3",false);
+        Admin u1 = new Admin("admin1",false);
+        Admin u2 = new Admin("admin2",false);
+        Admin u3 = new Admin("admin3",false);
         Map<String,Admin> umap = new HashMap<>();
         umap.put(u1.getUsername(),u1);
         umap.put(u2.getUsername(),u2);
@@ -95,21 +95,21 @@ public class AdminTest {
 
     @Test
     public void register() throws UsernameAlreadyExistsException {
-        Admin u1 = new Admin("user1",false);
+        Admin u1 = new Admin("admin1",false);
         u1.setPassword("test");
-        Admin r=Admin.register("user1","test",false);
+        Admin r=Admin.register("admin1","test",false);
         Assertions.assertEquals(u1,r);
         Assertions.assertThrows(UsernameAlreadyExistsException.class,
-                ()->{Admin.register("user1","test",false);});
+                ()->{Admin.register("admin1","test",false);});
     }
     @Test
     public void login() throws UsernameAlreadyExistsException, UsernameDoesNotExistException, WrongPasswordException {
-        Admin r=Admin.register("user1","test",false);
-        Admin l=Admin.login("user1","test");
+        Admin r=Admin.register("admin1","test",false);
+        Admin l=Admin.login("admin1","test");
         Assertions.assertEquals(r,l);
         Assertions.assertThrows(UsernameDoesNotExistException.class,
-                ()->{Admin.login("user2","test");});
+                ()->{Admin.login("admin2","test");});
         Assertions.assertThrows(WrongPasswordException.class,
-                ()->{Admin.login("user1","wrongPassword");});
+                ()->{Admin.login("admin1","wrongPassword");});
     }
 }

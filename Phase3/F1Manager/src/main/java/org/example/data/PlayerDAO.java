@@ -152,10 +152,9 @@ public class PlayerDAO implements Map<String,Player> {
     public Player put(String key, Player user) {
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?);");
             ps.setString(1,user.getUsername());
             ps.setString(2,user.getHashedPassword());
-            ps.setString(3,user.getHashedPassword());
             ps.executeUpdate();
             return user;
         } catch (SQLException e) {
@@ -196,11 +195,10 @@ public class PlayerDAO implements Map<String,Player> {
         try {
             Connection conn = DatabaseData.getConnection();
             conn.setAutoCommit(false);
-            PreparedStatement stm = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?) ON DUPLICATE KEY UPDATE Password = ?;");
+            PreparedStatement stm = conn.prepareStatement("INSERT INTO users (Username,Password) VALUES (?,?);");
             for (Entry e : m.entrySet()) {
                 stm.setString(1, (String) e.getKey());
                 stm.setString(2, ((Player) e.getValue()).getHashedPassword());
-                stm.setString(3, ((Player) e.getValue()).getHashedPassword());
                 stm.executeUpdate();
             }
             conn.commit();

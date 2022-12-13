@@ -22,9 +22,11 @@ public class RaceCar {
         return Objects.hash(getCategory(), getParts());
     }
 
-    private final int id;
+    private Integer id;
     private Class<?> category;
     private Map<CarPart.CarPartType,CarPart> parts;
+
+    public void setId(Integer id){this.id=id;}
 
     public Class<?>  getCategory() {return category;}
 
@@ -59,17 +61,17 @@ public class RaceCar {
 
     public RaceCar(Class<?> category, Map<CarPart.CarPartType, CarPart> parts){
         this.category=category;
-        this.id = -1;
+        this.id = null;
         this.setParts(parts);
     }
     public RaceCar(Class<?> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
         this.category=category;
-        this.id = -1;
+        this.id = null;
         this.setParts(parts);
     }
     public RaceCar(int id,Class<?> category, Map<CarPart.CarPartType, CarPart> parts){
         this.category=category;
-        this.id = id;
+        this.id = null;
         this.setParts(parts);
     }
     public RaceCar(int id,Class<?> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
@@ -80,6 +82,17 @@ public class RaceCar {
     public RaceCar(int id,Class<?> category,Tyre t,BodyWork b,Engine e,Engine ee){
         this.category=category;
         this.id = id;
+        this.parts=new HashMap<>();
+        this.parts.put(CarPart.CarPartType.TYRE,t);
+        this.parts.put(CarPart.CarPartType.BODYWORK,b);
+        this.parts.put(CarPart.CarPartType.COMBUSTION_ENGINE,e);
+        if (ee!=null){
+            this.parts.put(CarPart.CarPartType.ELECTRIC_ENGINE,ee);
+        }
+    }
+    public RaceCar(Class<?> category,Tyre t,BodyWork b,Engine e,Engine ee){
+        this.category=category;
+        this.id = null;
         this.parts=new HashMap<>();
         this.parts.put(CarPart.CarPartType.TYRE,t);
         this.parts.put(CarPart.CarPartType.BODYWORK,b);
