@@ -103,7 +103,7 @@ public class AdminDAO implements Map<String,Admin> {
         boolean r=false;
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT (Username,Password,Premium) FROM users WHERE Username= ? AND Premium IS NOT NULL;");
+            PreparedStatement ps = conn.prepareStatement("SELECT Username,Password,Premium FROM users WHERE Username= ? AND Premium IS NOT NULL;");
             ps.setString(1,a.getUsername());
             ResultSet rs = ps.executeQuery();
             if (rs.next())
@@ -130,13 +130,14 @@ public class AdminDAO implements Map<String,Admin> {
     public Admin get(Object key) {
         try {
             Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT (Username,Password,Premium) FROM users WHERE Username= ? AND Premium IS NOT NULL;");
+            PreparedStatement ps = conn.prepareStatement("SELECT Username,Password,Premium FROM users WHERE Username= ? AND Premium IS NOT NULL;");
             ps.setString(1,key.toString());
             ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    return new Admin(rs.getString("Username"),
-                            rs.getString("Password"),
-                            rs.getBoolean("Premium")
+                    return new Admin(
+                            rs.getString(1),
+                            rs.getString(2),
+                            rs.getBoolean(3)
                     );
                 }
         } catch (SQLException e) {
@@ -255,7 +256,7 @@ public class AdminDAO implements Map<String,Admin> {
         try {
             Connection conn = DatabaseData.getConnection();
             Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT (Username,Password,Premium) FROM users WHERE Premium IS NOT NULL;");
+            ResultSet rs = stm.executeQuery("SELECT Username,Password,Premium FROM users WHERE Premium IS NOT NULL;");
             while(rs.next()){
                 r.add(new Admin(rs.getString("Username"),
                         rs.getString("Password"),
@@ -274,7 +275,7 @@ public class AdminDAO implements Map<String,Admin> {
         try {
             Connection conn = DatabaseData.getConnection();
             Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT (Username,Password,Premium) FROM users WHERE Premium IS NOT NULL;");
+            ResultSet rs = stm.executeQuery("SELECT Username,Password,Premium FROM users WHERE Premium IS NOT NULL;");
             while(rs.next()){
                 Admin u = new Admin(rs.getString("Username"),
                         rs.getString("Password"),
