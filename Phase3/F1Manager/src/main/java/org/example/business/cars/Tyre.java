@@ -1,6 +1,8 @@
 package org.example.business.cars;
 
 
+import java.util.Objects;
+
 public class Tyre extends CarPart{
 
     public static enum TyreType {
@@ -23,6 +25,26 @@ public class Tyre extends CarPart{
 
     public Tyre (TyreType t){
         super(CarPartType.TYRE);
-        type=t;}
+        type=t;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tyre tyre = (Tyre) o;
+        return getType() == tyre.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getType());
+    }
+
+    @Override
+    public String toString() {
+        return "Tyre{" +
+                "type=" + type +
+                '}';
+    }
 }

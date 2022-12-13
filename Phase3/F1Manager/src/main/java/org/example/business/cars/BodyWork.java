@@ -1,5 +1,7 @@
 package org.example.business.cars;
 
+import java.util.Objects;
+
 public class BodyWork extends CarPart{
     @Override
     public CarPart clone() {
@@ -21,4 +23,24 @@ public class BodyWork extends CarPart{
     public DownforcePackage getDfPackage() {return dfPackage;}
 
     public void setDfPackage(DownforcePackage dfPackage) {this.dfPackage = dfPackage;}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BodyWork bodyWork = (BodyWork) o;
+        return getDfPackage() == bodyWork.getDfPackage();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDfPackage());
+    }
+
+    @Override
+    public String toString() {
+        return "BodyWork{" +
+                "dfPackage=" + dfPackage +
+                '}';
+    }
 }

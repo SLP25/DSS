@@ -115,14 +115,14 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("Id");
-                Class<?> c = Class.forName(rs.getString("Class"));
+                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
                 Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                 Engine engineC = new Engine(rs.getInt("EngineCapacity"), 0, eM, CarPart.CarPartType.COMBUSTION_ENGINE);
-                Integer ePow = rs.getInt("EnginePower");
                 Engine engineE = null;
-                if (ePow != null) {
+                Integer ePow = rs.getInt("EnginePower");
+                if (!rs.wasNull()) {
                     engineE = new Engine(0, ePow, eM, CarPart.CarPartType.ELECTRIC_ENGINE);
                 }
                 r = p.equals(new RaceCar(id, c, tyre, bodyWork, engineC, engineE));
@@ -152,18 +152,19 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
         try {
             Connection conn = DatabaseData.getConnection();
             PreparedStatement ps = conn.prepareStatement("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars WHERE Id= ?;");
-            ps.setInt(1,(int) key);
+            ps.setInt(1,(Integer) key);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("Id");
-                Class<?> c = Class.forName(rs.getString("Class"));
+                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
                 Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                 Engine engineC = new Engine(rs.getInt("EngineCapacity"), 0, eM, CarPart.CarPartType.COMBUSTION_ENGINE);
-                Integer ePow = rs.getInt("EnginePower");
+
                 Engine engineE = null;
-                if (ePow != null) {
+                Integer ePow = rs.getInt("EnginePower");
+                if (!rs.wasNull()) {
                     engineE = new Engine(0, ePow, eM, CarPart.CarPartType.ELECTRIC_ENGINE);
                 }
                 r = new RaceCar(id, c, tyre, bodyWork, engineC, engineE);
@@ -194,7 +195,7 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
             Connection conn = DatabaseData.getConnection();
             String sql="";
             if (key==null){
-                sql="INSERT INTO cars Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?);";
+                sql="INSERT INTO cars (Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?);";
             }else{
                 sql="INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?);";
             }
@@ -203,24 +204,27 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
             Map<CarPart.CarPartType,CarPart> parts = car.getParts();
             int n=1;
             if (key!=null){
-                ps.setInt(n++,car.getId());
+                ps.setInt(n,car.getId());
+                n++;
             }
-            ps.setString(n++,car.getCategory().getName());
+            ps.setString(n,car.getCategory().getName());
+            n++;
 
-            ps.setString(n++,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
-
-            ps.setString(n++,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
-
-            ps.setString(n++,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
-
-            ps.setInt(n++,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
-
+            ps.setString(n,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
+            n++;
+            ps.setString(n,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
+            n++;
+            ps.setString(n,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
+            n++;
+            ps.setInt(n,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
+            n++;
             if (parts.containsKey(CarPart.CarPartType.ELECTRIC_ENGINE)){
-                ps.setInt(n++,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
+                ps.setInt(n,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
                 }
             else{
-                ps.setNull(n++, Types.INTEGER);
+                ps.setNull(n, Types.INTEGER);
                 }
+            ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()){
                 car.setId(rs.getInt(1));
@@ -242,42 +246,34 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
     public RaceCar update(Integer key, RaceCar car) {
         try {
             Connection conn = DatabaseData.getConnection();
-            String sql="INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?) ON KEY DUPLICATED UPDATE " +
+            String sql="UPDATE cars SET " +
                     "Class=?," +
                     "Tyre=?," +
                     "BodyWork=?," +
                     "EngineMode=?," +
                     "EngineCapacity=?," +
-                    "EnginePower=?;";
+                    "EnginePower=? " +
+                    "WHERE Id=?;";
 
             PreparedStatement ps = conn.prepareStatement(sql);
             Map<CarPart.CarPartType,CarPart> parts = car.getParts();
+            ps.setString(1,car.getCategory().getName());
 
-            ps.setInt(1,car.getId());
+            ps.setString(2,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
 
-            ps.setString(2,car.getCategory().getName());
-            ps.setString(8,car.getCategory().getName());
+            ps.setString(3,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
 
-            ps.setString(3,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
-            ps.setString(9,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
+            ps.setString(4,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
 
-            ps.setString(4,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
-            ps.setString(10,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
-
-            ps.setString(5,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
-            ps.setString(11,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
-
-            ps.setInt(6,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
-            ps.setInt(12,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
+            ps.setInt(5,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
 
             if (parts.containsKey(CarPart.CarPartType.ELECTRIC_ENGINE)){
-                ps.setInt(7,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
-                ps.setInt(13,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
+                ps.setInt(6,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
             }
             else{
-                ps.setNull(7, Types.INTEGER);
-                ps.setNull(13, Types.INTEGER);
+                ps.setNull(6, Types.INTEGER);
             }
+            ps.setInt(7,key);
             ps.executeUpdate();
             return car;
         } catch (SQLException e) {
@@ -316,39 +312,7 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
 
     @Override
     public void putAll(Map<? extends Integer, ? extends RaceCar> m) {
-        try {
-            Connection conn = DatabaseData.getConnection();
-            conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?);"
-            );
-            for (Entry e : m.entrySet()) {
-                Map<CarPart.CarPartType,CarPart> parts = ((RaceCar) e.getValue()).getParts();
-
-                ps.setInt(1,(int)e.getKey());
-
-                ps.setString(2,((RaceCar) e.getValue()).getCategory().getName());
-
-                ps.setString(3,((Tyre)parts.get(CarPart.CarPartType.TYRE)).getTyreType().name());
-
-                ps.setString(4,((BodyWork)parts.get(CarPart.CarPartType.BODYWORK)).getDfPackage().name());
-
-                ps.setString(5,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getMode().name());
-
-                ps.setInt(6,((Engine)parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).getCapacity());
-
-                if (parts.containsKey(CarPart.CarPartType.ELECTRIC_ENGINE)){
-                    ps.setInt(7,((Engine)parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).getPower());
-                    }
-                else{
-                    ps.setNull(7, Types.INTEGER);
-                    }
-                ps.executeUpdate();
-            }
-            conn.commit();
-            conn.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return;
     }
 
 
@@ -388,14 +352,14 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
             ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
             while(rs.next()){
                 int id = rs.getInt("Id");
-                Class<?> c = Class.forName(rs.getString("Class"));
+                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
                 Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                 Engine engineC = new Engine(rs.getInt("EngineCapacity"), 0, eM, CarPart.CarPartType.COMBUSTION_ENGINE);
-                Integer ePow = rs.getInt("EnginePower");
                 Engine engineE = null;
-                if (ePow != null) {
+                Integer ePow = rs.getInt("EnginePower");
+                if (!rs.wasNull()) {
                     engineE = new Engine(0, ePow, eM, CarPart.CarPartType.ELECTRIC_ENGINE);
                 }
                 r.add(new RaceCar(id, c, tyre, bodyWork, engineC, engineE));
@@ -417,14 +381,14 @@ public class RaceCarDAO implements Map<Integer, RaceCar> {
             ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
             while(rs.next()){
                 int id = rs.getInt("Id");
-                Class<?> c = Class.forName(rs.getString("Class"));
+                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
                 Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                 Engine engineC = new Engine(rs.getInt("EngineCapacity"), 0, eM, CarPart.CarPartType.COMBUSTION_ENGINE);
-                Integer ePow = rs.getInt("EnginePower");
                 Engine engineE = null;
-                if (ePow != null) {
+                Integer ePow = rs.getInt("EnginePower");
+                if (!rs.wasNull()) {
                     engineE = new Engine(0, ePow, eM, CarPart.CarPartType.ELECTRIC_ENGINE);
                 }
                 r.put(id,new RaceCar(id, c, tyre, bodyWork, engineC, engineE));

@@ -4,6 +4,8 @@ import org.example.exceptions.cars.EngineCannotBeEletricAndCombustionSimultaneou
 import org.example.exceptions.cars.EngineCannotHaveCapacityAndNotBeCombustionException;
 import org.example.exceptions.cars.EngineCannotHavePowerAndNotBeElectricException;
 
+import java.util.Objects;
+
 public class Engine extends CarPart{
 
 
@@ -57,5 +59,27 @@ public class Engine extends CarPart{
         capacity=cap;
         power=pow;
         mode=mod;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Engine engine = (Engine) o;
+        return getCapacity() == engine.getCapacity() && getPower() == engine.getPower() && getMode() == engine.getMode();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getCapacity(), getPower(), getMode());
+    }
+
+    @Override
+    public String toString() {
+        return "Engine{" +
+                "capacity=" + capacity +
+                ", power=" + power +
+                ", mode=" + mode +
+                '}';
     }
 }

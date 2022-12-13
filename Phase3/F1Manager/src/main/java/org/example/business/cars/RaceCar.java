@@ -1,5 +1,6 @@
 package org.example.business.cars;
 
+import org.example.data.RaceCarDAO;
 import org.example.exceptions.cars.CarCannotHaveRepeatedCarPartsTypes;
 
 import java.util.HashMap;
@@ -9,30 +10,17 @@ import java.util.Set;
 
 public class RaceCar {
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RaceCar raceCar = (RaceCar) o;
-        return this.getCategory()==raceCar.getCategory() && Objects.equals(getParts(), raceCar.getParts());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getCategory(), getParts());
-    }
-
     private Integer id;
-    private Class<?> category;
+    private Class<? extends CarClass> category;
     private Map<CarPart.CarPartType,CarPart> parts;
 
     public void setId(Integer id){this.id=id;}
 
     public Class<?>  getCategory() {return category;}
 
-    public void setCategory(Class<?> category) {this.category = category;}
+    public void setCategory(Class<? extends CarClass> category) {this.category = category;}
 
-    public int getId() {return id;}
+    public Integer getId() {return id;}
 
     public Map<CarPart.CarPartType, CarPart> getParts() {
         Map<CarPart.CarPartType,CarPart> partsC= new HashMap<CarPart.CarPartType,CarPart>();
@@ -59,27 +47,27 @@ public class RaceCar {
         this.parts=t;
     }
 
-    public RaceCar(Class<?> category, Map<CarPart.CarPartType, CarPart> parts){
+    public RaceCar(Class<? extends CarClass> category, Map<CarPart.CarPartType, CarPart> parts){
         this.category=category;
         this.id = null;
         this.setParts(parts);
     }
-    public RaceCar(Class<?> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
+    public RaceCar(Class<? extends CarClass> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
         this.category=category;
         this.id = null;
         this.setParts(parts);
     }
-    public RaceCar(int id,Class<?> category, Map<CarPart.CarPartType, CarPart> parts){
+    public RaceCar(int id,Class<? extends CarClass> category, Map<CarPart.CarPartType, CarPart> parts){
         this.category=category;
         this.id = null;
         this.setParts(parts);
     }
-    public RaceCar(int id,Class<?> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
+    public RaceCar(int id,Class<? extends CarClass> category, Set<CarPart> parts) throws CarCannotHaveRepeatedCarPartsTypes {
         this.category=category;
         this.id = id;
         this.setParts(parts);
     }
-    public RaceCar(int id,Class<?> category,Tyre t,BodyWork b,Engine e,Engine ee){
+    public RaceCar(int id,Class<? extends CarClass> category,Tyre t,BodyWork b,Engine e,Engine ee){
         this.category=category;
         this.id = id;
         this.parts=new HashMap<>();
@@ -90,7 +78,7 @@ public class RaceCar {
             this.parts.put(CarPart.CarPartType.ELECTRIC_ENGINE,ee);
         }
     }
-    public RaceCar(Class<?> category,Tyre t,BodyWork b,Engine e,Engine ee){
+    public RaceCar(Class<? extends CarClass> category,Tyre t,BodyWork b,Engine e,Engine ee){
         this.category=category;
         this.id = null;
         this.parts=new HashMap<>();
@@ -101,4 +89,42 @@ public class RaceCar {
             this.parts.put(CarPart.CarPartType.ELECTRIC_ENGINE,ee);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RaceCar raceCar = (RaceCar) o;
+        return getCategory()==raceCar.getCategory() && getParts().equals(raceCar.getParts());
+    }
+
+    @Override
+    public String toString() {
+        return "RaceCar{" +
+                "id=" + id +
+                ", category=" + category +
+                ", parts=" + parts +
+                '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getCategory(), getParts());
+    }
+
+    public void changeCarSetup(){
+
+    }
+
+    public void setStrategy(Tyre.TyreType tyre,Engine.EngineMode engineMode){
+        ((Tyre)this.parts.get(CarPart.CarPartType.TYRE)).setType(tyre);
+        ((Engine)this.parts.get(CarPart.CarPartType.COMBUSTION_ENGINE)).setMode(engineMode);
+        if (this.parts.containsKey(CarPart.CarPartType.ELECTRIC_ENGINE)){
+            ((Engine)this.parts.get(CarPart.CarPartType.ELECTRIC_ENGINE)).setMode(engineMode);
+        }
+        RaceCarDAO rdb = RaceCarDAO.getInstance();
+        rdb.update(this.getId(),this);
+    }
+
+
 }
