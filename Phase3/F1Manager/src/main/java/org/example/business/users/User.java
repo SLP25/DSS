@@ -3,6 +3,8 @@ package org.example.business;
 import java.util.Comparator;
 import java.util.Objects;
 
+import org.example.data.AdminDAO;
+import org.example.data.PlayerDAO;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class User implements Comparable<User> {
@@ -67,6 +69,12 @@ public class User implements Comparable<User> {
     @Override
     public int compareTo(User o) {
         return this.username.compareTo(o.getUsername());
+    }
+
+    public static boolean doesUserExists(String username){
+        PlayerDAO pdb = PlayerDAO.getInstance();
+        AdminDAO adb = AdminDAO.getInstance();
+        return pdb.containsKey(username) || adb.containsKey(username);
     }
 
 }
