@@ -1,0 +1,31 @@
+package org.example.business.cars;
+
+import java.util.Objects;
+
+public class HybridRaceCar extends CombustionRaceCar{
+    private EletricEngine eletricEngine;
+
+    public EletricEngine getEletricEngine() {return eletricEngine;}
+
+    public void setEletricEngine(EletricEngine eletricEngine) {this.eletricEngine = eletricEngine;}
+
+    public HybridRaceCar(Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage, EletricEngine eletricEngine) {
+        super(category, tyres, combustionEngine, dfPackage);
+        this.eletricEngine = eletricEngine;
+    }
+    public HybridRaceCar(Integer id, Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage,EletricEngine eletricEngine) {
+        super(id, category, tyres, combustionEngine, dfPackage);
+        this.eletricEngine = eletricEngine;
+    }
+
+    @Override
+    public void setEngineMode(Engine.EngineMode engineMode){
+        super.setEngineMode(engineMode);
+        this.eletricEngine.setMode(engineMode);
+    }
+
+    public HybridRaceCar(CombustionRaceCar c,EletricEngine eletricEngine){
+        super(c);
+        this.eletricEngine=eletricEngine;
+    }
+}

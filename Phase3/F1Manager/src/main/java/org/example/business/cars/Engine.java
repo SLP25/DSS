@@ -1,85 +1,33 @@
 package org.example.business.cars;
 
-import org.example.exceptions.cars.EngineCannotBeEletricAndCombustionSimultaneousException;
-import org.example.exceptions.cars.EngineCannotHaveCapacityAndNotBeCombustionException;
-import org.example.exceptions.cars.EngineCannotHavePowerAndNotBeElectricException;
-
 import java.util.Objects;
 
-public class Engine extends CarPart{
-
-
-
-    @Override
-    public Engine clone() {
-        return new Engine(this);
-    }
-
+public abstract class Engine {
     public static enum EngineMode{
         LOW,
         MEDIUM,
         HIGH
     }
 
-    private int capacity;
-    private int power;
-
     private EngineMode mode;
-
-    public int getCapacity() {return capacity;}
-
-    public void setCapacity(int capacity) {this.capacity = capacity;}
-
-    public int getPower() {return power;}
-
-    public void setPower(int power) {this.power = power;}
 
     public EngineMode getMode() {return mode;}
 
     public void setMode(EngineMode mode) {this.mode = mode;}
-
-    public Engine(Engine e){
-        super(e.getType());
-        capacity=e.getCapacity();
-        power=e.getPower();
-        mode=e.getMode();
-    }
-
-    public Engine(int cap,int pow,EngineMode mod,CarPart.CarPartType type) throws EngineCannotBeEletricAndCombustionSimultaneousException, EngineCannotHaveCapacityAndNotBeCombustionException, EngineCannotHavePowerAndNotBeElectricException {
-        super(type);
-        if (cap!=0 && pow!=0){
-            throw new EngineCannotBeEletricAndCombustionSimultaneousException();
-        }
-        if (cap!=0 && type!=CarPartType.COMBUSTION_ENGINE){
-            throw new EngineCannotHaveCapacityAndNotBeCombustionException();
-        }
-        if (pow!=0 && type!=CarPartType.ELECTRIC_ENGINE){
-            throw new EngineCannotHavePowerAndNotBeElectricException();
-        }
-        capacity=cap;
-        power=pow;
-        mode=mod;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Engine engine = (Engine) o;
-        return getCapacity() == engine.getCapacity() && getPower() == engine.getPower() && getMode() == engine.getMode();
+        return getMode() == engine.getMode();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCapacity(), getPower(), getMode());
+        return Objects.hash(getMode());
     }
 
-    @Override
-    public String toString() {
-        return "Engine{" +
-                "capacity=" + capacity +
-                ", power=" + power +
-                ", mode=" + mode +
-                '}';
-    }
+    public Engine(EngineMode mode) {this.mode = mode;}
+
 }

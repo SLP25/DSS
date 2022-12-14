@@ -2,9 +2,9 @@ package org.example.business.cars;
 
 import java.util.Objects;
 
-public class BodyWork extends CarPart{
+public class BodyWork{
     @Override
-    public CarPart clone() {
+    public BodyWork clone() {
         return new BodyWork(this.getDfPackage());
     }
 
@@ -16,7 +16,6 @@ public class BodyWork extends CarPart{
     private DownforcePackage dfPackage;
 
     public BodyWork(DownforcePackage df){
-        super(CarPartType.BODYWORK);
         dfPackage=df;
     }
 
