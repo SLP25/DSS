@@ -118,5 +118,35 @@ public class RaceCarTest {
         Assertions.assertEquals(BodyWork.DownforcePackage.LOW,h.getDfPackage().getDfPackage());
 
     }
+    @Test
+    public void changeCarSetupTest(){
+        Set<Integer> ids = createRaceCar(10);
+        Integer id= ids.stream().min(Integer::compareTo).get();
+        CombustionRaceCar v = rdb.get(id);
+        v.changeCarSetup(BodyWork.DownforcePackage.HIGH);
+        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,v.getDfPackage().getDfPackage());
+        v = rdb.get(id);
+
+        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,v.getDfPackage().getDfPackage());
+
+        HybridRaceCar h = new HybridRaceCar(S1Class.class,
+                new Tyre(Tyre.TyreType.HARD),
+                new CombustionEngine(Engine.EngineMode.HIGH,6000),
+                new BodyWork(BodyWork.DownforcePackage.LOW),
+                new EletricEngine(Engine.EngineMode.HIGH,100));
+        rdb.put(h);
+        id = h.getId();
+        Assertions.assertEquals(Tyre.TyreType.HARD,h.getTyres().getType());
+        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
+        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
+        Assertions.assertEquals(BodyWork.DownforcePackage.LOW,h.getDfPackage().getDfPackage());
+        h.changeCarSetup(BodyWork.DownforcePackage.HIGH);
+        h= (HybridRaceCar) rdb.get(id);
+        Assertions.assertEquals(Tyre.TyreType.HARD,h.getTyres().getType());
+        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
+        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
+        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,h.getDfPackage().getDfPackage());
+
+    }
 
 }
