@@ -210,17 +210,17 @@ public class PlayerDAO implements Map<String,Player> {
     }
 
 
-        @Override
+    @Override
     public void clear() {
-            try {
-                Connection conn = DatabaseData.getConnection();
-                Statement stm = conn.createStatement();
-                stm.executeUpdate("DELETE FROM users WHERE Premium IS NULL;");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);//TODO MUDAR ISTO
-            }
+        try {
+            Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();
+            stm.executeUpdate("DELETE FROM users WHERE Premium IS NULL;");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);//TODO MUDAR ISTO
         }
-            @Override
+    }
+    @Override
     public Set<String> keySet() {
         Set<String> r=new HashSet<String>();
         try {
@@ -233,7 +233,6 @@ public class PlayerDAO implements Map<String,Player> {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
         return r;
     }
 

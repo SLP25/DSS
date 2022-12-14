@@ -146,7 +146,6 @@ public class RaceCarTest {
         Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
         Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
         Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,h.getDfPackage().getDfPackage());
-
     }
 
 }
