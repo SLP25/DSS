@@ -1,15 +1,10 @@
-package org.example.participant;
+package org.example.business.participants;
 
-import org.example.business.Driver;
+import org.example.business.drivers.Driver;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.users.Player;
-import org.example.data.DatabaseData;
+import org.example.data.ParticipantDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
 import java.util.Objects;
 
 public class Participant {
@@ -42,7 +37,8 @@ public class Participant {
     public void setManager(Player manager) {this.manager = manager;}
 
     public void increaseNumberOfSetupChanges(){
-        this.numberOfSetupChanges++;
+        this.numberOfSetupChanges=this.numberOfSetupChanges+1;
+        ParticipantDAO.getInstance().update(this);
     }
 
     @Override

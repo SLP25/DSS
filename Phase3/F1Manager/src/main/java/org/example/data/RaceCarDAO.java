@@ -1,9 +1,12 @@
 package org.example.data;
 
 import org.example.business.cars.*;
+import org.example.business.users.Player;
+import org.example.business.users.User;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
     private static RaceCarDAO singleton = null;
@@ -12,10 +15,10 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS cars (" +
-                    "Id INT AUTO_INCREMENT PRIMARY KEY,"+
+                    "Id INT AUTO_INCREMENT PRIMARY KEY," +
                     "Class CHAR(33) NOT NULL," +
-                    "Tyre VARCHAR(12) NOT NULL,"+
-                    "BodyWork VARCHAR(6) NOT NULL,"+
+                    "Tyre VARCHAR(12) NOT NULL," +
+                    "BodyWork VARCHAR(6) NOT NULL," +
                     "EngineMode VARCHAR(6) NOT NULL," +
                     "EngineCapacity INT NOT NULL," +
                     "EnginePower INT);";
@@ -78,14 +81,15 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public boolean containsKey(Object key) {
-        boolean r=false;
-        try {
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Id FROM cars WHERE Id= ?;");
-            ps.setInt(1,(int) key);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next())
-                r=true;
+        boolean r = false;
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM cars WHERE Id= ?;");
+        ) {
+            ps.setInt(1, (int) key);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next())
+                    r = true;
+            }
         } catch (SQLException e) {
             // Database error!
             e.printStackTrace();
@@ -94,54 +98,12 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
         return r;
     }
 
-    /**
-     * Verifies if a user exists in the database
-     *
-     * @param value ...
-     * @return ...
-     * @throws NullPointerException //TODO MUDAR ISTO
-     */
+
     @Override
     public boolean containsValue(Object value) {
-        boolean r = false;
-        try {
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars WHERE Id= ?;");
-            ps.setInt(1, ((CombustionRaceCar)value).getId());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt("Id");
-                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
-                Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
-                BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
-                Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                CombustionEngine ce = new CombustionEngine(eM,rs.getInt("EngineCapacity"));
-                Integer ePow = rs.getInt("EnginePower");
-                EletricEngine ee = null;
-                if (!rs.wasNull()) {
-                    ee = new EletricEngine(eM, ePow);
-                    if (value instanceof HybridRaceCar) {
-                        r = ((HybridRaceCar) value).equals(new HybridRaceCar(id, c, tyre, ce, bodyWork, ee));
-                    } else {
-                        r = false;
-                    }
-                }
-                else{
-                    if(value instanceof CombustionRaceCar ){
-                        r = ((CombustionRaceCar)value).equals(new CombustionRaceCar(id, c, tyre,ce,bodyWork));
-                    }else{
-                        r=false;
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            // Database error!
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return r;
+        if (!(value instanceof CombustionRaceCar)) return false;
+        CombustionRaceCar p = (CombustionRaceCar) value;
+        return p.equals(get(p.getId()));
     }
 
     /**
@@ -153,24 +115,25 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public CombustionRaceCar get(Object key) {
-        CombustionRaceCar r=null;
-        try {
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars WHERE Id= ?;");
-            ps.setInt(1,(Integer) key);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt("Id");
-                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
-                Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
-                BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
-                Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                CombustionEngine ce = new CombustionEngine(eM,rs.getInt("EngineCapacity"));
-                r = new CombustionRaceCar(id, c, tyre, ce,bodyWork);
-                Integer ePow = rs.getInt("EnginePower");
-                if (!rs.wasNull()) {
-                    EletricEngine ee = new EletricEngine(eM, ePow);
-                    r = new HybridRaceCar(r,ee);
+        CombustionRaceCar r = null;
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars WHERE Id= ?;");
+        ) {
+            ps.setInt(1, (Integer) key);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    int id = rs.getInt("Id");
+                    Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
+                    Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
+                    BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
+                    Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
+                    CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
+                    r = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
+                    Integer ePow = rs.getInt("EnginePower");
+                    if (!rs.wasNull()) {
+                        EletricEngine ee = new EletricEngine(eM, ePow);
+                        r = new HybridRaceCar(r, ee);
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -192,44 +155,41 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public CombustionRaceCar put(Integer key, CombustionRaceCar car) {
-        try {
-            Connection conn = DatabaseData.getConnection();
-            String sql="";
-            if (key==null){
-                sql="INSERT INTO cars (Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?);";
-            }else{
-                sql="INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?);";
-            }
-
-            PreparedStatement ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-
-            int n=1;
-            if (key!=null){
-                ps.setInt(n,car.getId());
+        String sql = "";
+        if (key == null) {
+            sql = "INSERT INTO cars (Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?);";
+        } else {
+            sql = "INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?);";
+        }
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
+            int n = 1;
+            if (key != null) {
+                ps.setInt(n, car.getId());
                 n++;
             }
 
-            ps.setString(n,car.getCategory().getName());
+            ps.setString(n, car.getCategory().getName());
             n++;
 
-            ps.setString(n,car.getTyres().getType().name());
+            ps.setString(n, car.getTyres().getType().name());
             n++;
-            ps.setString(n,car.getDfPackage().getDfPackage().name());
+            ps.setString(n, car.getDfPackage().getDfPackage().name());
             n++;
-            ps.setString(n,car.getCombustionEngine().getMode().name());
+            ps.setString(n, car.getCombustionEngine().getMode().name());
             n++;
-            ps.setInt(n,car.getCombustionEngine().getCapacity());
+            ps.setInt(n, car.getCombustionEngine().getCapacity());
             n++;
-            if (car instanceof HybridRaceCar){
-                ps.setInt(n,((HybridRaceCar) car).getEletricEngine().getPower());
-                }
-            else{
+            if (car instanceof HybridRaceCar) {
+                ps.setInt(n, ((HybridRaceCar) car).getEletricEngine().getPower());
+            } else {
                 ps.setNull(n, Types.INTEGER);
-                }
+            }
             ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()){
-                car.setId(rs.getInt(1));
+            try (ResultSet rs = ps.getGeneratedKeys();) {
+                if (rs.next())
+                    car.setId(rs.getInt(1));
             }
             return car;
         } catch (SQLException e) {
@@ -246,36 +206,35 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
 
     public CombustionRaceCar update(Integer key, CombustionRaceCar car) {
-        try {
-            Connection conn = DatabaseData.getConnection();
-            String sql="UPDATE cars SET " +
-                    "Class=?," +
-                    "Tyre=?," +
-                    "BodyWork=?," +
-                    "EngineMode=?," +
-                    "EngineCapacity=?," +
-                    "EnginePower=? " +
-                    "WHERE Id=?;";
+        String sql = "UPDATE cars SET " +
+                "Class=?," +
+                "Tyre=?," +
+                "BodyWork=?," +
+                "EngineMode=?," +
+                "EngineCapacity=?," +
+                "EnginePower=? " +
+                "WHERE Id=?;";
 
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+        ) {
 
-            ps.setString(1,car.getCategory().getName());
+            ps.setString(1, car.getCategory().getName());
 
-            ps.setString(2,car.getTyres().getType().name());
+            ps.setString(2, car.getTyres().getType().name());
 
-            ps.setString(3,car.getDfPackage().getDfPackage().name());
+            ps.setString(3, car.getDfPackage().getDfPackage().name());
 
-            ps.setString(4,car.getCombustionEngine().getMode().name());
+            ps.setString(4, car.getCombustionEngine().getMode().name());
 
-            ps.setInt(5,car.getCombustionEngine().getCapacity());
+            ps.setInt(5, car.getCombustionEngine().getCapacity());
 
-            if (car instanceof HybridRaceCar){
-                ps.setInt(6,((HybridRaceCar) car).getEletricEngine().getPower());
-            }
-            else{
+            if (car instanceof HybridRaceCar) {
+                ps.setInt(6, ((HybridRaceCar) car).getEletricEngine().getPower());
+            } else {
                 ps.setNull(6, Types.INTEGER);
             }
-            ps.setInt(7,key);
+            ps.setInt(7, key);
             ps.executeUpdate();
             return car;
         } catch (SQLException e) {
@@ -284,12 +243,11 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
     }
 
 
-    public CombustionRaceCar put(CombustionRaceCar u){
-        return put(u.getId(),u);
+    public CombustionRaceCar put(CombustionRaceCar u) {
+        return put(u.getId(), u);
     }
 
     /**
-     *
      * Removes a user with a given username from the database if it exists
      *
      * @param key key whose mapping is to be removed from the map
@@ -297,14 +255,13 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public CombustionRaceCar remove(Object key) {
-        try {
-            CombustionRaceCar car = get(key);
-            if (car==null){
-                return null;
-            }
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM cars WHERE Id = ?;");
-            ps.setInt(1,(int) key);
+        CombustionRaceCar car = get(key);
+        if (car == null)
+            return null;
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM cars WHERE Id = ?;");
+        ) {
+            ps.setInt(1, (int) key);
             ps.executeUpdate();
             return car;
         } catch (SQLException e) {
@@ -320,24 +277,25 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
 
     @Override
     public void clear() {
-        try {
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement();
+        ) {
             stm.executeUpdate("DELETE FROM cars;");
         } catch (SQLException e) {
             throw new RuntimeException(e);//TODO MUDAR ISTO
         }
     }
+
     @Override
     public Set<Integer> keySet() {
-        Set<Integer> r=new HashSet<>();
-        try {
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Id FROM cars;");
-            while(rs.next()){
+        Set<Integer> r = new HashSet<>();
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT Id FROM cars;");
+        ) {
+            while (rs.next())
                 r.add(rs.getInt(1));
-            }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -348,22 +306,22 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
     @Override
     public Collection<CombustionRaceCar> values() {
         Collection<CombustionRaceCar> r = new HashSet<CombustionRaceCar>();
-        try {
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
-            while(rs.next()){
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
+        ) {
+            while (rs.next()) {
                 int id = rs.getInt("Id");
                 Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
                 Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                CombustionEngine ce = new CombustionEngine(eM,rs.getInt("EngineCapacity"));
-                CombustionRaceCar rt = new CombustionRaceCar(id, c, tyre, ce,bodyWork);
+                CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
+                CombustionRaceCar rt = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
                 Integer ePow = rs.getInt("EnginePower");
                 if (!rs.wasNull()) {
                     EletricEngine ee = new EletricEngine(eM, ePow);
-                    rt = new HybridRaceCar(rt,ee);
+                    rt = new HybridRaceCar(rt, ee);
                 }
                 r.add(rt);
             }
@@ -375,40 +333,8 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
 
     @Override
     public Set<Entry<Integer, CombustionRaceCar>> entrySet() {
-        Map<Integer, CombustionRaceCar> r = new HashMap<>();
-        try {
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
-            while(rs.next()){
-                int id = rs.getInt("Id");
-                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
-                Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
-                BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
-                Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                CombustionEngine ce = new CombustionEngine(eM,rs.getInt("EngineCapacity"));
-                CombustionRaceCar rt = new CombustionRaceCar(id, c, tyre, ce,bodyWork);
-                Integer ePow = rs.getInt("EnginePower");
-                if (!rs.wasNull()) {
-                    EletricEngine ee = new EletricEngine(eM, ePow);
-                    rt = new HybridRaceCar(rt,ee);
-                }
-                r.put(id,rt);
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return r.entrySet();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this==o;
-    }
-
-    @Override
-    public int hashCode(){
-        return this.size();
+        return values().stream().collect(
+                Collectors.toMap(CombustionRaceCar::getId, x -> x)).entrySet();
     }
 
 

@@ -1,4 +1,4 @@
-package org.example.business;
+package org.example.business.drivers;
 
 import java.util.Objects;
 
@@ -54,7 +54,7 @@ public class Driver {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Driver driver = (Driver) o;
-        return Float.compare(driver.driverCTS, driverCTS) == 0 && Float.compare(driver.driverSVA, driverSVA) == 0 && Objects.equals(driverName, driver.driverName);
+        return Float.compare(driver.driverCTS, driverCTS) == 0 && Float.compare(driver.driverSVA, driverSVA) == 0 && driverName.equals(driver.driverName);
     }
 
     @Override

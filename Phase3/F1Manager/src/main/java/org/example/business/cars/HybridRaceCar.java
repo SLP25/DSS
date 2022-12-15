@@ -5,17 +5,17 @@ import java.util.Objects;
 public class HybridRaceCar extends CombustionRaceCar{
     private EletricEngine eletricEngine;
 
-    public EletricEngine getEletricEngine() {return eletricEngine;}
+    public EletricEngine getEletricEngine() {return eletricEngine.clone();}
 
-    public void setEletricEngine(EletricEngine eletricEngine) {this.eletricEngine = eletricEngine;}
+    public void setEletricEngine(EletricEngine eletricEngine) {this.eletricEngine = eletricEngine.clone();}
 
     public HybridRaceCar(Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage, EletricEngine eletricEngine) {
         super(category, tyres, combustionEngine, dfPackage);
-        this.eletricEngine = eletricEngine;
+        this.eletricEngine = eletricEngine.clone();
     }
     public HybridRaceCar(Integer id, Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage,EletricEngine eletricEngine) {
         super(id, category, tyres, combustionEngine, dfPackage);
-        this.eletricEngine = eletricEngine;
+        this.eletricEngine = eletricEngine.clone();
     }
 
     @Override
@@ -26,6 +26,6 @@ public class HybridRaceCar extends CombustionRaceCar{
 
     public HybridRaceCar(CombustionRaceCar c,EletricEngine eletricEngine){
         super(c);
-        this.eletricEngine=eletricEngine;
+        this.eletricEngine=eletricEngine.clone();
     }
 }

@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class RaceCarTest {
-    private final RaceCarDAO rdb = RaceCarDAO.getInstance();
+    private static final RaceCarDAO rdb = RaceCarDAO.getInstance();
 
-    private Set<Integer> createRaceCar(int n) {
+    public static Set<Integer> createRaceCar(int n) {
         Set<Integer> s = new HashSet<>();
         for (int i=1;i<=n;i++){
             CombustionRaceCar u = new CombustionRaceCar(S1Class.class,new Tyre(Tyre.TyreType.HARD),

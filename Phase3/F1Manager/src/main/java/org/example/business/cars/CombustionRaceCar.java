@@ -24,17 +24,17 @@ public class CombustionRaceCar {
 
     public void setCategory(Class<? extends CarClass> category) {this.category = category;}
 
-    public Tyre getTyres() {return tyres;}
+    public Tyre getTyres() {return tyres.clone();}
 
-    public void setTyres(Tyre tyres) {this.tyres = tyres;}
+    public void setTyres(Tyre tyres) {this.tyres = tyres.clone();}
 
-    public CombustionEngine getCombustionEngine() {return combustionEngine;}
+    public CombustionEngine getCombustionEngine() {return combustionEngine.clone();}
 
-    public void setCombustionEngine(CombustionEngine combustionEngine) {this.combustionEngine = combustionEngine;}
+    public void setCombustionEngine(CombustionEngine combustionEngine) {this.combustionEngine = combustionEngine.clone();}
 
-    public BodyWork getDfPackage() {return dfPackage;}
+    public BodyWork getDfPackage() {return dfPackage.clone();}
 
-    public void setDfPackage(BodyWork dfPackage) {this.dfPackage = dfPackage;}
+    public void setDfPackage(BodyWork dfPackage) {this.dfPackage = dfPackage.clone();}
 
     public void changeCarSetup(BodyWork.DownforcePackage df){
         this.dfPackage.setDfPackage(df);
@@ -69,17 +69,17 @@ public class CombustionRaceCar {
     public CombustionRaceCar(Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
         this.id = null;
         this.category = category;
-        this.tyres = tyres;
-        this.combustionEngine = combustionEngine;
-        this.dfPackage = dfPackage;
+        this.tyres = tyres.clone();
+        this.combustionEngine = combustionEngine.clone();
+        this.dfPackage = dfPackage.clone();
     }
 
     public CombustionRaceCar(Integer id, Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
         this.id = id;
         this.category = category;
-        this.tyres = tyres;
-        this.combustionEngine = combustionEngine;
-        this.dfPackage = dfPackage;
+        this.tyres = tyres.clone();
+        this.combustionEngine = combustionEngine.clone();
+        this.dfPackage = dfPackage.clone();
     }
     public CombustionRaceCar(CombustionRaceCar c){
         this.id=c.getId();

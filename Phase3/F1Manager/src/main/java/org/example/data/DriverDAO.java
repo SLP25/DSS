@@ -1,10 +1,11 @@
 package org.example.data;
 
-import org.example.business.Driver;
+import org.example.business.drivers.Driver;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -27,17 +28,14 @@ public class DriverDAO implements Map<String, Driver> {
      */
     private DriverDAO() {
 
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement()  ) {
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement()) {
+            String sql = "CREATE TABLE IF NOT EXISTS drivers(" +
+                                 "DriverName VARCHAR(50) NOT NULL PRIMARY KEY," +
+                                 "DriverCTS DECIMAL(10,2) NOT NULL," +
+                                 "DriverSVA DECIMAL(10,2) NOT NULL)";
 
-            String driverTable = "create table if not exists Driver (" +
-                                 "DriverName varchar(50) not null primary key," +
-                                 "DriverCTS decimal(10,2) not null," +
-                                 "DriverSVA decimal(10,2) not null)";
-
-            statement.execute(driverTable);
-
-
+            stm.executeUpdate(sql);
         } catch (SQLException error) {
 
             error.printStackTrace();
@@ -66,23 +64,16 @@ public class DriverDAO implements Map<String, Driver> {
      */
     @Override
     public int size() {
-
-        int size = 0;
-        String sizeQuery = "select count(*) from Driver";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(sizeQuery)) {
-
-            if (results.next()) size = results.getInt(1);
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
+        int i = 0;
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT COUNT(*) FROM drivers;");){
+                if (rs.next())
+                    i = rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return size;
+        return i;
     }
 
     /**
@@ -94,109 +85,73 @@ public class DriverDAO implements Map<String, Driver> {
         return size() == 0;
     }
 
-    /**
-     * Check if a drive with the name 'key' exists.
-     * @param key The driver name string.
-     * @return True if the driver is found, false otherwise.
-     * @throws RuntimeException If there was an error executing the query.
-     */
+
+
     @Override
     public boolean containsKey(Object key) {
-
-        boolean foundKey;
-        String queryString = "select DriverName from Driver where DriverName'" + key.toString() + "'";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(queryString)) {
-
-            foundKey = results.next();
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+        boolean r=false;
+        try (Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT DriverName FROM drivers WHERE DriverName= ?;");){
+            ps.setString(1,key.toString());
+            try (ResultSet rs = ps.executeQuery();){
+                if (rs.next())
+                    r = true;
+            }
+        } catch (SQLException e) {
+            // Database error!
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
         }
-
-        return foundKey;
+        return r;
     }
 
-    /**
-     * Checks for a value (of type Driver) exists within the database.
-     * @param value Driver object to search for.
-     * @return True if the driver is found, false if 'value' is not an instance of Driver or if the driver is not
-     * found.
-     * @throws RuntimeException If there was an error executing the query.
-     */
-    @Override
-    public boolean containsValue(Object value) {
 
-        if (!(value instanceof Driver)) return false;
 
-        Driver driver = (Driver) value;
-        return containsKey(driver.getDriverName());
 
-    }
-
-    /**
-     * Get the driver by providing its name.
-     * @param key The driver name, has to be a string.
-     * @return The newly built Driver object.
-     */
     @Override
     public Driver get(Object key) {
-
-        Driver driver = null;
-        String queryString = "select * from Driver where DriverName='" + key.toString() + "'";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(queryString)) {
-
-            if (results.next())
-                driver = new Driver(
-                        results.getString("DriverName"),
-                        results.getFloat("DriverCTS"),
-                        results.getFloat("DriverSVA")
-                );
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+        try (Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT DriverCTS,DriverSVA FROM drivers WHERE DriverName=?;");){
+            ps.setString(1,key.toString());
+            try(ResultSet rs = ps.executeQuery();){
+                if (rs.next())
+                    return new Driver(
+                            key.toString(),
+                            rs.getFloat("DriverCTS"),
+                            rs.getFloat("DriverSVA")
+                    );
+            }
+        } catch (SQLException e) {
+            // Database error!
+            e.printStackTrace();
+            throw new NullPointerException(e.getMessage());
         }
-
-        return driver;
+        return null;
     }
 
-    /**
-     * Insert a drive onto the database, by providing its name (primary key) and the Driver object.
-     * @param key Driver name.
-     * @param driver Driver object.
-     * @return The driver if the insertion was successful, null otherwise.
-     */
+    @Override
+    public boolean containsValue(Object value) {
+        if (!(value instanceof Driver)) return false;
+        Driver p = (Driver) value;
+        return p.equals(get(p.getDriverName()));
+    }
+
+
     @Override
     public Driver put(String key, @NotNull Driver driver) {
-
-        String updateString = "insert into Driver values (" +
-                              key + ", " +
-                              driver.getDriverCTS() + ", " +
-                              driver.getDriverSVA() + ")";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement()) {
-
-            statement.executeUpdate(updateString);
+        try (
+            Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO drivers (DriverName,DriverCTS,DriverSVA) VALUES (?,?,?);");){
+            ps.setString(1,driver.getDriverName());
+            ps.setFloat(2,driver.getDriverCTS());
+            ps.setFloat(3,driver.getDriverSVA());
+            ps.executeUpdate();
             return driver;
-
-        } catch (SQLException error) {
-
+        } catch (SQLException e) {
             return null;
-
         }
     }
+
 
     /**
      * Insert a drive onto the database, by providing the Driver object.
@@ -204,196 +159,97 @@ public class DriverDAO implements Map<String, Driver> {
      * @return The driver if the insertion was successful, null otherwise.
      */
     public Driver put(@NotNull Driver driver) {
-
-        String updateString = "insert into Driver values (" +
-                driver.getDriverName() + ", " +
-                driver.getDriverCTS() + ", " +
-                driver.getDriverSVA() + ")";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement()) {
-
-            statement.executeUpdate(updateString);
-            return driver;
-
-        } catch (SQLException error) {
-
-            return null;
-
-        }
+        return this.put(driver.getDriverName(),driver);
     }
 
-    /**
-     * Remove a driver by providing its name.
-     * @param key Driver name.
-     * @return The removed driver.
-     */
     @Override
     public Driver remove(Object key) {
-
-        String updateString = "delete from Drivers where DriverName=" + key.toString();
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement()) {
-
-            Driver driver = get(key);
-            if (driver == null) return null;
-
-            statement.executeUpdate(updateString);
+        Driver driver = this.get(key);
+        if (driver==null){
+            return null;
+        }
+        try(Connection conn = DatabaseData.getConnection();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM drivers WHERE DriverName = ?;");){
+            ps.setString(1,key.toString());
+            ps.executeUpdate();
             return driver;
-
-        } catch (SQLException error) {
+        } catch (SQLException e) {
             return null;
         }
     }
 
-    /**
-     * Given a Map containing the drivers and their corresponding name, insert them onto the database.
-     * @param map Map containing the drivers.
-     */
     @Override
-    public void putAll(Map<? extends String, ? extends Driver> map) {
-
-        String preparedQuery = "insert into Driver values (?,?,?)";
-
-        try (Connection con = DatabaseData.getConnection();
-             PreparedStatement statement = con.prepareStatement(preparedQuery)) {
-
-            con.setAutoCommit(false);
-
-            for (Entry<? extends String, ? extends Driver> entry : map.entrySet()) {
-
-                statement.setString(1, entry.getKey()); // DriverName
-                statement.setFloat(2, entry.getValue().getDriverCTS()); // DriverCTS
-                statement.setFloat(3, entry.getValue().getDriverSVA()); // DriverSVA
-
-                con.commit();
-                con.setAutoCommit(true);
-
+    public void putAll(Map<? extends String, ? extends Driver> m) {
+        try (Connection conn = DatabaseData.getConnection();){
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO drivers (DriverName,DriverCTS,DriverSVA) VALUES (?,?,?);");) {
+                for (Entry e : m.entrySet()) {
+                    ps.setString(1, (String) e.getKey());
+                    ps.setFloat(2, ((Driver) e.getValue()).getDriverCTS());
+                    ps.setFloat(3, ((Driver) e.getValue()).getDriverSVA());
+                    ps.executeUpdate();
+                }
             }
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * Clear the table Driver from the database.
+     * Clear the table Driver FROM the database.
      */
     @Override
     public void clear() {
-
-        String queryString = "delete from Driver";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement()) {
-
-            statement.executeQuery(queryString);
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+        try (Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();){
+            stm.executeUpdate("DELETE FROM drivers;");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);//TODO MUDAR ISTO
         }
     }
 
-    /**
-     * Get the every (primary) key on the Driver table from the database, as a set.
-     * @return Set containing every driver name.
-     */
+
     @Override
     public Set<String> keySet() {
-
-        Set<String> set = new HashSet<>();
-
-        String queryString = "select DriverName from Driver";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(queryString)) {
-
-            while (results.next()) set.add(results.getString("DriverName"));
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+        Set<String> r=new HashSet<String>();
+        try (Connection conn = DatabaseData.getConnection();
+             Statement stm = conn.createStatement();
+             ResultSet rs = stm.executeQuery("SELECT DriverName FROM drivers;");){
+                while(rs.next())
+                    r.add(rs.getString("DriverName"));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return set;
+        return r;
     }
 
-    /**
-     * Get every value from the Driver table of the database.
-     * @return HashSet containing every value by its primary key.
-     */
     @Override
     public Collection<Driver> values() {
+        Collection<Driver> r = new HashSet<Driver>();
+        try (
+            Connection conn = DatabaseData.getConnection();
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT DriverName,DriverCTS,DriverSVA FROM drivers;");
+            ){
+                while(rs.next())
+                    r.add(new Driver(
+                        rs.getString("DriverName"),
+                        rs.getFloat("DriverCTS"),
+                        rs.getFloat("DriverSVA")
+                    ));
 
-        Collection<Driver> collection = new HashSet<>();
-
-        String queryString = "select * from Driver";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(queryString)) {
-
-            while (results.next())
-                collection.add(new Driver(
-                        results.getString(1),
-                        results.getFloat(2),
-                        results.getFloat(2))
-                );
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return collection;
+        return r;
     }
 
-    /**
-     * Get a set containing every entry for the Driver table.
-     * @return Set containing the entries.
-     */
+
     @Override
     public Set<Entry<String, Driver>> entrySet() {
-
-        Map<String, Driver> map = new HashMap<>();
-
-        String queryString = "select * from Driver";
-
-        try (Connection con = DatabaseData.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet results = statement.executeQuery(queryString)) {
-
-            while (results.next()) {
-
-                Driver driver = new Driver(
-                        results.getString(1),
-                        results.getFloat(2),
-                        results.getFloat(2)
-                );
-
-                map.put(driver.getDriverName(), driver);
-
-            }
-
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
-        }
-
-        return map.entrySet();
+        return values().stream().collect(
+               Collectors.toMap(Driver::getDriverName, x -> x)).entrySet();
     }
 }

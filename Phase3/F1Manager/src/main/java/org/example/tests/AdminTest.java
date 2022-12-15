@@ -12,17 +12,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class AdminTest {
-    private final AdminDAO adb = AdminDAO.getInstance();
+    private static final AdminDAO adb = AdminDAO.getInstance();
 
-    private void createAdmin(int n){
+    public static Set<String> createAdmin(int n){
+        Set<String>s=new HashSet<>();
         for (int i=1;i<=n;i++){
             Admin u = new Admin("admin:"+i,false);
             u.setPassword("123456");
             adb.put(u);
+            s.add(u.getUsername());
         }
+        return s;
     }
     @BeforeEach
     public void init() {

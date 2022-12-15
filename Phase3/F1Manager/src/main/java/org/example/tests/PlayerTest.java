@@ -10,17 +10,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PlayerTest {
-    private final PlayerDAO udb = PlayerDAO.getInstance();
+    private static final PlayerDAO udb = PlayerDAO.getInstance();
 
-    private void createPlayer(int n){
+    public static Set<String> createPlayer(int n){
+        Set<String> s = new HashSet<>();
         for (int i=1;i<=n;i++){
             Player u = new Player("player:"+i);
             u.setPassword("123456");
             udb.put(u);
+            s.add(u.getUsername());
         }
+        return s;
     }
     @BeforeEach
     public void init() {
