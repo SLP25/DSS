@@ -61,4 +61,8 @@ public class Driver {
     public int hashCode() {
         return Objects.hash(driverName, driverCTS, driverSVA);
     }
+
+    public Driver clone(){
+        return new Driver(this.getDriverName(),this.getDriverCTS(),this.driverSVA);
+    }
 }

@@ -47,4 +47,8 @@ public class Player extends User{
         }
         return pl;
     }
+
+    public Player clone(){
+        return new Player(this.getUsername(),this.getHashedPassword());
+    }
 }

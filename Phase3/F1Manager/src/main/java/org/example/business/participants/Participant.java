@@ -54,5 +54,8 @@ public class Participant {
         return Objects.hash(getNumberOfSetupChanges(), getCar(), getDriver(), getManager());
     }
 
-
+    @Override
+    public Participant clone(){
+        return new Participant(this.numberOfSetupChanges,this.getCar().clone(),this.getDriver().clone(),this.getManager().clone());
+    }
 }
