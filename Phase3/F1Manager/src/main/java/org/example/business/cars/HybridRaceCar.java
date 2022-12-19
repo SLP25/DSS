@@ -9,11 +9,11 @@ public class HybridRaceCar extends CombustionRaceCar{
 
     public void setEletricEngine(EletricEngine eletricEngine) {this.eletricEngine = eletricEngine.clone();}
 
-    public HybridRaceCar(Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage, EletricEngine eletricEngine) {
+    public HybridRaceCar(CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage, EletricEngine eletricEngine) {
         super(category, tyres, combustionEngine, dfPackage);
         this.eletricEngine = eletricEngine.clone();
     }
-    public HybridRaceCar(Integer id, Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage,EletricEngine eletricEngine) {
+    public HybridRaceCar(Integer id, CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage,EletricEngine eletricEngine) {
         super(id, category, tyres, combustionEngine, dfPackage);
         this.eletricEngine = eletricEngine.clone();
     }

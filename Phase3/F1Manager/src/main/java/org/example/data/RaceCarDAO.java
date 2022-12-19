@@ -1,8 +1,6 @@
 package org.example.data;
 
 import org.example.business.cars.*;
-import org.example.business.users.Player;
-import org.example.business.users.User;
 
 import java.sql.*;
 import java.util.*;
@@ -128,13 +126,17 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
                     BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                     Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                     CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
-                    r = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
+                    r = new CombustionRaceCar(id, c.newInstance(), tyre, ce, bodyWork);
                     Integer ePow = rs.getInt("EnginePower");
                     if (!rs.wasNull()) {
                         EletricEngine ee = new EletricEngine(eM, ePow);
                         r = new HybridRaceCar(r, ee);
                     }
                 }
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         } catch (SQLException e) {
             // Database error!
@@ -170,7 +172,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
                 n++;
             }
 
-            ps.setString(n, car.getCategory().getName());
+            ps.setString(n, car.getCategory().getClass().getName());
             n++;
 
             ps.setString(n, car.getTyres().getType().name());
@@ -219,7 +221,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
              PreparedStatement ps = conn.prepareStatement(sql);
         ) {
 
-            ps.setString(1, car.getCategory().getName());
+            ps.setString(1, car.getCategory().getClass().getName());
 
             ps.setString(2, car.getTyres().getType().name());
 
@@ -317,7 +319,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
                 BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                 Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                 CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
-                CombustionRaceCar rt = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
+                CombustionRaceCar rt = new CombustionRaceCar(id, c.newInstance(), tyre, ce, bodyWork);
                 Integer ePow = rs.getInt("EnginePower");
                 if (!rs.wasNull()) {
                     EletricEngine ee = new EletricEngine(eM, ePow);
@@ -325,7 +327,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
                 }
                 r.add(rt);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return r;

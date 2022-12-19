@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class RaceCarTest {
@@ -16,7 +15,7 @@ public class RaceCarTest {
     public static Set<Integer> createRaceCar(int n) {
         Set<Integer> s = new HashSet<>();
         for (int i=1;i<=n;i++){
-            CombustionRaceCar u = new CombustionRaceCar(S1Class.class,new Tyre(Tyre.TyreType.HARD),
+            CombustionRaceCar u = new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
                     new CombustionEngine(Engine.EngineMode.HIGH,6000),
                     new BodyWork(BodyWork.DownforcePackage.LOW)
             );
@@ -33,7 +32,7 @@ public class RaceCarTest {
 
     @Test
     public void createRaceCarTest() {
-        CombustionRaceCar rc=new CombustionRaceCar(S1Class.class,new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
@@ -64,7 +63,7 @@ public class RaceCarTest {
 
     @Test
     public void containsValueTest(){
-        CombustionRaceCar rc=new CombustionRaceCar(S1Class.class,new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(), new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
               );
@@ -99,7 +98,7 @@ public class RaceCarTest {
         Assertions.assertEquals(Tyre.TyreType.SOFT,v.getTyres().getType());
         Assertions.assertEquals(Engine.EngineMode.HIGH,v.getCombustionEngine().getMode());
 
-        HybridRaceCar h = new HybridRaceCar(S1Class.class,
+        HybridRaceCar h = new HybridRaceCar(new S1Class(),
                 new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW),
@@ -129,7 +128,7 @@ public class RaceCarTest {
 
         Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,v.getDfPackage().getDfPackage());
 
-        HybridRaceCar h = new HybridRaceCar(S1Class.class,
+        HybridRaceCar h = new HybridRaceCar(new S1Class(),
                 new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW),

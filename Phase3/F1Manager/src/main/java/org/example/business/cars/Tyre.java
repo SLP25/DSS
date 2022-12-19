@@ -16,6 +16,8 @@ public class Tyre{
 
     public TyreType getType() {return type;}
 
+    private boolean isPunctured;
+
     @Override
     public Tyre clone() {
         return new Tyre(this.getType());
@@ -25,6 +27,34 @@ public class Tyre{
 
     public Tyre (TyreType t){
         type=t;
+    }
+
+    public double getTyreWearStep() {
+        switch(this.type) {
+            case SOFT:
+                return 1.0;
+            case MEDIUM:
+                return 0.5;
+            case HARD:
+                return 0.25;
+            case INTERMEDIATE:
+                return 1.3;
+            case WET:
+                return 1.5;
+            default:
+                return 0.0;
+        }
+    }
+
+    public boolean isPunctured() {
+        return this.isPunctured;
+    }
+
+    public void setPuncture(boolean puncture) {
+        this.isPunctured = puncture;
+    }
+    public boolean isWet() {
+        return type == TyreType.WET || type == TyreType.INTERMEDIATE;
     }
 
     @Override

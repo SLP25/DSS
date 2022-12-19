@@ -7,7 +7,7 @@ import java.util.Objects;
 public class CombustionRaceCar {
 
     private Integer id;
-    private Class<? extends CarClass> category;
+    private CarClass category;
 
     private Tyre tyres;
 
@@ -15,16 +15,28 @@ public class CombustionRaceCar {
 
     private BodyWork dfPackage;
 
+    private double tireWear;
+
+    private double damage;
+
 
     public Integer getId() {return id;}
 
     public void setId(Integer id) {this.id = id;}
 
-    public Class<? extends CarClass> getCategory() {return category;}
+    public CarClass getCategory() {return category;}
 
-    public void setCategory(Class<? extends CarClass> category) {this.category = category;}
+    public void setCategory(CarClass category) {this.category = category;}
 
     public Tyre getTyres() {return tyres.clone();}
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public void setDamage(double damage) {
+        this.damage = damage;
+    }
 
     public void setTyres(Tyre tyres) {this.tyres = tyres.clone();}
 
@@ -53,12 +65,20 @@ public class CombustionRaceCar {
         rdb.update(this.getId(),this);
     }
 
+    public double getTireWear() {
+        return tireWear;
+    }
+
+    public void setTireWear(double wear) {
+        tireWear = wear;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CombustionRaceCar that = (CombustionRaceCar) o;
-        return Objects.equals(getCategory(), that.getCategory()) && Objects.equals(getTyres(), that.getTyres()) && Objects.equals(getCombustionEngine(), that.getCombustionEngine()) && Objects.equals(getDfPackage(), that.getDfPackage());
+        return Objects.equals(getCategory().getClass(), that.getCategory().getClass()) && Objects.equals(getTyres(), that.getTyres()) && Objects.equals(getCombustionEngine(), that.getCombustionEngine()) && Objects.equals(getDfPackage(), that.getDfPackage());
     }
 
     @Override
@@ -66,7 +86,7 @@ public class CombustionRaceCar {
         return Objects.hash(getCategory(), getTyres(), getCombustionEngine(), getDfPackage());
     }
 
-    public CombustionRaceCar(Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
+    public CombustionRaceCar(CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
         this.id = null;
         this.category = category;
         this.tyres = tyres.clone();
@@ -74,7 +94,7 @@ public class CombustionRaceCar {
         this.dfPackage = dfPackage.clone();
     }
 
-    public CombustionRaceCar(Integer id, Class<? extends CarClass> category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
+    public CombustionRaceCar(Integer id, CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
         this.id = id;
         this.category = category;
         this.tyres = tyres.clone();

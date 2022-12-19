@@ -7,13 +7,13 @@ import java.util.Map;
 
 public abstract class CarClass {
     static float reliability;
-    private String reliabilityFormula;
+    private static String reliabilityFormula;
 
     public CarClass(){}
 
     public float getReliability() {return reliability;}
 
-    public double calculateReliability(Map<String, Float> variables) throws Exception {
+    public double calculateReliability(Map<String, Float> variables) {
         Expression formula = new Expression(this.reliabilityFormula);
 
         for(Map.Entry<String, Float> entry : variables.entrySet()) {
@@ -23,7 +23,7 @@ public abstract class CarClass {
         try {
             return formula.eval().doubleValue();
         } catch(Expression.ExpressionException e) {
-            throw new Exception(); //TODO MUDAR ISTO
+            throw new RuntimeException(); //TODO:: MUDAR ISTO
         }
     }
 
