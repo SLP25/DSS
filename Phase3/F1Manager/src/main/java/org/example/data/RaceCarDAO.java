@@ -2,6 +2,7 @@ package org.example.data;
 
 import org.example.business.cars.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,21 +122,26 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
             try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next()) {
                     int id = rs.getInt("Id");
-                    Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
+                    Class<? extends CarClass> cc = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
+                    CarClass c = (CarClass)cc.getMethod("getInstance").invoke(null, null);
                     Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
                     BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                     Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
                     CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
-                    r = new CombustionRaceCar(id, c.newInstance(), tyre, ce, bodyWork);
+                    r = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
                     Integer ePow = rs.getInt("EnginePower");
                     if (!rs.wasNull()) {
                         EletricEngine ee = new EletricEngine(eM, ePow);
                         r = new HybridRaceCar(r, ee);
                     }
                 }
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
+            //} catch (InstantiationException e) {
+             //   throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         } catch (SQLException e) {

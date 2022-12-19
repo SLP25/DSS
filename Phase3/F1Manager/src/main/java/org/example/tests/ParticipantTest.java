@@ -47,7 +47,7 @@ public class ParticipantTest {
         String name = "driver";
         Driver driver = new Driver(name,0.1F,0.1F);
         DriverDAO.getInstance().put(driver);
-        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
@@ -86,7 +86,7 @@ public class ParticipantTest {
         String name = "driver";
         Driver driver = new Driver(name,0.1F,0.1F);
         DriverDAO.getInstance().put(driver);
-        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
@@ -116,7 +116,7 @@ public class ParticipantTest {
         String name = "driver1";
         Driver driver = new Driver(name,0.1F,0.1F);
         DriverDAO.getInstance().put(driver);
-        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
@@ -130,7 +130,7 @@ public class ParticipantTest {
         name = "driver2";
         driver = new Driver(name,0.1F,0.1F);
         DriverDAO.getInstance().put(driver);
-        rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
+        rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
@@ -158,7 +158,7 @@ public class ParticipantTest {
         String name = "driver1";
         Driver driver = new Driver(name,0.1F,0.1F);
         DriverDAO.getInstance().put(driver);
-        CombustionRaceCar rc=new CombustionRaceCar(new S1Class(),new Tyre(Tyre.TyreType.HARD),
+        CombustionRaceCar rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
                 new CombustionEngine(Engine.EngineMode.HIGH,6000),
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
