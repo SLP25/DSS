@@ -53,7 +53,7 @@ public class Race {
             t.add(p.clone());
         return t;
     }
-    private void setParticipantAsReady(Participant p){
+    public void setParticipantAsReady(Participant p){
         ready.put(p.clone(),Boolean.TRUE);
     }
     private boolean hasFinished(){
