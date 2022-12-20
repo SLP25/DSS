@@ -16,9 +16,7 @@ import org.example.data.PlayerDAO;
 import org.example.data.RaceCarDAO;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class SimulationTest {
     private static final PlayerDAO udb = PlayerDAO.getInstance();
@@ -77,10 +75,15 @@ public class SimulationTest {
 
     private Race createRace() {
         List<Participant> participants = new ArrayList<>();
-        for(int i = 0; i < 22; i++)
-            participants.add(createParticipant(i));
+        Map<Participant,Boolean> p = new HashMap<>();
+        for(int i = 0; i < 22; i++) {
+            Participant par=createParticipant(i);
+            participants.add(par);
+            p.put(par,true);
+        }
 
-        return new Race(0, createAdmin(), new Weather(), createTrack(), participants);
+
+        return new Race(0, createAdmin(),false, new Weather(), createTrack(), participants,p);
     }
 
     @Test

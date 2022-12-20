@@ -29,6 +29,12 @@ public class Weather {
     public Weather(Weather weather) {
         this(weather.getTrackWetness(), weather.getRainLevel(), weather.getVariability());
     }
+    public Weather(double variability) {
+        Random r = new Random();
+        this.trackWetness = r.nextDouble();
+        this.rainLevel = r.nextDouble();
+        this.variability = variability;
+    }
 
     public Weather() {
         Random r = new Random();
@@ -79,4 +85,6 @@ public class Weather {
     public Object clone() {
         return new Weather(this);
     }
+
+
 }

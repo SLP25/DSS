@@ -30,7 +30,7 @@ public class Race {
     private static final double maxGapForOvertake = 0.5; //TODO:: Dynamic based on class
     private Random rng;
     private static final int simulationCooldown = 1000;
-    private int id;
+    private Integer id;
 
     private Lock lock;
 
@@ -45,7 +45,7 @@ public class Race {
 
     private List<Double> gaps;
 
-    private Set<Player> ready;
+    private Map<Participant,Boolean> ready;
 
     public List<Participant>getResults(){
         List<Participant> t=new ArrayList<>();
@@ -53,8 +53,8 @@ public class Race {
             t.add(p.clone());
         return t;
     }
-    private void setPlayerAsReady(Player p){
-        ready.add(p.clone());
+    private void setParticipantAsReady(Participant p){
+        ready.put(p.clone(),Boolean.TRUE);
     }
     private boolean hasFinished(){
         return result!=null;
@@ -257,24 +257,44 @@ public class Race {
             return canOvertakeStandard(aheadPosition, behindPosition);
     }
 
-    public Race(int id,Admin admin, Weather weather, Circuit track, List<Participant> participants) {
+    public Race(int id,Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
         this.id = id;
         lock = new ReentrantLock();
         this.leaderLocation = 0;
         this.adminHosting = admin;
         this.weatherConditions = new Weather(weather);
         this.track = track; //TODO:: Mudar para composição
-        this.result = participants;
+        this.finished = finished;
         this.currentLap = 0;
-
-        this.finished = false;
-
+        this.result = participants;
         this.gaps = new ArrayList<>();
-        for(int i = 0; i < participants.size(); i++)
-            this.gaps.add(0.0);
-        this.ready = new HashSet<>();
-    }
+        this.ready = new HashMap<>();
+        this.ready.putAll(ready);
 
+        if (!finished){
+            for(int i = 0; i < participants.size(); i++)
+                this.gaps.add(0.0);
+        }
+    }
+    public Race(Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
+        this.id = null;
+        lock = new ReentrantLock();
+        this.leaderLocation = 0;
+        this.adminHosting = admin;
+        this.weatherConditions = new Weather(weather);
+        this.track = track; //TODO:: Mudar para composição
+        this.finished = finished;
+        this.currentLap = 0;
+        this.result = participants;
+        this.gaps = new ArrayList<>();
+        this.ready = new HashMap<>();
+        this.ready.putAll(ready);
+
+        if (!finished){
+            for(int i = 0; i < participants.size(); i++)
+                this.gaps.add(0.0);
+        }
+    }
     public Race(Race r) {
         this.id = r.getId();
         this.lock = new ReentrantLock();
@@ -293,7 +313,7 @@ public class Race {
 
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -330,16 +350,16 @@ public class Race {
         return res;
     }
 
-    public Set<Player> getReady() {
-        Set<Player> res = new HashSet<>();
-        for(Player p : ready)
-            res.add(p);
-
-        return res;
+    public Map<Participant,Boolean> getReady() {
+        return new HashMap<>(ready);
     }
 
     @Override
     public Object clone() {
         return new Race(this);
+    }
+
+    public void setId(int id) {
+        this.id=id;
     }
 }
