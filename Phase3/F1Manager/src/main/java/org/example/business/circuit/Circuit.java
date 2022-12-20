@@ -1,6 +1,7 @@
 package org.example.business.circuit;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Circuit {
     private String name;
@@ -8,7 +9,7 @@ public class Circuit {
     private int numberOfLaps;
     ArrayList<CircuitSection> circuitSections;
 
-    public Circuit(String name, float circuitLength, int numberOfLaps, ArrayList<CircuitSection> circuitSections) {
+    public Circuit(String name, float circuitLength, int numberOfLaps, List<CircuitSection> circuitSections) {
         this.name = name;
         this.circuitLength = circuitLength;
         this.numberOfLaps = numberOfLaps;

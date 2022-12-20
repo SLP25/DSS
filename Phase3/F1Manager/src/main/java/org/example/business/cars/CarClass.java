@@ -6,12 +6,14 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public abstract class CarClass {
-    static float reliability;
-    private static String reliabilityFormula;
+    //static float reliability;
+    private String reliabilityFormula;
 
-    public CarClass(){}
+    public CarClass(String reliabilityFormula){
+        this.reliabilityFormula = reliabilityFormula;
+    }
 
-    public float getReliability() {return reliability;}
+    //public float getReliability() {return reliability;}
 
     public double calculateReliability(Map<String, Float> variables) {
         Expression formula = new Expression(this.reliabilityFormula);

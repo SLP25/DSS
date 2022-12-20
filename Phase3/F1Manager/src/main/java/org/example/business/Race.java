@@ -6,8 +6,11 @@ import org.example.business.circuit.Circuit;
 import org.example.business.participants.Participant;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
+import org.example.exceptions.authentication.WrongPasswordException;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Thread.sleep;
 
@@ -18,8 +21,8 @@ public class Race {
     private static final double standardOvertakeChance = 0.1;
     private static final double timeLostMinimum = -10.0;
     private static final double timeLostMaximum = 10.0;
-    private static final double crashThreshold = 9.0;
-    private static final double dnfThreshold = 9.5;
+    private static final double crashThreshold = 9.7;
+    private static final double dnfThreshold = 9.8;
 
     private static final double lapTime = 90.0;
 
@@ -29,6 +32,8 @@ public class Race {
     private static final int simulationCooldown = 1000;
     private int id;
 
+    private Lock lock;
+
     private int leaderLocation;
     private Admin adminHosting;
     private Weather weatherConditions;
@@ -36,7 +41,7 @@ public class Race {
     private List<Participant> result;
     private int currentLap;
 
-    private boolean over;
+    private boolean finished;
 
     private List<Double> gaps;
 
@@ -64,20 +69,34 @@ public class Race {
 
     public void simulate() throws InterruptedException {
         initializeRace();
-        while(!hasFinished()) {
-            simulateTireWear();
-            simulateReliability();
-            simulateWeather();
-            simulateAdvancements();
-            simulateTimeLost();
-            normalizeGaps();
-            simulateOvertaking();
+        while(!finished) {
+            lock.lock();
+            try {
+                simulateTireWear();
+                simulateReliability();
+                simulateWeather();
+                simulateAdvancements();
+                simulateTimeLost();
+                normalizeGaps();
+                simulateOvertaking();
+            } finally {
+                lock.unlock();
+            }
+
             Thread.sleep(simulationCooldown);
         }
     }
 
+    public void lock() {
+        lock.lock();
+    }
+
+    public void unlock() {
+        lock.unlock();
+    }
+
     private void initializeRace() {
-        over = false;
+        finished = false;
         currentLap = 1;
         rng = new Random();
         leaderLocation = 0;
@@ -89,10 +108,12 @@ public class Race {
         //Sort gaps in ascending order
         Collections.sort(gaps);
 
-        //Shift all gaps so first element is zero
-        double toAdd = -gaps.get(0);
-        for(int i = 0; i < gaps.size(); i++) {
-            gaps.set(i, gaps.get(i) + toAdd);
+        if(!gaps.isEmpty()) {
+            //Shift all gaps so first element is zero
+            double toAdd = -gaps.get(0);
+            for(int i = 0; i < gaps.size(); i++) {
+                gaps.set(i, gaps.get(i) + toAdd);
+            }
         }
     }
 
@@ -122,6 +143,9 @@ public class Race {
             Map<String, Float> vars = new HashMap<>();
             vars.put("laps", (float)currentLap);
             vars.put("sva", result.get(i).getDriver().getDriverSVA());
+            vars.put("isHybrid", 0.0f);
+            vars.put("pilotReliability", 1.0f);
+            vars.put("classReliability", 0.95f);
 
             double probability = result.get(i).getCar().getCategory().calculateReliability(vars);
             double r = rng.nextDouble();
@@ -130,7 +154,8 @@ public class Race {
             // As we will run this method n times per lap, and each decision of retiring
             // is independent of the others, the probability of retiring in a single decision
             // equals prob ^ (1 / n)
-            if(r < Math.pow(probability, 1.0 / (double)n)) {
+            if(r > Math.pow(probability, 1.0 / (double)n)) {
+                System.out.println("Renault engine for driver in P" + (i + 1));
                 gaps.remove(i);
                 result.remove(i);
             }
@@ -168,7 +193,7 @@ public class Race {
         }
 
         if(currentLap > track.getNumberOfLaps()) {
-            over = true;
+            finished = true;
         }
     }
 
@@ -185,6 +210,7 @@ public class Race {
                 c.setDamage(c.getDamage() + (timeLost - crashThreshold) / (dnfThreshold - crashThreshold));
 
                 if(c.getDamage() > maxDamage) {
+                    System.out.println("Crash for driver in P" + (i + 1));
                     //Retire the car
                     gaps.remove(i);
                     result.remove(i);
@@ -207,7 +233,7 @@ public class Race {
         int numberSections = track.getCircuitSections().size();
         double timePerSection = lapTime / numberSections;
         int numberBehind = ((int)(double)gaps.get(position) % (int)lapTime) / (int)timePerSection;
-        int index = (leaderLocation - numberBehind) % numberSections;
+        int index = (leaderLocation - numberBehind + numberSections) % numberSections;
         return track.getCircuitSections().get(index).getSectionGDU();
     }
 
@@ -229,5 +255,91 @@ public class Race {
             return canOvertakePremium(aheadPosition, behindPosition);
         else
             return canOvertakeStandard(aheadPosition, behindPosition);
+    }
+
+    public Race(int id,Admin admin, Weather weather, Circuit track, List<Participant> participants) {
+        this.id = id;
+        lock = new ReentrantLock();
+        this.leaderLocation = 0;
+        this.adminHosting = admin;
+        this.weatherConditions = new Weather(weather);
+        this.track = track; //TODO:: Mudar para composição
+        this.result = participants;
+        this.currentLap = 0;
+
+        this.finished = false;
+
+        this.gaps = new ArrayList<>();
+        for(int i = 0; i < participants.size(); i++)
+            this.gaps.add(0.0);
+        this.ready = new HashSet<>();
+    }
+
+    public Race(Race r) {
+        this.id = r.getId();
+        this.lock = new ReentrantLock();
+        this.leaderLocation = r.getLeaderLocation();
+        this.adminHosting = r.getAdminHosting();
+        this.weatherConditions = r.getWeatherConditions();
+        this.track = r.getTrack();
+        this.result = r.getResults();
+        this.currentLap = r.getCurrentLap();
+
+        this.finished = r.getFinished();
+
+        this.gaps = r.getGaps();
+
+        this.ready = r.getReady();
+
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getLeaderLocation() {
+        return leaderLocation;
+    }
+
+    public Admin getAdminHosting() {
+        return adminHosting; //TODO:: Composition
+    }
+
+    public Weather getWeatherConditions() {
+        return new Weather(weatherConditions);
+    }
+
+    public Circuit getTrack() {
+        return track;
+    }
+
+    public int getCurrentLap() {
+        return currentLap;
+    }
+
+    public boolean getFinished() {
+        return finished;
+    }
+
+    public List<Double> getGaps() {
+        List<Double> res = new ArrayList<>();
+
+        for(Double d : gaps)
+            res.add(d);
+
+        return res;
+    }
+
+    public Set<Player> getReady() {
+        Set<Player> res = new HashSet<>();
+        for(Player p : ready)
+            res.add(p);
+
+        return res;
+    }
+
+    @Override
+    public Object clone() {
+        return new Race(this);
     }
 }
