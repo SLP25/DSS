@@ -46,18 +46,28 @@ public class Race {
     private List<Double> gaps;
 
     private Map<Participant,Boolean> ready;
+    private Map<String, Participant> participants;
 
-    public List<Participant>getResults(){
+    public boolean areAllPlayersReady() {
+        for(Boolean b : ready.values()) {
+            if(!b)
+                return false;
+        }
+        return true;
+    }
+
+    public List<Participant> getResults(){
         List<Participant> t=new ArrayList<>();
         for (Participant p:result)
             t.add(p.clone());
         return t;
     }
-    public void setParticipantAsReady(Participant p){
-        ready.put(p.clone(),Boolean.TRUE);
+    public void setPlayerAsReady(String player){
+        Participant p = participants.get(player);
+        ready.put(p,true);
     }
-    private boolean hasFinished(){
-        return result!=null;
+    public boolean hasFinished(){
+        return finished;
     }
     public static int getPointsOfPosition(int n){
         int[] a=new int[]{25,18,15,12,10,8,6,4,2,1};
@@ -67,24 +77,30 @@ public class Race {
     }
 
 
-    public void simulate() throws InterruptedException {
-        initializeRace();
-        while(!finished) {
-            lock.lock();
-            try {
-                simulateTireWear();
-                simulateReliability();
-                simulateWeather();
-                simulateAdvancements();
-                simulateTimeLost();
-                normalizeGaps();
-                simulateOvertaking();
-            } finally {
-                lock.unlock();
-            }
+    public void simulate() {
+        new Thread(() -> {
+            initializeRace();
+            while(!finished) {
+                lock.lock();
+                try {
+                    simulateTireWear();
+                    simulateReliability();
+                    simulateWeather();
+                    simulateAdvancements();
+                    simulateTimeLost();
+                    normalizeGaps();
+                    simulateOvertaking();
+                } finally {
+                    lock.unlock();
+                }
 
-            Thread.sleep(simulationCooldown);
-        }
+                try {
+                    Thread.sleep(simulationCooldown);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
     }
 
     public void lock() {
@@ -270,31 +286,17 @@ public class Race {
         this.gaps = new ArrayList<>();
         this.ready = new HashMap<>();
         this.ready.putAll(ready);
+        this.participants = new HashMap<>();
+        for(Participant p : this.ready.keySet()) {
+            this.participants.put(p.getManager().getUsername(), p);
+        }
 
         if (!finished){
             for(int i = 0; i < participants.size(); i++)
                 this.gaps.add(0.0);
         }
     }
-    public Race(Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
-        this.id = null;
-        lock = new ReentrantLock();
-        this.leaderLocation = 0;
-        this.adminHosting = admin;
-        this.weatherConditions = new Weather(weather);
-        this.track = track; //TODO:: Mudar para composição
-        this.finished = finished;
-        this.currentLap = 0;
-        this.result = participants;
-        this.gaps = new ArrayList<>();
-        this.ready = new HashMap<>();
-        this.ready.putAll(ready);
 
-        if (!finished){
-            for(int i = 0; i < participants.size(); i++)
-                this.gaps.add(0.0);
-        }
-    }
     public Race(Race r) {
         this.id = r.getId();
         this.lock = new ReentrantLock();
@@ -305,12 +307,12 @@ public class Race {
         this.result = r.getResults();
         this.currentLap = r.getCurrentLap();
 
-        this.finished = r.getFinished();
+        this.finished = r.hasFinished();
 
         this.gaps = r.getGaps();
 
         this.ready = r.getReady();
-
+        this.participants = r.participants;
     }
 
     public Integer getId() {
@@ -337,10 +339,6 @@ public class Race {
         return currentLap;
     }
 
-    public boolean getFinished() {
-        return finished;
-    }
-
     public List<Double> getGaps() {
         List<Double> res = new ArrayList<>();
 
@@ -351,7 +349,7 @@ public class Race {
     }
 
     public Map<Participant,Boolean> getReady() {
-        return new HashMap<>(ready);
+        return ready;
     }
 
     @Override

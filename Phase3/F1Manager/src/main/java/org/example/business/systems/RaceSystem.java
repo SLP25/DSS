@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RaceSystem {
-    //TODO:: Remove temporary method
+    //4
     Map<Integer, Race> races;
     public RaceSystem() {
         races = new HashMap<>();
@@ -17,21 +17,45 @@ public class RaceSystem {
     public void addRace(Race race) {
         races.put(race.getId(), race);
     }
-    public void simulate(int raceId) {
-        Race r = races.get(raceId);
+
+    public void prepareForRace(int race, String player) {
+        Race r = races.get(race);
+
         if(r != null) {
-            new Thread(() -> {
-                try {
+            r.lock();
+            try {
+                r.setPlayerAsReady(player);
+
+                if(r.areAllPlayersReady()) {
                     r.simulate();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
-            }).start();
+            } finally {
+                r.unlock();
+            }
+
         }
     }
 
-    public Race getRaceResults(int raceId) {
-        Race r = races.get(raceId);
+    public List<Participant> getRaceResults(int race) {
+        Race r = races.get(race);
+
+        if(r != null) {
+            r.lock();
+            try {
+                if(r.hasFinished()) {
+                    return r.getResults();
+                } else {
+                    return null;
+                }
+            } finally {
+                r.unlock();
+            }
+        }
+        return null;
+    }
+
+    public Race getRaceState(int race) {
+        Race r = races.get(race);
 
         if(r != null) {
             r.lock();

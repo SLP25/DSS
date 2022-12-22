@@ -91,10 +91,12 @@ public class SimulationTest {
         RaceSystem rs = new RaceSystem();
         Race r = createRace();
         rs.addRace(r);
-        rs.simulate(r.getId());
+
+        for(int i = 0; i < 22; i++)
+            rs.prepareForRace(0, "player" + i);
 
         while(true) {
-            Race temp = rs.getRaceResults(r.getId());
+            Race temp = rs.getRaceState(r.getId());
 
             List<Double> gaps = temp.getGaps();
             List<Participant> participants = temp.getResults();

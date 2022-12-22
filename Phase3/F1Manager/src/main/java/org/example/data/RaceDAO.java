@@ -22,7 +22,7 @@ public class RaceDAO implements Map<Integer, Race> {
                     "WeatherVariability DECIMAL(11,10) NOT NULL," +
                     "Circuit VARCHAR(255) NOT NULL," +
                     "Finished BOOLEAN NOT NULL,"+
-                    "FOREIGN KEY (AdminHosting) REFERENCES users(Username) ON DELETE CASCADE ON UPDATE CASCADE," +
+                    "FOREIGN KEY (AdminHosting) REFERENCES users(Username) ON DELETE CASCADE ON UPDATE CASCADE" +
                     ");";
             stm.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS raceResults (" +
@@ -31,7 +31,7 @@ public class RaceDAO implements Map<Integer, Race> {
                     "Participant VARCHAR(255) NOT NULL," +
                     "PRIMARY KEY (Id,Participant)," +
                     "FOREIGN KEY (Id) REFERENCES races(Id) ON DELETE CASCADE ON UPDATE CASCADE," +
-                    "FOREIGN KEY (Participant) REFERENCES participants(Player) ON DELETE CASCADE ON UPDATE CASCADE," +
+                    "FOREIGN KEY (Participant) REFERENCES participants(Player) ON DELETE CASCADE ON UPDATE CASCADE" +
                     ");";
             stm.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS raceReady (" +
@@ -40,7 +40,7 @@ public class RaceDAO implements Map<Integer, Race> {
                     "Participant VARCHAR(255) NOT NULL," +
                     "PRIMARY KEY (Id,Participant)," +
                     "FOREIGN KEY (Id) REFERENCES races(Id) ON DELETE CASCADE ON UPDATE CASCADE," +
-                    "FOREIGN KEY (Participant) REFERENCES participants(Player) ON DELETE CASCADE ON UPDATE CASCADE," +
+                    "FOREIGN KEY (Participant) REFERENCES participants(Player) ON DELETE CASCADE ON UPDATE CASCADE" +
                     ");";
             stm.executeUpdate(sql);
         } catch (SQLException e) {
@@ -217,7 +217,7 @@ public class RaceDAO implements Map<Integer, Race> {
                 n++;
                 ps.setString(n, race.getTrack().getName());
                 n++;
-                ps.setBoolean(n, race.getFinished());
+                ps.setBoolean(n, race.hasFinished());
                 ps.executeUpdate();
                 try (ResultSet rs = ps.getGeneratedKeys();) {
                     if (rs.next())
@@ -275,7 +275,7 @@ public class RaceDAO implements Map<Integer, Race> {
                 ps.setString(1,race.getAdminHosting().getUsername());
                 ps.setDouble(2,race.getWeatherConditions().getVariability());
                 ps.setString(3,race.getTrack().getName());
-                ps.setBoolean(4,race.getFinished());
+                ps.setBoolean(4,race.hasFinished());
                 ps.setInt(5,race.getId());
                 ps.executeUpdate();
             }
@@ -364,7 +364,7 @@ public class RaceDAO implements Map<Integer, Race> {
                     n++;
                     ps.setString(n, race.getTrack().getName());
                     n++;
-                    ps.setBoolean(n, race.getFinished());
+                    ps.setBoolean(n, race.hasFinished());
                     ps.executeUpdate();
                     try (ResultSet rs = ps.getGeneratedKeys();) {
                         if (rs.next())
