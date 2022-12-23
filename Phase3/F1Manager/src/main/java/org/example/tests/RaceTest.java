@@ -91,75 +91,14 @@ public class RaceTest {
         Assertions.assertFalse(rdb.containsValue(rc));
         Assertions.assertTrue(rdb.containsValue(r));
     }
-    /*@Test
+    @Test
     public void removeTest() {
-        Set<Integer> ids = createRace(10);
+        int s=rdb.size();
+        Set<Integer> ids = createRace(2);
         Integer id= ids.stream().min(Integer::compareTo).get();
         Race r = rdb.get(id);
-        Assertions.assertEquals(rdb.remove(r.getId()),r);
+        Assertions.assertEquals(r,rdb.remove(r.getId()));
         Assertions.assertFalse(rdb.containsValue(r));
-        Assertions.assertEquals(9,rdb.size());
+        Assertions.assertEquals(s+1,rdb.size());
     }
-
-    @Test
-    public void setStrategy(){
-        Set<Integer> ids = createRace(10);
-        Integer id= ids.stream().min(Integer::compareTo).get();
-        Race r = rdb.get(id);
-        v.setStrategy(Tyre.TyreType.SOFT, Engine.EngineMode.HIGH);
-        Assertions.assertEquals(Tyre.TyreType.SOFT,v.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,v.getCombustionEngine().getMode());
-        v = rdb.get(id);
-
-        Assertions.assertEquals(Tyre.TyreType.SOFT,v.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,v.getCombustionEngine().getMode());
-
-        HybridRaceCar h = new HybridRaceCar(S1Class.getInstance(),
-                new Tyre(Tyre.TyreType.HARD),
-                new CombustionEngine(Engine.EngineMode.HIGH,6000),
-                new BodyWork(BodyWork.DownforcePackage.LOW),
-                new EletricEngine(Engine.EngineMode.HIGH,100));
-        rdb.put(h);
-        id = h.getId();
-        Assertions.assertEquals(Tyre.TyreType.HARD,h.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
-        Assertions.assertEquals(BodyWork.DownforcePackage.LOW,h.getDfPackage().getDfPackage());
-        h.setStrategy(Tyre.TyreType.SOFT, Engine.EngineMode.LOW);
-        h= (HybridRaceCar) rdb.get(id);
-        Assertions.assertEquals(Tyre.TyreType.SOFT,h.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.LOW,h.getCombustionEngine().getMode());
-        Assertions.assertEquals(Engine.EngineMode.LOW,h.getEletricEngine().getMode());
-        Assertions.assertEquals(BodyWork.DownforcePackage.LOW,h.getDfPackage().getDfPackage());
-
-    }
-    @Test
-    public void changeCarSetupTest(){
-        Set<Integer> ids = createRaceCar(10);
-        Integer id= ids.stream().min(Integer::compareTo).get();
-        CombustionRaceCar v = rdb.get(id);
-        v.changeCarSetup(BodyWork.DownforcePackage.HIGH);
-        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,v.getDfPackage().getDfPackage());
-        v = rdb.get(id);
-
-        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,v.getDfPackage().getDfPackage());
-
-        HybridRaceCar h = new HybridRaceCar(S1Class.getInstance(),
-                new Tyre(Tyre.TyreType.HARD),
-                new CombustionEngine(Engine.EngineMode.HIGH,6000),
-                new BodyWork(BodyWork.DownforcePackage.LOW),
-                new EletricEngine(Engine.EngineMode.HIGH,100));
-        rdb.put(h);
-        id = h.getId();
-        Assertions.assertEquals(Tyre.TyreType.HARD,h.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
-        Assertions.assertEquals(BodyWork.DownforcePackage.LOW,h.getDfPackage().getDfPackage());
-        h.changeCarSetup(BodyWork.DownforcePackage.HIGH);
-        h= (HybridRaceCar) rdb.get(id);
-        Assertions.assertEquals(Tyre.TyreType.HARD,h.getTyres().getType());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getCombustionEngine().getMode());
-        Assertions.assertEquals(Engine.EngineMode.HIGH,h.getEletricEngine().getMode());
-        Assertions.assertEquals(BodyWork.DownforcePackage.HIGH,h.getDfPackage().getDfPackage());
-    }*/
 }

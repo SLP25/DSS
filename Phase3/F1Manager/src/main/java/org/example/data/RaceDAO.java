@@ -330,11 +330,10 @@ public class RaceDAO implements Map<Integer, Race> {
             return null;
         try (Connection conn = DatabaseData.getConnection();){
             conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM ? WHERE Id = ?;");){
-                String[] tables = {"races", "raceResults", "raceReady"};
-                for(String table:tables) {
-                    ps.setString(1, table);
-                    ps.setInt(2, (Integer) key);
+            String[] tables = {"races", "raceResults", "raceReady"};
+            for(String table:tables) {
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM "+table+" WHERE Id = ?;");){
+                    ps.setInt(1, (Integer) key);
                     ps.executeUpdate();
                 }
             }
