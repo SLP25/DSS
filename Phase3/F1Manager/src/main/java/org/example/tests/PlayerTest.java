@@ -19,8 +19,9 @@ public class PlayerTest {
 
     public static Set<String> createPlayer(int n){
         Set<String> s = new HashSet<>();
+        int k = PlayerDAO.getInstance().size();
         for (int i=1;i<=n;i++){
-            Player u = new Player("player:"+i);
+            Player u = new Player("player:"+i+k);
             u.setPassword("123456");
             udb.put(u);
             s.add(u.getUsername());
@@ -50,34 +51,36 @@ public class PlayerTest {
     }
     @Test
     public void sizeTest(){
+
         Assertions.assertEquals(udb.size(),0);
         createPlayer(10);
         Assertions.assertEquals(udb.size(),10);
         createPlayer(20);
-        Assertions.assertEquals(udb.size(),20);
+        Assertions.assertEquals(udb.size(),30);
     }
     @Test
     public void containsKeyTest(){
-        createPlayer(5);
-        Assertions.assertFalse(udb.containsKey("player:6"));
-        Assertions.assertTrue(udb.containsKey("player:5"));
+        Set<String> ids=createPlayer(5);
+        Assertions.assertFalse(udb.containsKey(ids.stream().max(String::compareTo).get()+"1234"));
+        Assertions.assertTrue(udb.containsKey(ids.stream().max(String::compareTo).get()));
     }
     @Test
     public void containsValueTest(){
         Player n = new Player("test");
-        createPlayer(5);
-        Player v = udb.get("player:1");
+        Set<String> ids=createPlayer(5);
+        Player v = udb.get(ids.stream().max(String::compareTo).get());
 
         Assertions.assertFalse(udb.containsValue(n));
         Assertions.assertTrue(udb.containsValue(v));
     }
     @Test
     public void removeTest(){
-        createPlayer(10);
-        Player v = udb.get("player:1");
+        int sIn= udb.size();
+        Set<String> ids=createPlayer(10);
+        Player v = udb.get(ids.stream().max(String::compareTo).get());
         Assertions.assertEquals(udb.remove(v.getUsername()),v);
         Assertions.assertFalse(udb.containsValue(v));
-        Assertions.assertEquals(udb.size(),9);
+        Assertions.assertEquals(udb.size(),sIn+9);
     }
     @Test
     public void putAllTest(){

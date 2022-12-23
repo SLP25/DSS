@@ -16,8 +16,9 @@ public class DriverTest {
 
     public static Set<String> createDriver(int n){
         Set<String> s = new HashSet<>();
+        int k=ddb.size();
         for (int i=1;i<=n;i++){
-            Driver u = new Driver("driver:"+i,0.1F,0.1F);
+            Driver u = new Driver("driver:"+i+k,0.1F,0.1F);
             ddb.put(u);
             s.add(u.getDriverName());
         }
@@ -47,13 +48,13 @@ public class DriverTest {
         createDriver(10);
         Assertions.assertEquals(ddb.size(),10);
         createDriver(20);
-        Assertions.assertEquals(ddb.size(),20);
+        Assertions.assertEquals(ddb.size(),30);
     }
     @Test
     public void containsKeyTest(){
-        createDriver(5);
-        Assertions.assertFalse(ddb.containsKey("driver:6"));
-        Assertions.assertTrue(ddb.containsKey("driver:5"));
+        Set<String> ids=createDriver(5);
+        Assertions.assertFalse(ddb.containsKey(ids.stream().max(String::compareTo).get()+"1234"));
+        Assertions.assertTrue(ddb.containsKey(ids.stream().max(String::compareTo).get()));
     }
     @Test
     public void containsValueTest(){

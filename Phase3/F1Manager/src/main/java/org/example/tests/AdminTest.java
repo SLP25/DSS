@@ -19,8 +19,9 @@ public class AdminTest {
 
     public static Set<String> createAdmin(int n){
         Set<String>s=new HashSet<>();
+        int k = adb.size();
         for (int i=1;i<=n;i++){
-            Admin u = new Admin("admin:"+i,false);
+            Admin u = new Admin("admin:"+i+k,false);
             u.setPassword("123456");
             adb.put(u);
             s.add(u.getUsername());
@@ -54,30 +55,31 @@ public class AdminTest {
         createAdmin(10);
         Assertions.assertEquals(adb.size(),10);
         createAdmin(20);
-        Assertions.assertEquals(adb.size(),20);
+        Assertions.assertEquals(adb.size(),30);
     }
     @Test
     public void containsKeyTest(){
-        createAdmin(5);
-        Assertions.assertFalse(adb.containsKey("admin:6"));
-        Assertions.assertTrue(adb.containsKey("admin:5"));
+        Set<String> ids=createAdmin(5);
+        Assertions.assertFalse(adb.containsKey(ids.stream().max(String::compareTo).get()+"123"));
+        Assertions.assertTrue(adb.containsKey(ids.stream().max(String::compareTo).get()));
     }
     @Test
     public void containsValueTest(){
         Admin n = new Admin("test",false);
-        createAdmin(5);
-        Admin v = adb.get("admin:1");
+        Set<String> admins=createAdmin(5);
+        Admin v = adb.get(admins.stream().max(String::compareTo).get());
 
         Assertions.assertFalse(adb.containsValue(n));
         Assertions.assertTrue(adb.containsValue(v));
     }
     @Test
     public void removeTest(){
-        createAdmin(10);
-        Admin v = adb.get("admin:1");
+        Set<String> admins = createAdmin(10);
+        int k=adb.size();
+        Admin v = adb.get(admins.stream().max(String::compareTo).get());
         Assertions.assertEquals(adb.remove(v.getUsername()),v);
         Assertions.assertFalse(adb.containsValue(v));
-        Assertions.assertEquals(adb.size(),9);
+        Assertions.assertEquals(adb.size(),k-1);
     }
     @Test
     public void putAllTest(){

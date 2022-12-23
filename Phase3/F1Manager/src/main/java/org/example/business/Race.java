@@ -296,6 +296,29 @@ public class Race {
                 this.gaps.add(0.0);
         }
     }
+    public Race(Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
+        this.id = null;
+        lock = new ReentrantLock();
+        this.leaderLocation = 0;
+        this.adminHosting = admin;
+        this.weatherConditions = new Weather(weather);
+        this.track = track; //TODO:: Mudar para composição
+        this.finished = finished;
+        this.currentLap = 0;
+        this.result = participants;
+        this.gaps = new ArrayList<>();
+        this.ready = new HashMap<>();
+        this.ready.putAll(ready);
+        this.participants = new HashMap<>();
+        for(Participant p : this.ready.keySet()) {
+            this.participants.put(p.getManager().getUsername(), p);
+        }
+
+        if (!finished){
+            for(int i = 0; i < participants.size(); i++)
+                this.gaps.add(0.0);
+        }
+    }
 
     public Race(Race r) {
         this.id = r.getId();
@@ -359,5 +382,18 @@ public class Race {
 
     public void setId(int id) {
         this.id=id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Race race = (Race) o;
+        return  finished == race.finished && Objects.equals(getId(), race.getId()) && Objects.equals(getAdminHosting(), race.getAdminHosting()) && Objects.equals(getWeatherConditions().getVariability(), race.getWeatherConditions().getVariability()) && Objects.equals(getTrack().getName(), race.getTrack().getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

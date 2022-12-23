@@ -328,12 +328,18 @@ public class RaceDAO implements Map<Integer, Race> {
         Race value = this.get(key);
         if (value==null)
             return null;
-        try (
-                Connection conn = DatabaseData.getConnection();
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM races WHERE Id = ?;");
-        ){
-            ps.setInt(1,(Integer)key);
-            ps.executeUpdate();
+        try (Connection conn = DatabaseData.getConnection();){
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM ? WHERE Id = ?;");){
+                String[] tables = {"races", "raceResults", "raceReady"};
+                for(String table:tables) {
+                    ps.setString(1, table);
+                    ps.setInt(2, (Integer) key);
+                    ps.executeUpdate();
+                }
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
             return value;
         } catch (SQLException e) {
             return null;
@@ -405,9 +411,15 @@ public class RaceDAO implements Map<Integer, Race> {
 
     @Override
     public void clear() {
-        try ( Connection conn = DatabaseData.getConnection();
-              Statement stm = conn.createStatement();){
-            stm.executeUpdate("DELETE FROM races;");
+        try (Connection conn = DatabaseData.getConnection();) {
+                conn.setAutoCommit(false);
+                try (Statement stm = conn.createStatement();){
+                    stm.executeUpdate("DELETE FROM races;");
+                    stm.executeUpdate("DELETE FROM raceResults;");
+                    stm.executeUpdate("DELETE FROM raceReady;");
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
         } catch (SQLException e) {
             throw new RuntimeException(e);//TODO MUDAR ISTO
         }

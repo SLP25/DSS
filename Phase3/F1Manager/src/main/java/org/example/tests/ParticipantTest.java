@@ -72,9 +72,9 @@ public class ParticipantTest {
     }
     @Test
     public void containsKeyTest(){
-        createParticipant(5);
-        Assertions.assertFalse(pdb.containsKey("player:6"));
-        Assertions.assertTrue(pdb.containsKey("player:5"));
+        Set<String> ids= createParticipant(5);
+        Assertions.assertFalse(pdb.containsKey(ids.stream().max(String::compareTo).get()+"123456"));
+        Assertions.assertTrue(pdb.containsKey(ids.stream().max(String::compareTo).get()));
     }
     @Test
     public void containsValueTest(){
