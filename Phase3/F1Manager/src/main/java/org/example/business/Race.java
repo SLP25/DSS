@@ -6,6 +6,7 @@ import org.example.business.circuit.Circuit;
 import org.example.business.participants.Participant;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
+import org.example.data.ChampionshipDAO;
 import org.example.exceptions.authentication.WrongPasswordException;
 
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.lang.Thread.sleep;
 
 public class Race {
+    private int championshipId;
     private static final double punctureFactor = 2.0;
     private static final double weatherChangeFactor = 1.0;
     private static final double trackDryingFactor = 1.0;
@@ -35,9 +37,11 @@ public class Race {
     private Lock lock;
 
     private int leaderLocation;
-    private Admin adminHosting;
     private Weather weatherConditions;
     private Circuit track;
+
+    private Map<String,Participant> participants;
+
     private List<Participant> result;
     private int currentLap;
 
@@ -46,7 +50,6 @@ public class Race {
     private List<Double> gaps;
 
     private Map<Participant,Boolean> ready;
-    private Map<String, Participant> participants;
 
     public boolean areAllPlayersReady() {
         for(Boolean b : ready.values()) {
@@ -267,17 +270,17 @@ public class Race {
     }
 
     private boolean canOvertake(int aheadPosition, int behindPosition) {
-        if(adminHosting.getPremium())
+        if(ChampionshipDAO.getInstance().get(championshipId).getAdmin().getPremium())
             return canOvertakePremium(aheadPosition, behindPosition);
         else
             return canOvertakeStandard(aheadPosition, behindPosition);
     }
 
-    public Race(int id,Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
+    public Race(int id,int championshipId,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
         this.id = id;
+        this.championshipId=championshipId;
         lock = new ReentrantLock();
         this.leaderLocation = 0;
-        this.adminHosting = admin;
         this.weatherConditions = new Weather(weather);
         this.track = track; //TODO:: Mudar para composição
         this.finished = finished;
@@ -296,11 +299,11 @@ public class Race {
                 this.gaps.add(0.0);
         }
     }
-    public Race(Admin admin,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
+    public Race(int championshipId,boolean finished, Weather weather, Circuit track, List<Participant> participants,Map<Participant,Boolean>ready) {
         this.id = null;
+        this.championshipId=championshipId;
         lock = new ReentrantLock();
         this.leaderLocation = 0;
-        this.adminHosting = admin;
         this.weatherConditions = new Weather(weather);
         this.track = track; //TODO:: Mudar para composição
         this.finished = finished;
@@ -322,9 +325,9 @@ public class Race {
 
     public Race(Race r) {
         this.id = r.getId();
+        this.championshipId=r.getChampionshipId();
         this.lock = new ReentrantLock();
         this.leaderLocation = r.getLeaderLocation();
-        this.adminHosting = r.getAdminHosting();
         this.weatherConditions = r.getWeatherConditions();
         this.track = r.getTrack();
         this.result = r.getResults();
@@ -342,13 +345,18 @@ public class Race {
         return id;
     }
 
+    public int getChampionshipId() {
+        return championshipId;
+    }
+
+    public void setChampionshipId(int championshipId) {
+        this.championshipId = championshipId;
+    }
+
     public int getLeaderLocation() {
         return leaderLocation;
     }
 
-    public Admin getAdminHosting() {
-        return adminHosting; //TODO:: Composition
-    }
 
     public Weather getWeatherConditions() {
         return new Weather(weatherConditions);
@@ -376,7 +384,7 @@ public class Race {
     }
 
     @Override
-    public Object clone() {
+    public Race clone() {
         return new Race(this);
     }
 
@@ -389,7 +397,7 @@ public class Race {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Race race = (Race) o;
-        return  finished == race.finished && Objects.equals(getId(), race.getId()) && Objects.equals(getAdminHosting(), race.getAdminHosting()) && Objects.equals(getWeatherConditions().getVariability(), race.getWeatherConditions().getVariability()) && Objects.equals(getTrack().getName(), race.getTrack().getName());
+        return  finished == race.finished && Objects.equals(getId(), race.getId()) && getChampionshipId()==race.getChampionshipId() && Objects.equals(getWeatherConditions().getVariability(), race.getWeatherConditions().getVariability()) && Objects.equals(getTrack().getName(), race.getTrack().getName());
     }
 
     @Override

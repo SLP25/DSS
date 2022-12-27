@@ -1,5 +1,8 @@
 package org.example.business.participants;
 
+import org.example.business.cars.BodyWork;
+import org.example.business.cars.CombustionEngine;
+import org.example.business.cars.Tyre;
 import org.example.business.drivers.Driver;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.users.Player;
@@ -8,16 +11,26 @@ import org.example.data.ParticipantDAO;
 import java.util.Objects;
 
 public class Participant {
+    private int championship;
     private int numberOfSetupChanges;
     private CombustionRaceCar car;
     private Driver driver;
     private Player manager;
 
-    public Participant(int numberOfSetupChanges, CombustionRaceCar car, Driver driver, Player manager) {
+    public Participant(int championship,int numberOfSetupChanges, CombustionRaceCar car, Driver driver, Player manager) {
+        this.championship = championship;
         this.numberOfSetupChanges = numberOfSetupChanges;
         this.car = car;
         this.driver = driver;
         this.manager = manager;
+    }
+
+    public int getChampionship() {
+        return championship;
+    }
+
+    public void setChampionship(int championship) {
+        this.championship = championship;
     }
 
     public int getNumberOfSetupChanges() {return numberOfSetupChanges;}
@@ -38,7 +51,16 @@ public class Participant {
 
     public void increaseNumberOfSetupChanges(){
         this.numberOfSetupChanges=this.numberOfSetupChanges+1;
-        ParticipantDAO.getInstance().update(this);
+        ParticipantDAO.getInstance(this.getChampionship()).update(this);
+    }
+    public void setStrategy(Tyre.TyreType tyre, CombustionEngine.EngineMode engineMode){
+        this.car.setStrategy(tyre,engineMode);
+        ParticipantDAO.getInstance(this.getChampionship()).update(this);
+    }
+    public void changeCarSetup (BodyWork.DownforcePackage df){
+        this.car.changeCarSetup(df);
+        this.numberOfSetupChanges=this.numberOfSetupChanges+1;
+        ParticipantDAO.getInstance(this.getChampionship()).update(this);
     }
 
     @Override
@@ -46,16 +68,16 @@ public class Participant {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Participant that = (Participant) o;
-        return getNumberOfSetupChanges() == that.getNumberOfSetupChanges() && Objects.equals(getCar(), that.getCar()) && Objects.equals(getDriver(), that.getDriver()) && Objects.equals(getManager(), that.getManager());
+        return getChampionship() == that.getChampionship() && getNumberOfSetupChanges() == that.getNumberOfSetupChanges() && Objects.equals(getCar(), that.getCar()) && Objects.equals(getDriver(), that.getDriver()) && Objects.equals(getManager(), that.getManager());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNumberOfSetupChanges(), getCar(), getDriver(), getManager());
+        return Objects.hash(getManager().getUsername(),getChampionship());
     }
 
     @Override
     public Participant clone(){
-        return new Participant(this.numberOfSetupChanges,this.getCar().clone(),this.getDriver().clone(),this.getManager().clone());
+        return new Participant(this.championship,this.numberOfSetupChanges,this.getCar().clone(),this.getDriver().clone(),this.getManager().clone());
     }
 }

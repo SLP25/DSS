@@ -1,5 +1,6 @@
 package org.example.tests;
 
+import org.example.business.Championship;
 import org.example.business.Race;
 import org.example.business.Weather;
 import org.example.business.cars.*;
@@ -17,29 +18,29 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.example.tests.AdminTest.createAdmin;
+
 public class RaceTest {
-    private static final RaceDAO rdb = RaceDAO.getInstance();
+    private Championship championship;
 
 
-    public static Set<Integer> createRace(int n) {
+    public static Set<Integer> createRace(int championship,int n) {
         Set<Integer> s = new HashSet<>();
 
-        List<String> admins = new ArrayList<>(AdminTest.createAdmin(n));
-
         for (int i=0;i<n;i++){
-            List<Participant> parts=ParticipantTest.createParticipant(10).stream().map(str->ParticipantDAO.getInstance().get(str)).toList();
+            List<Participant> parts=ParticipantTest.createParticipant(championship,10).stream().map(str->ParticipantDAO.getInstance(championship).get(str)).toList();
             Map<Participant,Boolean> p = new HashMap<>();
             for (Participant par:parts)
                 p.put(par,false);
             Race r = new Race(
-                    AdminDAO.getInstance().get(admins.get(i)),
+                    championship,
                     false,
                     new Weather(),
                     CircuitDAO.getInstance().get("Monza"),
                     parts,
                     p
                     );
-            rdb.put(r);
+            RaceDAO.getInstance(championship).put(r);
             s.add(r.getId());
         }
         return s;
@@ -47,34 +48,38 @@ public class RaceTest {
 
     @BeforeEach
     public void init() {
-        rdb.clear();
+        ChampionshipDAO.getInstance().clear();
+        Admin a = createAdmin(1).stream().map(x->AdminDAO.getInstance().get(x)).reduce(null,(o,n)->n);
+        Championship c=ChampionshipDAO.getInstance().put(new Championship(a));
+        RaceDAO.getInstance(c.getId()).clear();
+        this.championship=c;
     }
 
     @Test
     public void createRaceTest() {
-        Set<Integer> ids = createRace(1);
-        Race r1 = rdb.get(ids.stream().min(Integer::compareTo).get());
-        Assertions.assertEquals(r1,rdb.get(r1.getId()));
-        Assertions.assertNull(rdb.get(r1.getId()+10000));
+        Set<Integer> ids = createRace(this.championship.getId(),1);
+        Race r1 = RaceDAO.getInstance(this.championship.getId()).get(ids.stream().min(Integer::compareTo).get());
+        Assertions.assertEquals(r1,RaceDAO.getInstance(this.championship.getId()).get(r1.getId()));
+        Assertions.assertNull(RaceDAO.getInstance(this.championship.getId()).get(r1.getId()+10000));
     }
     @Test
     public void isEmptyTest() {
-        Assertions.assertTrue(rdb.isEmpty());
-        Set<Integer> ids=createRace(1);
-        Assertions.assertFalse(rdb.isEmpty());
+        Assertions.assertTrue(RaceDAO.getInstance(this.championship.getId()).isEmpty());
+        Set<Integer> ids=createRace(this.championship.getId(),1);
+        Assertions.assertFalse(RaceDAO.getInstance(this.championship.getId()).isEmpty());
     }
     @Test
     public void sizeTest() {
-        int k = rdb.size();
-        Assertions.assertEquals(k,rdb.size());
-        Set<Integer> ids=createRace(10);
-        Assertions.assertEquals(k+10,rdb.size());
+        int k = RaceDAO.getInstance(this.championship.getId()).size();
+        Assertions.assertEquals(k,RaceDAO.getInstance(this.championship.getId()).size());
+        Set<Integer> ids=createRace(this.championship.getId(),10);
+        Assertions.assertEquals(k+10,RaceDAO.getInstance(this.championship.getId()).size());
     }
     @Test
     public void containsKeyTest() {
-        Set<Integer> ids=createRace(1);
-        Assertions.assertFalse(rdb.containsKey(ids.stream().max(Integer::compareTo).get()+5));
-        Assertions.assertTrue(rdb.containsKey(ids.stream().max(Integer::compareTo).get()));
+        Set<Integer> ids=createRace(this.championship.getId(),1);
+        Assertions.assertFalse(RaceDAO.getInstance(this.championship.getId()).containsKey(ids.stream().max(Integer::compareTo).get()+5));
+        Assertions.assertTrue(RaceDAO.getInstance(this.championship.getId()).containsKey(ids.stream().max(Integer::compareTo).get()));
     }
 
     @Test
@@ -84,21 +89,21 @@ public class RaceTest {
                 new BodyWork(BodyWork.DownforcePackage.LOW)
         );
         rc.setId(1000);
-        Set<Integer>ids =createRace(5);
+        Set<Integer>ids =createRace(this.championship.getId(),5);
         Integer id= ids.stream().min(Integer::compareTo).get();
-        Race r = rdb.get(id);
+        Race r = RaceDAO.getInstance(this.championship.getId()).get(id);
 
-        Assertions.assertFalse(rdb.containsValue(rc));
-        Assertions.assertTrue(rdb.containsValue(r));
+        Assertions.assertFalse(RaceDAO.getInstance(this.championship.getId()).containsValue(rc));
+        Assertions.assertTrue(RaceDAO.getInstance(this.championship.getId()).containsValue(r));
     }
     @Test
     public void removeTest() {
-        int s=rdb.size();
-        Set<Integer> ids = createRace(2);
+        int s=RaceDAO.getInstance(this.championship.getId()).size();
+        Set<Integer> ids = createRace(this.championship.getId(),2);
         Integer id= ids.stream().min(Integer::compareTo).get();
-        Race r = rdb.get(id);
-        Assertions.assertEquals(r,rdb.remove(r.getId()));
-        Assertions.assertFalse(rdb.containsValue(r));
-        Assertions.assertEquals(s+1,rdb.size());
+        Race r = RaceDAO.getInstance(this.championship.getId()).get(id);
+        Assertions.assertEquals(r,RaceDAO.getInstance(this.championship.getId()).remove(r.getId()));
+        Assertions.assertFalse(RaceDAO.getInstance(this.championship.getId()).containsValue(r));
+        Assertions.assertEquals(s+1,RaceDAO.getInstance(this.championship.getId()).size());
     }
 }

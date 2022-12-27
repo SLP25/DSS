@@ -1,5 +1,6 @@
 package org.example.tests;
 
+import org.example.business.Championship;
 import org.example.business.Race;
 import org.example.business.Weather;
 import org.example.business.cars.*;
@@ -10,90 +11,33 @@ import org.example.business.participants.Participant;
 import org.example.business.systems.RaceSystem;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
-import org.example.data.CircuitDAO;
-import org.example.data.DriverDAO;
-import org.example.data.PlayerDAO;
-import org.example.data.RaceCarDAO;
+import org.example.data.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+
+import static org.example.tests.AdminTest.createAdmin;
+import static org.example.tests.ParticipantTest.createParticipant;
+import static org.example.tests.RaceTest.createRace;
 
 public class SimulationTest {
     private static final PlayerDAO udb = PlayerDAO.getInstance();
     private static final DriverDAO ddb = DriverDAO.getInstance();
     private static final RaceCarDAO rdb = RaceCarDAO.getInstance();
 
-    private Player createPlayer(int i) {
-        String username = "player" + i;
-        String password = "123456";
-        Player u1 = new Player(username);
-        u1.setPassword(password);
-        udb.put(u1);
-        return u1;
-    }
-
-    private Admin createAdmin() {
-        String username = "admin1";
-        String password = "123456";
-        Admin u1 = new Admin(username,true);
-        return u1;
-    }
-
-    private Driver createDriver(int i) {
-        String name = "driver" + i;
-        Driver u1 = new Driver(name,0.1F,0.1F);
-        ddb.put(u1);
-        return u1;
-    }
-
-    private CombustionRaceCar createCar() {
-        CombustionRaceCar rc=new CombustionRaceCar(S1Class.getInstance(),new Tyre(Tyre.TyreType.HARD),
-                new CombustionEngine(Engine.EngineMode.HIGH,6000),
-                new BodyWork(BodyWork.DownforcePackage.LOW)
-        );
-        CombustionRaceCar c = rdb.put(rc);
-        return c;
-    }
-
-    private Participant createParticipant(int i) {
-        return new Participant(1, createCar(), createDriver(i), createPlayer(i));
-    }
-
-    private CircuitSection createRandomSection() {
-        Random r = new Random();
-        return new CircuitSection(CircuitSection.CircuitSectionType.CURVE, r.nextFloat());
-    }
-    private Circuit createTrack() {
-        List<CircuitSection> sections = new ArrayList<>();
-
-        for(int i = 0; i < 10; i++) {
-            sections.add(createRandomSection());
-        }
-
-        return new Circuit("UML Grand Prix", 5.20f, 6, sections);
-    }
-
-    private Race createRace() {
-        List<Participant> participants = new ArrayList<>();
-        Map<Participant,Boolean> p = new HashMap<>();
-        for(int i = 0; i < 22; i++) {
-            Participant par=createParticipant(i);
-            participants.add(par);
-            p.put(par,true);
-        }
-
-
-        return new Race(0, createAdmin(),false, new Weather(), createTrack(), participants,p);
-    }
 
     @Test
     public void test() throws InterruptedException {
         RaceSystem rs = new RaceSystem();
-        Race r = createRace();
+        Admin a = createAdmin(1).stream().map(n->AdminDAO.getInstance().get(n)).reduce(null,(o,n)->n);
+        Championship c =new Championship(a);
+        c=ChampionshipDAO.getInstance().put(c);
+        Championship finalC = c;
+        Race r = createRace(c.getId(),1).stream().map(x-> RaceDAO.getInstance(finalC.getId()).get(x)).limit(1).reduce(null,(o, n)->n);
         rs.addRace(r);
-
-        for(int i = 0; i < 22; i++)
-            rs.prepareForRace(0, "player" + i);
+        for (Participant p: c.getParticipants().values()){
+            rs.prepareForRace(r.getId(),p.getManager().getUsername());
+        }
 
         while(true) {
             Race temp = rs.getRaceState(r.getId());

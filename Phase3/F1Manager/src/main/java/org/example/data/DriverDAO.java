@@ -1,5 +1,6 @@
 package org.example.data;
 
+import org.example.business.circuit.Circuit;
 import org.example.business.drivers.Driver;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,35 +23,29 @@ public class DriverDAO implements Map<String, Driver> {
      */
     private static DriverDAO singleton = null;
 
-    /**
-     * Private constructor that creates the Driver table using the DatabaseData to connect to the database.
-     * @throws RuntimeException If there is a problem running the SQL command.
-     */
-    private DriverDAO() {
+    private Map<String, Driver> drivers =Map.ofEntries(
+            Map.entry("Super Max",new Driver("Super Max",0.99F,0.99F)),
+            Map.entry("louis Hamilton",new Driver("louis Hamilton",0.99F,0.99F)),
+            Map.entry("Battery Voltas",new Driver("Battery Voltas",0.9F,0.9F)),
+            Map.entry("Minister of Defense",new Driver("Minister of Defense",0.9F,0.9F)),
+            Map.entry("KMAG",new Driver("KMAG",0.5F,0.5F)),
+            Map.entry("Smooth Operator",new Driver("Smooth Operator",0.5F,0.5F)),
+            Map.entry("DU BIST WELTMEISTER",new Driver("DU BIST WELTMEISTER",0.5F,0.5F)),
+            Map.entry("Shumi",new Driver("Shumi",0.75F,0.75F)),
+            Map.entry("Mazaspin",new Driver("Mazaspin",0.1F,0.1F)),
+            Map.entry("Goatifi",new Driver("Goatifi",0.1F,0.1F)),
+            Map.entry("Super Max2",new Driver("Super Max2",0.99F,0.99F)),
+            Map.entry("louis Hamilton2",new Driver("louis Hamilton2",0.99F,0.99F)),
+            Map.entry("Battery Voltas2",new Driver("Battery Voltas2",0.9F,0.9F)),
+            Map.entry("Minister of Defense2",new Driver("Minister of Defense2",0.9F,0.9F)),
+            Map.entry("KMAG2",new Driver("KMAG2",0.5F,0.5F)),
+            Map.entry("Smooth Operator2",new Driver("Smooth Operator2",0.5F,0.5F)),
+            Map.entry("DU BIST WELTMEISTER2",new Driver("DU BIST WELTMEISTER2",0.5F,0.5F)),
+            Map.entry("Shumi2",new Driver("Shumi2",0.75F,0.75F)),
+            Map.entry("Mazaspin2",new Driver("Mazaspin2",0.1F,0.1F)),
+            Map.entry("Goatifi2",new Driver("Goatifi2",0.1F,0.1F))
+    );
 
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS drivers(" +
-                                 "DriverName VARCHAR(50) NOT NULL PRIMARY KEY," +
-                                 "DriverCTS DECIMAL(10,2) NOT NULL," +
-                                 "DriverSVA DECIMAL(10,2) NOT NULL)";
-
-            stm.executeUpdate(sql);
-        } catch (SQLException error) {
-
-            error.printStackTrace();
-            throw new RuntimeException(error.getMessage());
-
-        }
-
-    }
-
-    /**
-     * Method that makes sure there is only one instance of DriverDAO at a time.
-     * <p>
-     * If it's the first run, creates a new DriverDAO, else returns the existing one.
-     * @return DriverDAO instance.
-     */
     public static DriverDAO getInstance() {
 
         if (DriverDAO.singleton == null) DriverDAO.singleton = new DriverDAO();
@@ -58,28 +53,12 @@ public class DriverDAO implements Map<String, Driver> {
 
     }
 
-    /**
-     * Computes the size of the 'driver' table.
-     * @return The number of entries in the 'driver' table.
-     */
+
     @Override
     public int size() {
-        int i = 0;
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT COUNT(*) FROM drivers;");){
-                if (rs.next())
-                    i = rs.getInt(1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return i;
+        return this.drivers.size();
     }
 
-    /**
-     * Checks if there are no existing drivers.
-     * @return True if the table is empty, false otherwise.
-     */
     @Override
     public boolean isEmpty() {
         return size() == 0;
@@ -89,20 +68,7 @@ public class DriverDAO implements Map<String, Driver> {
 
     @Override
     public boolean containsKey(Object key) {
-        boolean r=false;
-        try (Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT DriverName FROM drivers WHERE DriverName= ?;");){
-            ps.setString(1,key.toString());
-            try (ResultSet rs = ps.executeQuery();){
-                if (rs.next())
-                    r = true;
-            }
-        } catch (SQLException e) {
-            // Database error!
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-        return r;
+        return drivers.containsKey(key);
     }
 
 
@@ -110,146 +76,64 @@ public class DriverDAO implements Map<String, Driver> {
 
     @Override
     public Driver get(Object key) {
-        try (Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT DriverCTS,DriverSVA FROM drivers WHERE DriverName=?;");){
-            ps.setString(1,key.toString());
-            try(ResultSet rs = ps.executeQuery();){
-                if (rs.next())
-                    return new Driver(
-                            key.toString(),
-                            rs.getFloat("DriverCTS"),
-                            rs.getFloat("DriverSVA")
-                    );
-            }
-        } catch (SQLException e) {
-            // Database error!
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-        return null;
+        return this.drivers.get(key).clone();
     }
 
     @Override
     public boolean containsValue(Object value) {
-        if (!(value instanceof Driver)) return false;
-        Driver p = (Driver) value;
-        return p.equals(get(p.getDriverName()));
+        return this.drivers.containsValue(value);
     }
 
 
     @Override
     public Driver put(String key, @NotNull Driver driver) {
-        try (
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO drivers (DriverName,DriverCTS,DriverSVA) VALUES (?,?,?);");){
-            ps.setString(1,driver.getDriverName());
-            ps.setFloat(2,driver.getDriverCTS());
-            ps.setFloat(3,driver.getDriverSVA());
-            ps.executeUpdate();
-            return driver;
-        } catch (SQLException e) {
-            return null;
-        }
+        Driver d = this.drivers.put(key, driver.clone());
+        if (d==null) return null;
+        return d.clone();
     }
 
 
-    /**
-     * Insert a drive onto the database, by providing the Driver object.
-     * @param driver Driver object.
-     * @return The driver if the insertion was successful, null otherwise.
-     */
     public Driver put(@NotNull Driver driver) {
         return this.put(driver.getDriverName(),driver);
     }
 
     @Override
     public Driver remove(Object key) {
-        Driver driver = this.get(key);
-        if (driver==null){
-            return null;
-        }
-        try(Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM drivers WHERE DriverName = ?;");){
-            ps.setString(1,key.toString());
-            ps.executeUpdate();
-            return driver;
-        } catch (SQLException e) {
-            return null;
-        }
+        Driver d = this.drivers.remove(key);
+        if (d==null) return null;
+        return d.clone();
     }
 
     @Override
     public void putAll(Map<? extends String, ? extends Driver> m) {
-        try (Connection conn = DatabaseData.getConnection();){
-            conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO drivers (DriverName,DriverCTS,DriverSVA) VALUES (?,?,?);");) {
-                for (Entry e : m.entrySet()) {
-                    ps.setString(1, (String) e.getKey());
-                    ps.setFloat(2, ((Driver) e.getValue()).getDriverCTS());
-                    ps.setFloat(3, ((Driver) e.getValue()).getDriverSVA());
-                    ps.executeUpdate();
-                }
-            }
-            conn.commit();
-            conn.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        Map<String,Driver> m2 = new HashMap<>();
+        for (Entry<? extends String, ? extends Driver> e:m.entrySet()){
+            m2.put(e.getKey(),e.getValue().clone());
         }
+        this.drivers.putAll(m2);
     }
 
-    /**
-     * Clear the table Driver FROM the database.
-     */
+
     @Override
     public void clear() {
-        try (Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();){
-            stm.executeUpdate("DELETE FROM drivers;");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);//TODO MUDAR ISTO
-        }
+       this.drivers.clear();
     }
 
 
     @Override
     public Set<String> keySet() {
-        Set<String> r=new HashSet<String>();
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT DriverName FROM drivers;");){
-                while(rs.next())
-                    r.add(rs.getString("DriverName"));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return r;
+        return this.drivers.keySet();
     }
 
     @Override
     public Collection<Driver> values() {
-        Collection<Driver> r = new HashSet<Driver>();
-        try (
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT DriverName,DriverCTS,DriverSVA FROM drivers;");
-            ){
-                while(rs.next())
-                    r.add(new Driver(
-                        rs.getString("DriverName"),
-                        rs.getFloat("DriverCTS"),
-                        rs.getFloat("DriverSVA")
-                    ));
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return r;
+        return this.drivers.values().stream().map(Driver::clone).collect(Collectors.toList());
     }
 
 
     @Override
     public Set<Entry<String, Driver>> entrySet() {
         return values().stream().collect(
-               Collectors.toMap(Driver::getDriverName, x -> x)).entrySet();
+               Collectors.toMap(Driver::getDriverName, Driver::clone)).entrySet();
     }
 }

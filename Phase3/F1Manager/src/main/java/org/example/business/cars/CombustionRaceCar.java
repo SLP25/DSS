@@ -50,8 +50,6 @@ public class CombustionRaceCar {
 
     public void changeCarSetup(BodyWork.DownforcePackage df){
         this.dfPackage.setDfPackage(df);
-        RaceCarDAO rdb = RaceCarDAO.getInstance();
-        rdb.update(this.getId(),this);
     }
 
 
@@ -61,8 +59,6 @@ public class CombustionRaceCar {
     public void setStrategy(Tyre.TyreType tyre,CombustionEngine.EngineMode engineMode){
         this.setEngineMode(engineMode);
         this.tyres.setType(tyre);
-        RaceCarDAO rdb = RaceCarDAO.getInstance();
-        rdb.update(this.getId(),this);
     }
 
     public double getTireWear() {

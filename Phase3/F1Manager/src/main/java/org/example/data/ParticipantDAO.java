@@ -1,5 +1,9 @@
 package org.example.data;
 
+import org.example.business.cars.BodyWork;
+import org.example.business.cars.CombustionRaceCar;
+import org.example.business.cars.Engine;
+import org.example.business.cars.Tyre;
 import org.example.business.participants.Participant;
 
 import java.sql.*;
@@ -7,20 +11,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ParticipantDAO implements Map<String, Participant> {
+    private static Map<Integer, ParticipantDAO> singletons = new HashMap<>();
+    private int championship;
 
-    private static ParticipantDAO singleton = null;
+    private static RaceCarDAO rdb = RaceCarDAO.getInstance();
+    private static DriverDAO ddb = DriverDAO.getInstance();
 
-    private ParticipantDAO() {
+    private static PlayerDAO ppd = PlayerDAO.getInstance();
+
+    private ParticipantDAO(int championship) {
+        this.championship = championship;
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS participants (" +
-                    "Player VARCHAR(255) NOT NULL PRIMARY KEY," +
-                    "Car INT NOT NULL UNIQUE," +
-                    "Driver VARCHAR(50) NOT NULL UNIQUE," +
-                    "NumberOfSetupChanges INT NOT NULL,"+
+                    "Player VARCHAR(255) NOT NULL," +
+                    "Championship INT NOT NULL," +
+                    "Car INT NOT NULL," +
+                    "Driver VARCHAR(50) NOT NULL," +
+                    "NumberOfSetupChanges INT NOT NULL," +
+                    "Tyre VARCHAR(12) NOT NULL," +
+                    "BodyWork VARCHAR(6) NOT NULL," +
+                    "EngineMode VARCHAR(6) NOT NULL," +
+                    "PRIMARY KEY (Player,Championship)," +
                     "FOREIGN KEY (Player) REFERENCES users(Username) ON DELETE CASCADE ON UPDATE CASCADE," +
-                    "FOREIGN KEY (Car) REFERENCES cars(id) ON DELETE CASCADE ON UPDATE CASCADE," +
-                    "FOREIGN KEY (Driver) REFERENCES drivers(DriverName) ON DELETE CASCADE ON UPDATE CASCADE" +
+                    "FOREIGN KEY (Championship) REFERENCES championships(Id) ON DELETE CASCADE ON UPDATE CASCADE" +
                     ");";
             stm.executeUpdate(sql);
         } catch (SQLException e) {
@@ -35,11 +49,11 @@ public class ParticipantDAO implements Map<String, Participant> {
      *
      * @return returns the only instance of the class
      */
-    public static ParticipantDAO getInstance() {
-        if (ParticipantDAO.singleton == null) {
-            ParticipantDAO.singleton = new ParticipantDAO();
+    public static ParticipantDAO getInstance(int championship) {
+        if (!ParticipantDAO.singletons.containsKey(championship)) {
+            ParticipantDAO.singletons.put(championship, new ParticipantDAO(championship));
         }
-        return ParticipantDAO.singleton;
+        return ParticipantDAO.singletons.get(championship);
     }
 
     /**
@@ -49,12 +63,13 @@ public class ParticipantDAO implements Map<String, Participant> {
     public int size() {
         int i = 0;
         try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM participants;")) {
-            if (rs.next())
-                i = rs.getInt(1);
+             PreparedStatement ps = conn.prepareStatement("SELECT count(*) FROM participants WHERE Championship=?;");) {
+            ps.setInt(1, championship);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next())
+                    i = rs.getInt(1);
+            }
         } catch (Exception e) {
-            // Erro a criar tabela...
             e.printStackTrace();
             throw new NullPointerException(e.getMessage());
         }
@@ -80,13 +95,14 @@ public class ParticipantDAO implements Map<String, Participant> {
      */
     @Override
     public boolean containsKey(Object key) {
-        boolean r=false;
+        boolean r = false;
         try (Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Player FROM participants WHERE Player= ?;");){
-            ps.setString(1,key.toString());
+             PreparedStatement ps = conn.prepareStatement("SELECT Player FROM participants WHERE Championship=? AND Player= ?;");) {
+            ps.setInt(1, championship);
+            ps.setString(2, key.toString());
             try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next())
-                    r=true;
+                    r = true;
             }
         } catch (SQLException e) {
             // Database error!
@@ -105,17 +121,27 @@ public class ParticipantDAO implements Map<String, Participant> {
      */
     @Override
     public Participant get(Object key) {
+        if (!(key instanceof String)) return null;
         try (Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT Player,Car,Driver,NumberOfSetupChanges FROM participants WHERE Player= ?;");){
-            ps.setString(1,(String)key);
-            try (ResultSet rs = ps.executeQuery();){
-                if (rs.next())
+             PreparedStatement ps = conn.prepareStatement("SELECT Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode FROM participants WHERE Championship=? AND Player= ?;");) {
+            ps.setInt(1, championship);
+            ps.setString(2, (String) key);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    CombustionRaceCar car = rdb.get(rs.getInt("Car"));
+                    car.setStrategy(
+                            Tyre.TyreType.valueOf(rs.getString("Tyre")),
+                            Engine.EngineMode.valueOf(rs.getString("EngineMode"))
+                    );
+                    car.changeCarSetup(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
                     return new Participant(
-                        rs.getInt("NumberOfSetupChanges"),
-                        RaceCarDAO.getInstance().get(rs.getInt("Car")),
-                        DriverDAO.getInstance().get(rs.getString("Driver")),
-                        PlayerDAO.getInstance().get(rs.getString("Player"))
-                        );
+                            rs.getInt("Championship"),
+                            rs.getInt("NumberOfSetupChanges"),
+                            car,
+                            ddb.get(rs.getString("Driver")),
+                            ppd.get(rs.getString("Player"))
+                    );
+                }
             }
         } catch (SQLException e) {
             // Database error!
@@ -135,20 +161,25 @@ public class ParticipantDAO implements Map<String, Participant> {
     /**
      * adds a Participant
      *
-     * @param key key with which the specified value is to be associated
+     * @param key  key with which the specified value is to be associated
      * @param part value to be associated with the specified key
      * @return the Player if added successfully (null otherwise)
      */
     @Override
     public Participant put(String key, Participant part) {
+        if (championship != part.getChampionship()) return null;
         try (
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Car,Driver,NumberOfSetupChanges) VALUES (?,?,?,?);");
-            ){
+                Connection conn = DatabaseData.getConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode) VALUES (?,?,?,?,?,?,?,?);");
+        ) {
             ps.setString(1, key);
-            ps.setInt(2,part.getCar().getId());
-            ps.setString(3,part.getDriver().getDriverName());
-            ps.setInt(4,part.getNumberOfSetupChanges());
+            ps.setInt(2, championship);
+            ps.setInt(3, part.getCar().getId());
+            ps.setString(4, part.getDriver().getDriverName());
+            ps.setInt(5, part.getNumberOfSetupChanges());
+            ps.setString(6, part.getCar().getTyres().getType().name());
+            ps.setString(7, part.getCar().getDfPackage().getDfPackage().name());
+            ps.setString(8, part.getCar().getCombustionEngine().getMode().name());
             ps.executeUpdate();
             return part;
         } catch (SQLException e) {
@@ -157,20 +188,25 @@ public class ParticipantDAO implements Map<String, Participant> {
     }
 
     public Participant put(Participant part) {
-        return this.put(part.getManager().getUsername(),part);
+        return this.put(part.getManager().getUsername(), part);
     }
 
 
-
     public Participant update(Participant part) {
+        if (part.getChampionship() != championship) return null;
         try (
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("UPDATE participants SET Car=?,Driver=?,NumberOfSetupChanges=? WHERE Player=?;");
-            ){
-            ps.setInt(1,part.getCar().getId());
-            ps.setString(2,part.getDriver().getDriverName());
-            ps.setInt(3,part.getNumberOfSetupChanges());
-            ps.setString(4,part.getManager().getUsername());
+                Connection conn = DatabaseData.getConnection();
+                PreparedStatement ps = conn.prepareStatement("UPDATE participants SET Car=?,Driver=?,NumberOfSetupChanges=?,Tyre=?,BodyWork=?,EngineMode=? WHERE Championship=? AND Player=?;");
+        ) {
+            CombustionRaceCar car = part.getCar();
+            ps.setInt(1, car.getId());
+            ps.setString(2, part.getDriver().getDriverName());
+            ps.setInt(3, part.getNumberOfSetupChanges());
+            ps.setString(4,car.getTyres().getType().name());
+            ps.setString(5,car.getDfPackage().getDfPackage().name());
+            ps.setString(6,car.getCombustionEngine().getMode().name());
+            ps.setInt(7, championship);
+            ps.setString(8, part.getManager().getUsername());
             ps.executeUpdate();
             return part;
         } catch (SQLException e) {
@@ -180,7 +216,6 @@ public class ParticipantDAO implements Map<String, Participant> {
 
 
     /**
-     *
      * Removes a user with a given username from the database if it exists
      *
      * @param key key whose mapping is to be removed from the map
@@ -189,13 +224,14 @@ public class ParticipantDAO implements Map<String, Participant> {
     @Override
     public Participant remove(Object key) {
         Participant value = this.get(key);
-        if (value==null)
+        if (value == null)
             return null;
         try (
-            Connection conn = DatabaseData.getConnection();
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM participants WHERE Player = ?;");
-            ){
-            ps.setString(1,(key.toString()));
+                Connection conn = DatabaseData.getConnection();
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM participants WHERE Championship=? AND Player = ?;");
+        ) {
+            ps.setInt(1, championship);
+            ps.setString(2, (key.toString()));
             ps.executeUpdate();
             return value;
         } catch (SQLException e) {
@@ -205,15 +241,21 @@ public class ParticipantDAO implements Map<String, Participant> {
 
     @Override
     public void putAll(Map<? extends String, ? extends Participant> m) {
-        try (Connection conn = DatabaseData.getConnection();){
+        try (Connection conn = DatabaseData.getConnection();) {
             conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Car,Driver,NumberOfSetupChanges) VALUES (?,?,?,?);");) {
-                for (Map.Entry e : m.entrySet()) {
-                    ps.setString(1, ((String) e.getKey()));
-                    ps.setInt(2, ((Participant) e.getValue()).getCar().getId());
-                    ps.setString(3, ((Participant) e.getValue()).getDriver().getDriverName());
-                    ps.setInt(4, ((Participant) e.getValue()).getNumberOfSetupChanges());
-                    ps.executeUpdate();
+            try(
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode) VALUES (?,?,?,?,?,?,?,?);");
+        ){
+            for (Map.Entry e : m.entrySet()) {
+                ps.setString(1, ((String) e.getKey()));
+                ps.setInt(2, championship);
+                ps.setInt(3, ((Participant) e.getValue()).getCar().getId());
+                ps.setString(4, ((Participant) e.getValue()).getDriver().getDriverName());
+                ps.setInt(5, ((Participant) e.getValue()).getNumberOfSetupChanges());
+                ps.setString(6, ((Participant) e.getValue()).getCar().getTyres().getType().name());
+                ps.setString(7, ((Participant) e.getValue()).getCar().getDfPackage().getDfPackage().name());
+                ps.setString(8, ((Participant) e.getValue()).getCar().getCombustionEngine().getMode().name());
+                ps.executeUpdate();
                 }
             }
             conn.commit();
@@ -226,23 +268,25 @@ public class ParticipantDAO implements Map<String, Participant> {
 
     @Override
     public void clear() {
-        try ( Connection conn = DatabaseData.getConnection();
-              Statement stm = conn.createStatement();){
-            stm.executeUpdate("DELETE FROM participants;");
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM participants WHERE Championship=?;");) {
+            ps.setInt(1, championship);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);//TODO MUDAR ISTO
         }
     }
+
     @Override
     public Set<String> keySet() {
-        Set<String> r=new HashSet<String>();
-        try (
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Player FROM participants;");
-            ){
-                while(rs.next())
+        Set<String> r = new HashSet<String>();
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT Player FROM participants WHERE Championship=?;");) {
+            ps.setInt(1, championship);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next())
                     r.add(rs.getString("Player"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -252,18 +296,26 @@ public class ParticipantDAO implements Map<String, Participant> {
     @Override
     public Collection<Participant> values() {
         Collection<Participant> r = new HashSet<Participant>();
-        try (
-            Connection conn = DatabaseData.getConnection();
-            Statement stm = conn.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT Player,Car,Driver,NumberOfSetupChanges FROM participants;");
-            ){
-            while(rs.next())
-                r.add(new Participant(
-                        rs.getInt("NumberOfSetupChanges"),
-                        RaceCarDAO.getInstance().get(rs.getInt("Car")),
-                        DriverDAO.getInstance().get(rs.getString("Driver")),
-                        PlayerDAO.getInstance().get(rs.getString("Player"))
-                ));
+        try (Connection conn = DatabaseData.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode FROM participants WHERE Championship=?;");) {
+            ps.setInt(1, championship);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    CombustionRaceCar car = rdb.get(rs.getInt("Car"));
+                    car.setStrategy(
+                            Tyre.TyreType.valueOf(rs.getString("Tyre")),
+                            Engine.EngineMode.valueOf(rs.getString("EngineMode"))
+                    );
+                    car.changeCarSetup(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
+                    r.add(new Participant(
+                            rs.getInt("Championship"),
+                            rs.getInt("NumberOfSetupChanges"),
+                            car,
+                            ddb.get(rs.getString("Driver")),
+                            ppd.get(rs.getString("Player"))
+                    ));
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -273,6 +325,6 @@ public class ParticipantDAO implements Map<String, Participant> {
     @Override
     public Set<Entry<String, Participant>> entrySet() {
         return values().stream().collect(
-                Collectors.toMap(x->x.getManager().getUsername(), x -> x)).entrySet();
+                Collectors.toMap(x -> x.getManager().getUsername(), x -> x)).entrySet();
     }
 }

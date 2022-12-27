@@ -9,25 +9,33 @@ import java.util.stream.Collectors;
 
 public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
     private static RaceCarDAO singleton = null;
-
-    private RaceCarDAO() {
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS cars (" +
-                    "Id INT AUTO_INCREMENT PRIMARY KEY," +
-                    "Class CHAR(33) NOT NULL," +
-                    "Tyre VARCHAR(12) NOT NULL," +
-                    "BodyWork VARCHAR(6) NOT NULL," +
-                    "EngineMode VARCHAR(6) NOT NULL," +
-                    "EngineCapacity INT NOT NULL," +
-                    "EnginePower INT);";
-            stm.executeUpdate(sql);
-        } catch (SQLException e) {
-            // Erro a criar tabela...
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-    }
+    private Map<Integer, CombustionRaceCar> cars = Map.ofEntries(
+            Map.entry(1, new HybridRaceCar(1, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(2, new HybridRaceCar(2, S1Class.getInstance(), new Tyre(Tyre.TyreType.HARD), new CombustionEngine(Engine.EngineMode.LOW, 6000), new BodyWork(BodyWork.DownforcePackage.HIGH), new EletricEngine(Engine.EngineMode.LOW, 600))),
+            Map.entry(3, new CombustionRaceCar(3, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.HIGH))),
+            Map.entry(4, new HybridRaceCar(4, S2Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 4000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(5, new HybridRaceCar(5, S2Class.getInstance(), new Tyre(Tyre.TyreType.HARD), new CombustionEngine(Engine.EngineMode.LOW, 3000), new BodyWork(BodyWork.DownforcePackage.HIGH), new EletricEngine(Engine.EngineMode.LOW, 600))),
+            Map.entry(6, new CombustionRaceCar(6, S2Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 5000), new BodyWork(BodyWork.DownforcePackage.HIGH))),
+            Map.entry(7, new HybridRaceCar(7, GTClass.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 2000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(8, new HybridRaceCar(8, GTClass.getInstance(), new Tyre(Tyre.TyreType.HARD), new CombustionEngine(Engine.EngineMode.LOW, 3000), new BodyWork(BodyWork.DownforcePackage.HIGH), new EletricEngine(Engine.EngineMode.LOW, 600))),
+            Map.entry(9, new CombustionRaceCar(9, GTClass.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 4000), new BodyWork(BodyWork.DownforcePackage.HIGH))),
+            Map.entry(10, new CombustionRaceCar(10, SCClass.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 2500), new BodyWork(BodyWork.DownforcePackage.LOW))),
+            Map.entry(11, new CombustionRaceCar(11, SCClass.getInstance(), new Tyre(Tyre.TyreType.HARD), new CombustionEngine(Engine.EngineMode.LOW, 2500), new BodyWork(BodyWork.DownforcePackage.HIGH))),
+            Map.entry(12, new CombustionRaceCar(12, SCClass.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 2500), new BodyWork(BodyWork.DownforcePackage.HIGH))),
+            Map.entry(13, new HybridRaceCar(13, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(14, new HybridRaceCar(14, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(15, new HybridRaceCar(15, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(16, new HybridRaceCar(16, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(17, new HybridRaceCar(17, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(18, new HybridRaceCar(18, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(19, new HybridRaceCar(19, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(20, new HybridRaceCar(20, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(21, new HybridRaceCar(21, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(22, new HybridRaceCar(22, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(23, new HybridRaceCar(23, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(24, new HybridRaceCar(24, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500))),
+            Map.entry(25, new HybridRaceCar(25, S1Class.getInstance(), new Tyre(Tyre.TyreType.SOFT), new CombustionEngine(Engine.EngineMode.HIGH, 6000), new BodyWork(BodyWork.DownforcePackage.LOW), new EletricEngine(Engine.EngineMode.HIGH, 500)))
+    );
 
     /**
      * implementation of the singleton pattern
@@ -46,19 +54,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public int size() {
-        int i = 0;
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM cars")) {
-            if (rs.next()) {
-                i = rs.getInt(1);
-            }
-        } catch (Exception e) {
-            // Erro a criar tabela...
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-        return i;
+        return cars.size();
     }
 
     /**
@@ -71,38 +67,16 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
         return this.size() == 0;
     }
 
-    /**
-     * method which checks if a user with a given username exists in the database
-     *
-     * @param key username
-     * @return true if the user exists
-     * @throws NullPointerException //TODO MUDAR ISTO
-     */
+
     @Override
     public boolean containsKey(Object key) {
-        boolean r = false;
-        try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM cars WHERE Id= ?;");
-        ) {
-            ps.setInt(1, (int) key);
-            try (ResultSet rs = ps.executeQuery();) {
-                if (rs.next())
-                    r = true;
-            }
-        } catch (SQLException e) {
-            // Database error!
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-        return r;
+        return cars.containsKey(key);
     }
 
 
     @Override
     public boolean containsValue(Object value) {
-        if (!(value instanceof CombustionRaceCar)) return false;
-        CombustionRaceCar p = (CombustionRaceCar) value;
-        return p.equals(get(p.getId()));
+        return cars.containsValue(value);
     }
 
     /**
@@ -114,229 +88,46 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
      */
     @Override
     public CombustionRaceCar get(Object key) {
-        CombustionRaceCar r = null;
-        try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars WHERE Id= ?;");
-        ) {
-            ps.setInt(1, (Integer) key);
-            try (ResultSet rs = ps.executeQuery();) {
-                if (rs.next()) {
-                    int id = rs.getInt("Id");
-                    Class<? extends CarClass> cc = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
-                    CarClass c = (CarClass)cc.getMethod("getInstance").invoke(null, null);
-                    Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
-                    BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
-                    Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                    CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
-                    r = new CombustionRaceCar(id, c, tyre, ce, bodyWork);
-                    Integer ePow = rs.getInt("EnginePower");
-                    if (!rs.wasNull()) {
-                        EletricEngine ee = new EletricEngine(eM, ePow);
-                        r = new HybridRaceCar(r, ee);
-                    }
-                }
-            //} catch (InstantiationException e) {
-             //   throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (SQLException e) {
-            // Database error!
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return r;
+        return cars.get(key).clone();
     }
 
-    /**
-     * adds a RaceCar to the database or updates its password if it already exists
-     *
-     * @param key key with which the specified value is to be associated
-     * @param car value to be associated with the specified key
-     * @return the RaceCar if added successfully (null otherwise)
-     */
+
     @Override
     public CombustionRaceCar put(Integer key, CombustionRaceCar car) {
-        String sql = "";
-        if (key == null) {
-            sql = "INSERT INTO cars (Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?);";
-        } else {
-            sql = "INSERT INTO cars (Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower) VALUES (?,?,?,?,?,?,?);";
-        }
-        try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ) {
-            int n = 1;
-            if (key != null) {
-                ps.setInt(n, car.getId());
-                n++;
-            }
-
-            ps.setString(n, car.getCategory().getClass().getName());
-            n++;
-
-            ps.setString(n, car.getTyres().getType().name());
-            n++;
-            ps.setString(n, car.getDfPackage().getDfPackage().name());
-            n++;
-            ps.setString(n, car.getCombustionEngine().getMode().name());
-            n++;
-            ps.setInt(n, car.getCombustionEngine().getCapacity());
-            n++;
-            if (car instanceof HybridRaceCar) {
-                ps.setInt(n, ((HybridRaceCar) car).getEletricEngine().getPower());
-            } else {
-                ps.setNull(n, Types.INTEGER);
-            }
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys();) {
-                if (rs.next())
-                    car.setId(rs.getInt(1));
-            }
-            return car;
-        } catch (SQLException e) {
-            return null;
-        }
+        CombustionRaceCar c = cars.put(key,car.clone());
+        if (c==null) return null;
+        return c.clone();
     }
-
-    /**
-     * adds a RaceCar to the database or updates its password if it already exists
-     *
-     * @param key key with which the specified value is to be associated
-     * @param car value to be associated with the specified key
-     * @return the RaceCar if added successfully (null otherwise)
-     */
-
-    public CombustionRaceCar update(Integer key, CombustionRaceCar car) {
-        String sql = "UPDATE cars SET " +
-                "Class=?," +
-                "Tyre=?," +
-                "BodyWork=?," +
-                "EngineMode=?," +
-                "EngineCapacity=?," +
-                "EnginePower=? " +
-                "WHERE Id=?;";
-
-        try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-        ) {
-
-            ps.setString(1, car.getCategory().getClass().getName());
-
-            ps.setString(2, car.getTyres().getType().name());
-
-            ps.setString(3, car.getDfPackage().getDfPackage().name());
-
-            ps.setString(4, car.getCombustionEngine().getMode().name());
-
-            ps.setInt(5, car.getCombustionEngine().getCapacity());
-
-            if (car instanceof HybridRaceCar) {
-                ps.setInt(6, ((HybridRaceCar) car).getEletricEngine().getPower());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
-            ps.setInt(7, key);
-            ps.executeUpdate();
-            return car;
-        } catch (SQLException e) {
-            return null;
-        }
-    }
-
-
     public CombustionRaceCar put(CombustionRaceCar u) {
         return put(u.getId(), u);
     }
 
-    /**
-     * Removes a user with a given username from the database if it exists
-     *
-     * @param key key whose mapping is to be removed from the map
-     * @return the user removed if it was possible to remove it (null otherwise)
-     */
     @Override
     public CombustionRaceCar remove(Object key) {
-        CombustionRaceCar car = get(key);
-        if (car == null)
-            return null;
-        try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM cars WHERE Id = ?;");
-        ) {
-            ps.setInt(1, (int) key);
-            ps.executeUpdate();
-            return car;
-        } catch (SQLException e) {
-            return null;
-        }
+        CombustionRaceCar c = cars.remove(key);
+        if (c==null) return null;
+        return c.clone();
     }
 
     @Override
     public void putAll(Map<? extends Integer, ? extends CombustionRaceCar> m) {
-        return;
+        cars.putAll(m.entrySet().stream().collect(Collectors.toMap(Entry::getKey,e->e.getValue().clone())));
     }
 
 
     @Override
     public void clear() {
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-        ) {
-            stm.executeUpdate("DELETE FROM cars;");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);//TODO MUDAR ISTO
-        }
+        cars.clear();
     }
 
     @Override
     public Set<Integer> keySet() {
-        Set<Integer> r = new HashSet<>();
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT Id FROM cars;");
-        ) {
-            while (rs.next())
-                r.add(rs.getInt(1));
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return r;
+        return  cars.keySet();
     }
 
     @Override
     public Collection<CombustionRaceCar> values() {
-        Collection<CombustionRaceCar> r = new HashSet<CombustionRaceCar>();
-        try (Connection conn = DatabaseData.getConnection();
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT Id,Class,Tyre,BodyWork,EngineMode,EngineCapacity,EnginePower FROM cars;");
-        ) {
-            while (rs.next()) {
-                int id = rs.getInt("Id");
-                Class<? extends CarClass> c = (Class<? extends CarClass>) Class.forName(rs.getString("Class"));
-                Tyre tyre = new Tyre(Tyre.TyreType.valueOf(rs.getString("Tyre")));
-                BodyWork bodyWork = new BodyWork(BodyWork.DownforcePackage.valueOf(rs.getString("BodyWork")));
-                Engine.EngineMode eM = Engine.EngineMode.valueOf(rs.getString("EngineMode"));
-                CombustionEngine ce = new CombustionEngine(eM, rs.getInt("EngineCapacity"));
-                CombustionRaceCar rt = new CombustionRaceCar(id, c.newInstance(), tyre, ce, bodyWork);
-                Integer ePow = rs.getInt("EnginePower");
-                if (!rs.wasNull()) {
-                    EletricEngine ee = new EletricEngine(eM, ePow);
-                    rt = new HybridRaceCar(rt, ee);
-                }
-                r.add(rt);
-            }
-        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return r;
+        return cars.values().stream().map(CombustionRaceCar::clone).collect(Collectors.toList());
     }
 
     @Override
@@ -344,6 +135,4 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
         return values().stream().collect(
                 Collectors.toMap(CombustionRaceCar::getId, x -> x)).entrySet();
     }
-
-
 }
