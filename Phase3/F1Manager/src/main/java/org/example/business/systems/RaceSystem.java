@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RaceSystem {
+public class RaceSystem implements RaceSystemFacade {
     //4
     Map<Integer, Race> races;
     public RaceSystem() {
@@ -18,6 +18,7 @@ public class RaceSystem {
         races.put(race.getId(), race);
     }
 
+    @Override
     public void prepareForRace(int race, String player) {
         Race r = races.get(race);
 
@@ -36,6 +37,7 @@ public class RaceSystem {
         }
     }
 
+    @Override
     public List<Participant> getRaceResults(int race) {
         Race r = races.get(race);
 
@@ -54,6 +56,7 @@ public class RaceSystem {
         return null;
     }
 
+    @Override
     public Race getRaceState(int race) {
         Race r = races.get(race);
 
