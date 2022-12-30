@@ -7,7 +7,9 @@ import org.example.business.cars.Tyre;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.logic.DriverInUseException;
 import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ public interface ChampionshipSystemFacade {
 
     Map<Participant, Integer> getStandings(int championship);
 
-    void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException;
+    void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException;
 
     List<Driver> getAvailableDrivers(int championship);
 

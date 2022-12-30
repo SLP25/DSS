@@ -13,7 +13,9 @@ import org.example.data.ParticipantDAO;
 import org.example.data.PlayerDAO;
 import org.example.data.RaceDAO;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.logic.DriverInUseException;
 import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,9 +105,11 @@ public class Championship {
         if (p==null) throw new NoParticipantWithThatNameException();
         p.changeCarSetup(df);
     }
-    public void signUp(String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException {
+    public void signUp(String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException, DriverInUseException, PlayerAlreadyParticipatingException {
         Player p = PlayerDAO.getInstance().get(player);
         if (p==null) throw new UsernameDoesNotExistException();
+        if (this.isDriverInUse(pilot)) throw new DriverInUseException();
+        if (ParticipantDAO.getInstance(this.id).get(player)!=null) throw new PlayerAlreadyParticipatingException();
         ParticipantDAO.getInstance(id).put(player,new Participant(id,0,car,pilot,p));
         this.participants=null;
     }

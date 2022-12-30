@@ -10,7 +10,9 @@ import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 import org.example.data.ChampionshipDAO;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.logic.DriverInUseException;
 import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +36,7 @@ public class ChampionshipSystem implements ChampionshipSystemFacade{
     }
 
     @Override
-    public void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException {
+    public void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException {
         Championship c = getChampionship(championship);
         c.signUp(player, pilot, car);
     }
