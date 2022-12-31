@@ -22,8 +22,6 @@ public class ChampionshipSystem implements ChampionshipSystemFacade{
 
     private final ChampionshipDAO dao = ChampionshipDAO.getInstance();
 
-    public ChampionshipSystem() { }
-
 
     private Championship getChampionship(int championship) {
         return dao.get(championship);

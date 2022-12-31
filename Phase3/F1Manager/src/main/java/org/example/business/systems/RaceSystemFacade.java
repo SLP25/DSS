@@ -5,7 +5,7 @@ import org.example.business.participants.Participant;
 
 import java.util.List;
 
-public interface RaceSystemFacade {
+public interface RaceSystemFacade extends SystemFacade {
 
     void prepareForRace(int race, String player);
 

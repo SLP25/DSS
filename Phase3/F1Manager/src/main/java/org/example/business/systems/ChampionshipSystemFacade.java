@@ -14,7 +14,7 @@ import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 import java.util.List;
 import java.util.Map;
 
-public interface ChampionshipSystemFacade {
+public interface ChampionshipSystemFacade extends SystemFacade {
 
     Map<Participant, Integer> getStandings(int championship);
 

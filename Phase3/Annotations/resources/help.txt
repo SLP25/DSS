@@ -1,0 +1,82 @@
+==========================================================================
+==========================================================================
+==                                                                      ==
+==                    PROJETO DE POO: Grupo 10                          ==
+==                              LEI                                     ==
+==                              2022                                    ==
+==========================================================================
+==========================================================================
+
+This project was developed by Luis Pereira (A96681), Rui Oliveira (A95254) and Tiago Pereira (A96681).
+
+To use it, simply run one of the available command. Below is the list of all main commands available.
+
+==============================
+= Commands:                  =
+==============================
+
++ SUPPLIER LIST ALL: Lists all the suppliers in the simulation
++ SUPPLIER GET NAME=<name>: Lists all the suppliers with the given name
++ SUPPLIER GET ID=<id>: Returns the supplier with the given id
++ SUPPLIER UPDATE ID=<id>> NAME=<name> BASE_VALUE=<base value> TAX=<tax> FORMULA=<formula>: Updates a supplier
++ SUPPLIER ADD NAME=<name> BASE_VALUE=<base value> TAX=<tax> FORMULA=<formula>: Adds a supplier
++ SUPPLIER GET MOST SELLER: Gets the supplier with the highest sales volume
+
+
++ ENTITY LIST ALL: Lists all the entities of the simulation
++ ENTITY GET NAME=<name>: Lists all the entities with the given name
++ ENTITY DELETE ID=<id>>: Deletes the entity with the given id
+
+
++ FILE SAVE <file-name>: Saves the simulation to a file
++ FILE LOAD <file-name>: Loads the simulation from a file
++ SCRIPT EXEC <script-name>: Executes the script
++ SEND HELP: Displays the help menu (this)
+
+
++ RECEIPT LIST ALL INITIALDATE=<initial-date> FINALDATE=<final-date>: Lists all emitted receipts between these dates
++ RECEIPT GET SUPPLIER=<supplier-id>: Lists all receipts emitted by a supplier
++ RECEIPT GET HOUSE=<house-id>: Lists all receipts for a house
++ RECEIPT GET HOUSE=<house-id> TIME=<time>: Lists the receipt for the house at the given time
+
++ SIMULATION MOMENT SET=<time>: Sets the simulation time
++ SIMULATION MOMENT GET: Gets the current simulation time
++ SIMULATION MOMENT ADD=<time>: Advances the time of the simulation
++ SIMULATION MOMENT ADD DAYS=<days> HOURS=<hours>: Advances the time of the simulation
+
++ BULB GET ID=<id>: Gets the bulb with the given id
++ BULB GET HOUSE=<house-id>: Gets all the bulbs in the given house
++ BULB ADD HOUSE=<house-id> ROOM=<room> NAME=<name> ON=<on/off> COLOUR=<colour> DIMENSION=<dimension>: Adds a bulb
++ BULB UPDATE ID=<id> NAME=<name> ON=<on/off> COLOUR=<colour> DIMENSION=<dimension>: Updates a bulb
+
++ CAMERA GET ID=<id>: Gets the camera with the given id
++ CAMERA GET HOUSE=<house-id>: Lists all the cameras in the house
++ CAMERA ADD HOUSE=<house-id> ROOM=<room> NAME=<name> ON=<on/off> CAMERARESOLUTION=<(x,y)> FILERESOLUTION=<file-size>: Adds a camera
++ CAMERA UPDATE ID=<id> NAME=<name> ON=<on/off> CAMERARESOLUTION=<(x,y)> FILERESOLUTION=<file-size>: Updates  a camera
+
++ DEVICE LIST ALL: Lists all devices
++ DEVICE TURN ALL ON=<on/off>: Turns on/off all devices
++ DEVICE TURN HOUSE=<house-id> ROOM=<room> ON=<on/off>: Turns on/off all devices in a room
++ DEVICE TURN HOUSE=<house-id> ON=<on/off>: Turns on/off all devices in a house
++ DEVICE MOVE ID=<device-id> HOUSE=<house-id> ROOM=<room>: Moves a device to a given house/room
+
++ HOUSE LIST ALL: Lists all the houses
++ HOUSE ADD NAME=(.+) NIF=(\d+) OWNER=(.+) ENERGY_SUPPLIER_ID=(\d+): Adds a house
++ HOUSE UPDATE ID=<house-id> NAME=<name> NIF=<nif> OWNER=<owner> ENERGY_SUPPLIER_ID=<supplier-id>: Updates a house
++ HOUSE CHANGE_SUPPLIER ID=<house-id> ENERGY_SUPPLIER_ID=<supplier-id>: Changes the supplier of a house
++ HOUSE DELETE ID=<house-id>: Deletes a house
++ HOUSE GET ID=<house-id>: Gets the house of the given id
++ HOUSE SPENT MOST START=<start-time> END=<end-time>: Gets the house which has spent the most money in energy in the given time period
++ HOUSE GET BY ENERGY CONSUMPTION START=<start-time> END=<end-time>: Gets the house which has consumed the most energy in the given time period
+
++ BRAND LIST ALL: Lists all speaker brands
++ BRAND ADD NAME=<name> DAILY_CONSUMPTION=<daily-consumption>: Adds a speaker brand
++ BRAND UPDATE OLD_NAME=<old-name> NEW_NAME=<new-name> DAILY_CONSUMPTION=<new-consumption>: Updates a speaker brand
+
++ SPEAKER GET ID=<id>: Gets the speaker with the given id
++ SPEAKER GET HOUSE=<house-id>: Lists all the speakers in a house
++ SPEAKER ADD HOUSE=<house-id> ROOM=<room> NAME=<name> ON=<on/off> BRAND=<brand-name> STATION=<radio-station> VOLUME=<volume>: Adds a speaker
++ SPEAKER UPDATE ID=<speaker-id> NAME=<name> ON=<on/off> BRAND=<brand-name> STATION=<radio-station> VOLUME=<volume>: Updates a speaker
+
+=========================================================================================================
+=========================================================================================================
