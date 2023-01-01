@@ -6,6 +6,8 @@ import org.example.business.cars.Engine;
 import org.example.business.cars.Tyre;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
+import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
+import org.example.exceptions.Systems.PlayerAlreadyReachedLimitOfSetupChangesExceptions;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
 import org.example.exceptions.logic.DriverInUseException;
 import org.example.exceptions.logic.NoParticipantWithThatNameException;
@@ -16,15 +18,15 @@ import java.util.Map;
 
 public interface ChampionshipSystemFacade extends SystemFacade {
 
-    Map<Participant, Integer> getStandings(int championship);
+    Map<Participant, Integer> getStandings(int championship) throws ChampionshipDoesNotExistException;
 
-    void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException;
+    void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws ChampionshipDoesNotExistException, UsernameDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException;
 
-    List<Driver> getAvailableDrivers(int championship);
+    List<Driver> getAvailableDrivers(int championship) throws ChampionshipDoesNotExistException;
 
-    boolean canChangeSetup(int championship, String player) throws NoParticipantWithThatNameException;
+    boolean canChangeSetup(int championship, String player) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException;
 
-    void changeSetup(int championship, String player, BodyWork.DownforcePackage aero) throws NoParticipantWithThatNameException;
+    void changeSetup(int championship, String player, BodyWork.DownforcePackage aero) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException, PlayerAlreadyReachedLimitOfSetupChangesExceptions;
 
-    void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws NoParticipantWithThatNameException;
+    void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException;
 }

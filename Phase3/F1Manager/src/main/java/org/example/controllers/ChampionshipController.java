@@ -10,8 +10,12 @@ import org.example.business.participants.Participant;
 import org.example.business.systems.ChampionshipSystem;
 import org.example.business.systems.ChampionshipSystemFacade;
 import org.example.data.RaceCarDAO;
+import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
+import org.example.exceptions.Systems.SystemException;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.logic.DriverInUseException;
 import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 import org.example.views.ChampionshipView;
 import org.example.annotations.Endpoint;
 
@@ -47,15 +51,25 @@ public class ChampionshipController extends Controller {
     @Endpoint(regex = "championship (\\d+) standings")
     public void getStandings(Integer championshipID)
     {
-        Map<Participant, Integer> standings = getModel().getStandings(championshipID);
-        getView().printStandings(standings);
+        try {
+            Map<Participant, Integer> standings = getModel().getStandings(championshipID);
+            getView().printStandings(standings);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
+
     }
 
     @Endpoint(regex = "championship (\\d+) drivers")
     public void getAvailableDrivers(Integer championshipID)
     {
-        List<Driver> drivers = getModel().getAvailableDrivers(championshipID);
-        getView().printDrivers(drivers);
+        try {
+            List<Driver> drivers = getModel().getAvailableDrivers(championshipID);
+            getView().printDrivers(drivers);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
+
     }
 
     @Endpoint(regex = "championship (\\d+) player (\\S+) signup (\\S+) (\\d+)")
@@ -71,7 +85,7 @@ public class ChampionshipController extends Controller {
             getView().signupSuccess(username);
         } catch (NoSuchElementException e) {
             getView().error(String.format("Pilot %s not available", pilotName));
-        } catch (UsernameDoesNotExistException e) {
+        } catch (UsernameDoesNotExistException | PlayerAlreadyParticipatingException | DriverInUseException | SystemException e) {
             getView().error(e.getMessage());
         }
     }
@@ -82,7 +96,7 @@ public class ChampionshipController extends Controller {
         try {
             boolean canChange = getModel().canChangeSetup(championshipID, username);
             getView().checkSetup(username, canChange);
-        } catch (NoParticipantWithThatNameException e) {
+        } catch (NoParticipantWithThatNameException | SystemException e) {
             getView().error(e.getMessage());
         }
     }
@@ -97,7 +111,7 @@ public class ChampionshipController extends Controller {
             getView().setSetupSuccess();
         } catch (IllegalArgumentException e) {
             getView().error(String.format("Invalid downforce package: %s", downforcePackage));
-        } catch (NoParticipantWithThatNameException e) {
+        } catch (NoParticipantWithThatNameException | SystemException e) {
             getView().error(e.getMessage());
         }
     }
@@ -125,7 +139,7 @@ public class ChampionshipController extends Controller {
         try {
             getModel().setStrategy(championshipID, username, tt, em);
             getView().setStrategySuccess();
-        } catch (NoParticipantWithThatNameException e) {
+        } catch (NoParticipantWithThatNameException | SystemException e) {
             getView().error(e.getMessage());
         }
     }

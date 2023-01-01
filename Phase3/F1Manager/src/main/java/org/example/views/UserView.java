@@ -13,6 +13,6 @@ public class UserView extends View {
     }
 
     public void checkUsername(String username, boolean exists) {
-        System.out.printf("Username %s is%s registered in the database", username, exists ? "" : " not");
+        System.out.printf("Username %s is%s registered in the database%n", username, exists ? "" : " not");
     }
 }
