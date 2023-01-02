@@ -119,6 +119,6 @@ public class Championship {
         p.setStrategy(tyreType,engineMode);
     }
     public Boolean isDriverInUse(Driver pilot){
-        return this.participants.values().stream().map(Participant::getDriver).toList().contains(pilot);
+        return this.getParticipants().values().stream().map(Participant::getDriver).toList().contains(pilot);
     }
 }
