@@ -1,0 +1,41 @@
+/*
+
+=======================================================
+==     THIS IS AN AUTOMATICALLY GENERATED FILE       ==
+=======================================================
+
+                    DO NOT EDIT!
+
+*/
+
+package org.example.annotations;
+
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+class Meta${name} extends MetaController {
+
+    public Meta${name}() { }
+
+    @Override
+    Class<?> getModel() {
+        return ${model}.class;
+    }
+
+    @Override
+    Object createController(Object model) {
+        return new ${controller}((${model})model);
+    }
+
+    @Override
+    String getDescription() {
+        return "A command";
+    }
+
+    @Override
+    boolean parseInput(String input, Map<Class<?>,Object> controllers) {
+        ${methods}
+        return false;
+    }
+}

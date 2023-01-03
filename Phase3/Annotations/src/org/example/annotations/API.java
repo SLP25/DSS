@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 public @interface API {
-    String model();   //Fully qualified name of the model class. Must have a public empty constructor
+    String model();   //Fully qualified (canonical) name of the model class. Must have a public empty constructor
 }

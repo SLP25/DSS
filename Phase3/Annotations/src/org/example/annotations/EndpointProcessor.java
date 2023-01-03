@@ -4,13 +4,12 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 /**
  * Annotation processor for the creation of the main application controller.
@@ -32,8 +31,8 @@ public class EndpointProcessor extends AbstractProcessor {
     }
 
     /**
-     * Gets the supported version of java (17) of this processor
-     * @return 17
+     * Gets the supported version of java (16) of this processor
+     * @return 16
      */
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -41,160 +40,101 @@ public class EndpointProcessor extends AbstractProcessor {
     }
 
     /**
-     * Processes all the annotations and creates the MainController file
+     * Processes all the annotations and creates the meta controller files
      * @param set the annotation interfaces requested to be processed
      * @param roundEnvironment  environment for information about the current and prior round
-     * @return Whether the processing went successfully
+     * @return Whether the processing finished successfully
      */
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        //if(roundEnvironment.processingOver()) {
-            try {
-                String constructors = processClasses(roundEnvironment);
-                String parseInput = processMethods(roundEnvironment);
+    public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment)
+    {
+        try {
+            for (Element annotatedElement : roundEnvironment.getElementsAnnotatedWith(API.class)) {
+                TypeElement e = (TypeElement)annotatedElement;
+                String metaController = processClass(e, roundEnvironment);
 
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "Creating");
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "JAVA: " + constructors);
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "MEMBRO: " + parseInput);
+                //TODO: not die with classes outside org.example.controllers
+                JavaFileObject builderFile = filer.createSourceFile(
+                        String.format("org.example.annotations.Meta%s", e.getSimpleName()));
 
-                if (constructors.equals(""))
-                    return true;
-
-                JavaFileObject builderFile = filer
-                        .createSourceFile("org.example.controllers.MainController");
-
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "Built");
-
-                PrintWriter writer = new PrintWriter(builderFile.openWriter());
-
-                ClassLoader classLoader = getClass().getClassLoader();
-                InputStream inputStream = classLoader.getResourceAsStream("MainController.template");
-
-                String result = new String(inputStream.readAllBytes());
-                inputStream.close();
-
-                result = result.replace("${controllers}", constructors);
-                result = result.replace("${input}", parseInput);
-
-                writer.write(result);
-
-                writer.close();
-            } catch(IllegalAnnotationException | IOException e) {
-                //Compilation will fail anyways
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "FOK");
-                error(null, "EndpointProcessor threw %s: %s", e.getClass().getName(), e.getMessage());
+                try (PrintWriter writer = new PrintWriter(builderFile.openWriter())) {
+                    writer.write(metaController);
+                }
             }
-
-        //}
+        } catch (IllegalAnnotationException | IOException e) {
+            //Compilation will fail anyway
+            error(null, "EndpointProcessor threw %s: %s", e.getClass().getName(), e.getMessage());
+        }
 
         return true;
     }
 
-    /**
-     * Processes all the class-level annotations and generates the Java code used in the loading and initialization of controllers
-     * in the MainController class
-     * @param roundEnvironment environment for information about the current and prior round
-     * @return  the Java code which will load and initialize all controllers in the MainController
-     * @throws IllegalAnnotationException If there is an annotation @API applied to something other than a class
-     */
-    private String processClasses(RoundEnvironment roundEnvironment) throws IllegalAnnotationException {
 
-        StringBuilder builder = new StringBuilder();
+    private String processClass(TypeElement clazz, RoundEnvironment roundEnvironment) throws IllegalAnnotationException, IOException
+    {
+        API annotation = clazz.getAnnotation(API.class);
+        Name controllerName = clazz.getQualifiedName();
 
-        for(Element annotatedElement : roundEnvironment.getElementsAnnotatedWith(API.class))
-        {
-            TypeElement classElement = (TypeElement)annotatedElement;
-            String name = classElement.getSimpleName().toString();
-            String modelName = annotatedElement.getAnnotation(API.class).model();
-
-            builder.append(String.format("\t\tcontrollers.put(\"%s\", new %s(new %s()));\n", name, name, modelName));
-        }
-
-        return builder.toString();
+        Map<String,String> replacements = new TreeMap<>();
+        replacements.put("${model}", annotation.model());
+        replacements.put("${name}", clazz.getSimpleName().toString());
+        replacements.put("${controller}", controllerName.toString());
+        replacements.put("${methods}", processMethods(controllerName, roundEnvironment));
+        return fromTemplate("MetaController.template", replacements);
     }
 
     /**
      * Processes all the method-level annotations and generates the Java code used in the parsing of the user input and
-     * processing of such commands by the MainController
-     * in the MainController class
+     * processing of such commands by the MainController.java
+     * in the MainController.java class
      * @param roundEnvironment environment for information about the current and prior round
      * @return  the Java code which will process all user input
      * @throws IllegalAnnotationException If there is an annotation @Endpoint applied to something other than a method
      */
-    private String processMethods(RoundEnvironment roundEnvironment) throws IllegalAnnotationException {
+    private String processMethods(Name controllerName, RoundEnvironment roundEnvironment) throws IllegalAnnotationException, IOException
+    {
+        StringBuilder ans = new StringBuilder();
 
-        StringBuilder builder = new StringBuilder();
-
-        for(Element annotatedElement : roundEnvironment.getElementsAnnotatedWith(Endpoint.class)) {
-            //if(annotatedElement.getKind() != ElementKind.METHOD) {
-            //    error(annotatedElement, "@Endpoint must be applied to methods");
-            //    throw new IllegalAnnotationException("@Endpoint must be applied to methods");
-            //}
-
-            String regex = (annotatedElement.getAnnotation(Endpoint.class)).regex();
-            //We add an extra \ as there needs to be two of them in the compiled file. One to escape and one to
-            // represent a \
-            String escapedRegex = regex.replace("\\", "\\\\");
-            builder.append(String.format("\t\tif(input.matches(\"(?i)%s\")) {\n",
-                    escapedRegex));
-
-            //We add an extra \ as there needs to be two of them in the compiled file. One to escape and one to
-            // represent a \
-            builder.append(String.format("\t\t\tPattern p = Pattern.compile(\"%s\", Pattern.CASE_INSENSITIVE);\n",
-                    escapedRegex));
-            builder.append("\t\t\tMatcher m = p.matcher(input);\n");
-            builder.append("\t\t\tif(m.find()) {\n");
-
-            builder.append(methodCall(annotatedElement));
-            builder.append("\t\t\t}\n");
-            builder.append("\t\t\treturn true;\n\t\t}\n");
+        for (Element e : roundEnvironment.getElementsAnnotatedWith(Endpoint.class)) {
+            if (((TypeElement)e.getEnclosingElement()).getQualifiedName().equals(controllerName)) {
+                ans.append(processMethod((ExecutableElement)e, roundEnvironment));
+                ans.append("\n");
+            }
         }
 
-        return builder.toString();
+        return ans.toString();
     }
 
-    /**
-     * Gets the Java code string used to call a method in the MainController class
-     * @param element the annotated element
-     * @return the Java code string used to call a method in the MainController class
-     */
-    private String methodCall(Element element) {
+    private String processMethod(ExecutableElement method, RoundEnvironment roundEnvironment) throws IOException {
+        Endpoint annotation = method.getAnnotation(Endpoint.class);
+        String escapedRegex = annotation.regex().replace("\\", "\\\\");
+        String className = ((TypeElement)method.getEnclosingElement()).getQualifiedName().toString();
+        String methodName = method.getSimpleName().toString();
 
-        String methodName = element.getSimpleName().toString();
-        String className = element.getEnclosingElement().getSimpleName().toString();
+        String args = String.join(",", enumerate(method.getParameters().stream()
+                .map(ve -> ((DeclaredType)ve.asType()).asElement().toString()))
+                .map(p -> String.format("%s.valueOf(m.group(%d))", p.second, p.first + 1))
+                .toList());
 
-        StringBuilder callBuilder = new StringBuilder("\t\t\t\t");
+        Map<String,String> replacements = new TreeMap<>();
+        replacements.put("${regex}", escapedRegex);
+        replacements.put("${controller}", className);
+        replacements.put("${methodName}", methodName);
+        replacements.put("${methodArgs}", args);
+        return fromTemplate("method.template", replacements);
+    }
 
-        if(((ExecutableElement) element).getReturnType().getKind() != TypeKind.VOID) {
-            callBuilder.append("String ret = ");
+    private String fromTemplate(String resourceName, Map<String, String> replacements) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream inputStream = classLoader.getResourceAsStream(resourceName))
+        {
+            String result = new String(inputStream.readAllBytes());
+
+            for (var r : replacements.entrySet())
+                result = result.replace(r.getKey(), r.getValue());
+
+            return result;
         }
-
-        callBuilder.append(String.format("((%s)controllers.get(\"%s\"))", className, className));
-        callBuilder.append(String.format(".%s(", methodName));
-
-        int i = 0;
-        for(Element e : ((ExecutableElement)element).getParameters()) {
-            String type = ((DeclaredType) e.asType()).asElement().toString();
-
-            if(i != 0)
-                callBuilder.append(",");
-            callBuilder.append(String.format("%s.valueOf(m.group(%d))", type, i + 1));
-
-            i++;
-        }
-
-        callBuilder.append(");\n");
-
-        if(((ExecutableElement) element).getReturnType().getKind() != TypeKind.VOID) {
-            callBuilder.append("\t\t\t\tthis.parseInput(ret.toString().split(\"\\n\"));\n");
-        }
-
-        return callBuilder.toString();
     }
 
     /**
@@ -204,22 +144,45 @@ public class EndpointProcessor extends AbstractProcessor {
      * @param args the error message arguments
      */
     private void error(Element e, String msg, Object... args) {
-        this.messager.printMessage(
-                Diagnostic.Kind.ERROR,
-                String.format(msg, args),
-                e);
+        this.messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
+    }
+
+    /**
+     * Prints a message to the messager
+     * @param e the Element which caused the message
+     * @param msg the message (format string)
+     * @param args the message arguments
+     */
+    private void msg(Element e, String msg, Object... args) {
+        this.messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args), e);
     }
 
     /**
      * Gets the set of all supported annotations
-     * @return a set with all supported annotations (@Endpoint and @Controller)
+     * @return a set with all supported annotations (@Endpoint and @API)
      */
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> annotations = new HashSet<String>();
+        Set<String> annotations = new HashSet<>();
         annotations.add(Endpoint.class.getCanonicalName());
         annotations.add(API.class.getCanonicalName());
         return annotations;
     }
 
+
+
+    private static class Tuple<U,T> {
+        public U first;
+        public T second;
+
+        Tuple(U first, T second) {
+            this.first = first;
+            this.second = second;
+        }
+    }
+
+    private static <T> Stream<Tuple<Integer,T>> enumerate(Stream<T> stream) {
+        AtomicInteger i = new AtomicInteger(0);
+        return stream.map(e -> new Tuple<>(i.getAndAdd(1), e));
+    }
 }
