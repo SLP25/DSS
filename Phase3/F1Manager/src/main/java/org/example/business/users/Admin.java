@@ -22,18 +22,11 @@ public class Admin extends User{
         this.is_Premium=premium;
     }
 
-    public static Admin register(String username,String password,boolean is_premium) throws UsernameAlreadyExistsException {
-        Admin r = null;
+    public static Admin register(String username,String password,boolean is_premium) {
         AdminDAO adb = AdminDAO.getInstance();
-        if (doesUserExists(username)){
-            throw new UsernameAlreadyExistsException();
-        }
-        else{
-            Admin t = new Admin(username,is_premium);
-            t.setPassword(password);
-            r=adb.put(t);
-        }
-        return r;
+        Admin t = new Admin(username,is_premium);
+        t.setPassword(password);
+        return adb.put(t);
     }
     public static Admin login(String username,String password) throws WrongPasswordException, UsernameDoesNotExistException {
         AdminDAO adb = AdminDAO.getInstance();

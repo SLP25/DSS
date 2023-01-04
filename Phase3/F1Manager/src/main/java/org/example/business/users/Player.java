@@ -14,18 +14,11 @@ public class Player extends User{
     }
 
 
-    public static Player register(String username, String password) throws UsernameAlreadyExistsException {
-        Player r = null;
+    public static Player register(String username, String password) {
         PlayerDAO pdb = PlayerDAO.getInstance();
-        if (doesUserExists(username)){
-            throw new UsernameAlreadyExistsException();
-        }
-        else{
-            Player t = new Player(username);
-            t.setPassword(password);
-            r=pdb.put(t);
-        }
-        return r;
+        Player t = new Player(username);
+        t.setPassword(password);
+        return pdb.put(t);
     }
 
     /**
