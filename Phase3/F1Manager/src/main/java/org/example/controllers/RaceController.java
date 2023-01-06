@@ -3,10 +3,8 @@ package org.example.controllers;
 import org.example.annotations.API;
 import org.example.business.Race;
 import org.example.business.participants.Participant;
-import org.example.business.systems.ChampionshipSystem;
-import org.example.business.systems.RaceSystem;
 import org.example.business.systems.RaceSystemFacade;
-import org.example.exceptions.Systems.SystemException;
+import org.example.exceptions.system.SystemException;
 import org.example.views.RaceView;
 import org.example.annotations.Endpoint;
 

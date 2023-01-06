@@ -7,14 +7,12 @@ import org.example.business.participants.Participant;
 import org.example.data.ChampionshipDAO;
 import org.example.data.CircuitDAO;
 import org.example.data.RaceDAO;
-import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
-import org.example.exceptions.Systems.CircuitDoesNotExistException;
-import org.example.exceptions.Systems.RaceDoesNotExistException;
+import org.example.exceptions.system.ChampionshipDoesNotExistException;
+import org.example.exceptions.system.CircuitDoesNotExistException;
+import org.example.exceptions.system.RaceDoesNotExistException;
 import org.jetbrains.annotations.NotNull;
 import org.example.business.circuit.Circuit;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +26,6 @@ public class RaceSystem implements RaceSystemFacade {
             throw new ChampionshipDoesNotExistException(championship);
 
         Race r = RaceDAO.getInstance(championship).get(race);
-
         if (r == null)
             throw new RaceDoesNotExistException(race);
 

@@ -1,7 +1,6 @@
 package org.example.business.systems;
 
 import org.example.business.Championship;
-import org.example.business.Race;
 import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
@@ -12,25 +11,27 @@ import org.example.business.users.Admin;
 import org.example.data.AdminDAO;
 import org.example.data.ChampionshipDAO;
 import org.example.data.RaceCarDAO;
-import org.example.exceptions.Systems.AdminDoesNotExistException;
-import org.example.exceptions.Systems.PlayerAlreadyReachedLimitOfSetupChangesExceptions;
-import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.system.AdminDoesNotExistException;
+import org.example.exceptions.logic.PlayerAlreadyReachedLimitOfSetupChangesExceptions;
+import org.example.exceptions.system.PlayerDoesNotExistException;
 import org.example.exceptions.logic.DriverInUseException;
-import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.ParticipantDoesNotExistException;
 import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
-import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
+import org.example.exceptions.system.ChampionshipDoesNotExistException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ChampionshipSystem implements ChampionshipSystemFacade {
 
     @NotNull
     private Championship getChampionship(int championship) throws ChampionshipDoesNotExistException {
-        return ChampionshipDAO.getInstance().get(championship);
+        Championship c = ChampionshipDAO.getInstance().get(championship);
+        if (c == null)
+            throw new ChampionshipDoesNotExistException(championship);
+
+        return c;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class ChampionshipSystem implements ChampionshipSystemFacade {
     }
 
     @Override
-    public void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws ChampionshipDoesNotExistException, UsernameDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException {
+    public void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws ChampionshipDoesNotExistException, PlayerDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException {
         Championship c = getChampionship(championship);
         c.signUp(player, pilot, car);
     }
@@ -63,13 +64,13 @@ public class ChampionshipSystem implements ChampionshipSystemFacade {
     }
 
     @Override
-    public boolean canChangeSetup(int championship, String player) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException {
+    public boolean canChangeSetup(int championship, String player) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException {
         Championship c = getChampionship(championship);
         return c.canChangeSetup(player);
     }
 
     @Override
-    public void changeSetup(int championship, String player, BodyWork.DownforcePackage aero) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException, PlayerAlreadyReachedLimitOfSetupChangesExceptions {
+    public void changeSetup(int championship, String player, BodyWork.DownforcePackage aero) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException, PlayerAlreadyReachedLimitOfSetupChangesExceptions {
         Championship c = getChampionship(championship);
 
         if (!c.canChangeSetup(player))
@@ -79,7 +80,7 @@ public class ChampionshipSystem implements ChampionshipSystemFacade {
     }
 
     @Override
-    public void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, NoParticipantWithThatNameException {
+    public void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException {
         Championship c = getChampionship(championship);
         c.setStrategy(player, tireType, engineMode);
     }

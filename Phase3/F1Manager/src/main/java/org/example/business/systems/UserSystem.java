@@ -16,7 +16,7 @@ public class UserSystem implements UserSystemFacade {
     @Override
     public Player registerPlayer(String username, String password) throws UsernameAlreadyExistsException {
         if (User.doesUserExists(username)){
-            throw new UsernameAlreadyExistsException();
+            throw new UsernameAlreadyExistsException(username);
         }
         else {
             return Player.register(username, password);
@@ -26,7 +26,7 @@ public class UserSystem implements UserSystemFacade {
     @Override
     public Admin registerAdmin(String username, String password, boolean premium) throws UsernameAlreadyExistsException {
         if (User.doesUserExists(username)){
-            throw new UsernameAlreadyExistsException();
+            throw new UsernameAlreadyExistsException(username);
         }
         else {
             return Admin.register(username, password, premium);

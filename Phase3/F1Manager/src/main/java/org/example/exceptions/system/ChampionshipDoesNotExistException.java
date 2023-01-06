@@ -1,8 +1,8 @@
-package org.example.exceptions.Systems;
+package org.example.exceptions.system;
 
 public class ChampionshipDoesNotExistException extends SystemException {
 
     public ChampionshipDoesNotExistException(int championshipID){
-        super(String.format("The inputted championship (%d) doesn't exist", championshipID));
+        super(String.format("Championship '%d' doesn't exist", championshipID));
     }
 }

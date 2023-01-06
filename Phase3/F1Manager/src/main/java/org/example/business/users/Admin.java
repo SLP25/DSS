@@ -32,7 +32,7 @@ public class Admin extends User{
         AdminDAO adb = AdminDAO.getInstance();
         Admin ad = adb.get(username);
         if (ad==null){
-            throw new UsernameDoesNotExistException();
+            throw new UsernameDoesNotExistException(username);
         }
         if (!Admin.checkPassword(password,ad.getHashedPassword())){
             throw new WrongPasswordException();

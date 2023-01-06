@@ -6,6 +6,7 @@ import org.example.business.systems.UserSystem;
 import org.example.business.systems.UserSystemFacade;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
+import org.example.exceptions.authentication.AuthException;
 import org.example.exceptions.authentication.UsernameAlreadyExistsException;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
 import org.example.exceptions.authentication.WrongPasswordException;
@@ -45,7 +46,7 @@ public class UserController extends Controller {
             Player p = getModel().registerPlayer(username, password);
             getView().registerSuccess(p);
         }
-        catch (UsernameAlreadyExistsException e) {
+        catch (AuthException e) {
             getView().error(e.getMessage());
         }
     }
@@ -58,8 +59,7 @@ public class UserController extends Controller {
         try {
             Admin a = getModel().registerAdmin(username, password, premium);
             getView().registerSuccess(a);
-        }
-        catch (UsernameAlreadyExistsException e) {
+        } catch (AuthException e) {
             getView().error(e.getMessage());
         }
     }
@@ -70,8 +70,7 @@ public class UserController extends Controller {
         try {
             Player p = getModel().loginPlayer(username, password);
             getView().loginSuccess(p);
-        }
-        catch (UsernameDoesNotExistException | WrongPasswordException e ) {
+        } catch (AuthException e) {
             getView().error(e.getMessage());
         }
     }
@@ -82,8 +81,7 @@ public class UserController extends Controller {
         try {
             Admin a = getModel().loginAdmin(username, password);
             getView().loginSuccess(a);
-        }
-        catch (UsernameDoesNotExistException | WrongPasswordException e ) {
+        } catch (AuthException e) {
             getView().error(e.getMessage());
         }
     }

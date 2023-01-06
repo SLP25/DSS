@@ -1,8 +1,8 @@
 package org.example.exceptions.authentication;
 
-public class UsernameAlreadyExistsException extends Exception {
+public class UsernameAlreadyExistsException extends AuthException {
 
-    public UsernameAlreadyExistsException(){
-        super();
+    public UsernameAlreadyExistsException(String username) {
+        super(String.format("Username '%s' already exists", username));
     }
 }

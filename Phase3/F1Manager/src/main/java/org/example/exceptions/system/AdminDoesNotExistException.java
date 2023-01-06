@@ -1,8 +1,8 @@
-package org.example.exceptions.Systems;
+package org.example.exceptions.system;
 
 public class AdminDoesNotExistException extends SystemException {
 
     public AdminDoesNotExistException(String admin) {
-        super(String.format("The inputted admin (%s) doesn't exist", admin));
+        super(String.format("Admin '%s' doesn't exist", admin));
     }
 }

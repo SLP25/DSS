@@ -12,9 +12,9 @@ import org.example.data.DriverDAO;
 import org.example.data.ParticipantDAO;
 import org.example.data.PlayerDAO;
 import org.example.data.RaceDAO;
-import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.system.PlayerDoesNotExistException;
 import org.example.exceptions.logic.DriverInUseException;
-import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.ParticipantDoesNotExistException;
 import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 
 import java.util.*;
@@ -95,27 +95,27 @@ public class Championship {
             r.remove(d);
         return r;
     }
-    public Boolean canChangeSetup(String player) throws NoParticipantWithThatNameException {
+    public Boolean canChangeSetup(String player) throws ParticipantDoesNotExistException {
         Participant p = getParticipants().get(player);
-        if (p==null) throw new NoParticipantWithThatNameException();
+        if (p==null) throw new ParticipantDoesNotExistException(player);
         return p.getNumberOfSetupChanges() < ( (double) 2/3) * getRaces().size();
     }
-    public void ChangeSetup(String player, BodyWork.DownforcePackage df) throws NoParticipantWithThatNameException {
+    public void ChangeSetup(String player, BodyWork.DownforcePackage df) throws ParticipantDoesNotExistException {
         Participant p = getParticipants().get(player);
-        if (p==null) throw new NoParticipantWithThatNameException();
+        if (p==null) throw new ParticipantDoesNotExistException(player);
         p.changeCarSetup(df);
     }
-    public void signUp(String player, Driver pilot, CombustionRaceCar car) throws UsernameDoesNotExistException, DriverInUseException, PlayerAlreadyParticipatingException {
+    public void signUp(String player, Driver driver, CombustionRaceCar car) throws PlayerDoesNotExistException, DriverInUseException, PlayerAlreadyParticipatingException {
         Player p = PlayerDAO.getInstance().get(player);
-        if (p==null) throw new UsernameDoesNotExistException();
-        if (this.isDriverInUse(pilot)) throw new DriverInUseException();
-        if (ParticipantDAO.getInstance(this.id).get(player)!=null) throw new PlayerAlreadyParticipatingException();
-        ParticipantDAO.getInstance(id).put(player,new Participant(id,0,car,pilot,p));
+        if (p==null) throw new PlayerDoesNotExistException(player);
+        if (this.isDriverInUse(driver)) throw new DriverInUseException(driver.getDriverName());
+        if (ParticipantDAO.getInstance(this.id).get(player)!=null) throw new PlayerAlreadyParticipatingException(player);
+        ParticipantDAO.getInstance(id).put(player,new Participant(id,0,car,driver,p));
         this.participants=null;
     }
-    public void setStrategy(String player, Tyre.TyreType tyreType, Engine.EngineMode engineMode) throws NoParticipantWithThatNameException {
+    public void setStrategy(String player, Tyre.TyreType tyreType, Engine.EngineMode engineMode) throws ParticipantDoesNotExistException {
         Participant p = getParticipants().get(player);
-        if (p==null) throw new NoParticipantWithThatNameException();
+        if (p==null) throw new ParticipantDoesNotExistException(player);
         p.setStrategy(tyreType,engineMode);
     }
     public Boolean isDriverInUse(Driver pilot){

@@ -2,9 +2,9 @@ package org.example.business.systems;
 
 import org.example.business.Race;
 import org.example.business.participants.Participant;
-import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
-import org.example.exceptions.Systems.CircuitDoesNotExistException;
-import org.example.exceptions.Systems.RaceDoesNotExistException;
+import org.example.exceptions.system.ChampionshipDoesNotExistException;
+import org.example.exceptions.system.CircuitDoesNotExistException;
+import org.example.exceptions.system.RaceDoesNotExistException;
 
 import java.util.List;
 

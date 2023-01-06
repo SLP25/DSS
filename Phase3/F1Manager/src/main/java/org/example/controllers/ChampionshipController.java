@@ -8,14 +8,12 @@ import org.example.business.cars.Engine;
 import org.example.business.cars.Tyre;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
-import org.example.business.systems.ChampionshipSystem;
 import org.example.business.systems.ChampionshipSystemFacade;
 import org.example.data.RaceCarDAO;
-import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
-import org.example.exceptions.Systems.SystemException;
-import org.example.exceptions.authentication.UsernameDoesNotExistException;
+import org.example.exceptions.logic.LogicException;
+import org.example.exceptions.system.SystemException;
 import org.example.exceptions.logic.DriverInUseException;
-import org.example.exceptions.logic.NoParticipantWithThatNameException;
+import org.example.exceptions.logic.ParticipantDoesNotExistException;
 import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 import org.example.views.ChampionshipView;
 import org.example.annotations.Endpoint;
@@ -86,10 +84,10 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) player (\\S+) signup (\\S+) (\\d+)")
-    public void signUp(Integer championshipID, String username, String pilotName, Integer carID) {
+    public void signUp(Integer championshipID, String username, String driver, Integer carID) {
         try {
             Driver pilot = getModel().getAvailableDrivers(championshipID).stream()
-                    .filter(d -> Objects.equals(d.getDriverName(), pilotName))
+                    .filter(d -> Objects.equals(d.getDriverName(), driver))
                     .findFirst().get();
 
             CombustionRaceCar car = RaceCarDAO.getInstance().get(carID);
@@ -97,8 +95,8 @@ public class ChampionshipController extends Controller {
             getModel().signUp(championshipID, username, pilot, car);
             getView().signupSuccess(username);
         } catch (NoSuchElementException e) {
-            getView().error(String.format("Pilot %s not available", pilotName));
-        } catch (UsernameDoesNotExistException | PlayerAlreadyParticipatingException | DriverInUseException | SystemException e) {
+            getView().error(String.format("Driver %s not available", driver));
+        } catch (SystemException | LogicException e) {
             getView().error(e.getMessage());
         }
     }
@@ -109,7 +107,7 @@ public class ChampionshipController extends Controller {
         try {
             boolean canChange = getModel().canChangeSetup(championshipID, username);
             getView().checkSetup(username, canChange);
-        } catch (NoParticipantWithThatNameException | SystemException e) {
+        } catch (SystemException | LogicException e) {
             getView().error(e.getMessage());
         }
     }
@@ -124,7 +122,7 @@ public class ChampionshipController extends Controller {
             getView().setSetupSuccess();
         } catch (IllegalArgumentException e) {
             getView().error(String.format("Invalid downforce package: %s", downforcePackage));
-        } catch (NoParticipantWithThatNameException | SystemException e) {
+        } catch (SystemException | LogicException e) {
             getView().error(e.getMessage());
         }
     }
@@ -152,7 +150,7 @@ public class ChampionshipController extends Controller {
         try {
             getModel().setStrategy(championshipID, username, tt, em);
             getView().setStrategySuccess();
-        } catch (NoParticipantWithThatNameException | SystemException e) {
+        } catch (SystemException | LogicException e) {
             getView().error(e.getMessage());
         }
     }

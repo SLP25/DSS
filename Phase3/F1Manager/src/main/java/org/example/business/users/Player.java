@@ -33,7 +33,7 @@ public class Player extends User{
         PlayerDAO pdb = PlayerDAO.getInstance();
         Player pl = pdb.get(username);
         if (pl==null){
-            throw new UsernameDoesNotExistException();
+            throw new UsernameDoesNotExistException(username);
         }
         if (!Player.checkPassword(password,pl.getHashedPassword())){
             throw new WrongPasswordException();

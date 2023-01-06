@@ -2,24 +2,16 @@ package org.example.tests;
 
 import org.example.business.Championship;
 import org.example.business.Race;
-import org.example.business.Weather;
-import org.example.business.cars.*;
-import org.example.business.circuit.Circuit;
-import org.example.business.circuit.CircuitSection;
-import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 import org.example.business.systems.RaceSystem;
 import org.example.business.users.Admin;
-import org.example.business.users.Player;
 import org.example.data.*;
-import org.example.exceptions.Systems.SystemException;
+import org.example.exceptions.system.SystemException;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.example.tests.AdminTest.createAdmin;
-import static org.example.tests.ParticipantTest.createParticipant;
-import static org.example.tests.RaceTest.createRace;
 
 public class SimulationTest {
     private static final PlayerDAO udb = PlayerDAO.getInstance();
