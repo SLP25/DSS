@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Phase3/Annotations/Annotations.iml" filepath="$PROJECT_DIR$/Phase3/Annotations/Annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Phase3/F1Manager/Annotations/Annotations.iml" filepath="$PROJECT_DIR$/Phase3/F1Manager/Annotations/Annotations.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/DSS.iml" filepath="$PROJECT_DIR$/.idea/DSS.iml" />
       <module fileurl="file://$PROJECT_DIR$/Phase3/F1Manager/F1Manager.iml" filepath="$PROJECT_DIR$/Phase3/F1Manager/F1Manager.iml" />
     </modules>

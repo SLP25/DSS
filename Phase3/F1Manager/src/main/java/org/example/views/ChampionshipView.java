@@ -5,7 +5,6 @@ import org.example.business.cars.CombustionRaceCar;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 

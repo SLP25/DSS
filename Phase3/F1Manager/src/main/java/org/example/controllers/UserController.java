@@ -1,8 +1,6 @@
 package org.example.controllers;
 
 import org.example.annotations.API;
-import org.example.business.systems.ChampionshipSystem;
-import org.example.business.systems.UserSystem;
 import org.example.business.systems.UserSystemFacade;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
