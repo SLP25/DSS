@@ -12,6 +12,7 @@ import org.example.business.systems.RaceSystem;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
 import org.example.data.*;
+import org.example.exceptions.Systems.SystemException;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -27,20 +28,23 @@ public class SimulationTest {
 
 
     @Test
-    public void test() throws InterruptedException {
+    public void test() throws InterruptedException, SystemException {
         RaceSystem rs = new RaceSystem();
         Admin a = createAdmin(1).stream().map(n->AdminDAO.getInstance().get(n)).reduce(null,(o,n)->n);
         Championship c =new Championship(a);
         c=ChampionshipDAO.getInstance().put(c);
         Championship finalC = c;
-        Race r = createRace(c.getId(),1).stream().map(x-> RaceDAO.getInstance(finalC.getId()).get(x)).limit(1).reduce(null,(o, n)->n);
-        rs.addRace(r);
+        Race r = RaceTest.createRace(c.getId(),1).stream()
+                .map(x-> RaceDAO.getInstance(finalC.getId()).get(x))
+                .limit(1)
+                .reduce(null,(o, n)->n);
+
         for (Participant p: c.getParticipants().values()){
-            rs.prepareForRace(r.getId(),p.getManager().getUsername());
+            rs.prepareForRace(c.getId(), r.getId(),p.getManager().getUsername());
         }
 
         while(true) {
-            Race temp = rs.getRaceState(r.getId());
+            Race temp = rs.getRaceState(c.getId(), r.getId());
 
             List<Double> gaps = temp.getGaps();
             List<Participant> participants = temp.getResults();

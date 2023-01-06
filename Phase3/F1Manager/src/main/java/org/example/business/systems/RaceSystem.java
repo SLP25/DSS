@@ -1,74 +1,98 @@
 package org.example.business.systems;
 
+import org.example.business.Championship;
 import org.example.business.Race;
+import org.example.business.Weather;
 import org.example.business.participants.Participant;
+import org.example.data.ChampionshipDAO;
+import org.example.data.CircuitDAO;
+import org.example.data.RaceDAO;
+import org.example.exceptions.Systems.ChampionshipDoesNotExistException;
+import org.example.exceptions.Systems.CircuitDoesNotExistException;
+import org.example.exceptions.Systems.RaceDoesNotExistException;
+import org.jetbrains.annotations.NotNull;
+import org.example.business.circuit.Circuit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RaceSystem implements RaceSystemFacade {
-    //4
-    Map<Integer, Race> races;
-    public RaceSystem() {
-        races = new HashMap<>();
-    }
 
-    public void addRace(Race race) {
-        races.put(race.getId(), race);
+    @NotNull
+    private Race getRace(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
+    {
+        if (!ChampionshipDAO.getInstance().containsKey(championship))
+            throw new ChampionshipDoesNotExistException(championship);
+
+        Race r = RaceDAO.getInstance(championship).get(race);
+
+        if (r == null)
+            throw new RaceDoesNotExistException(race);
+
+        return r;
     }
 
     @Override
-    public void prepareForRace(int race, String player) {
-        Race r = races.get(race);
+    public Race createRace(int championship, float weather, String track) throws ChampionshipDoesNotExistException, CircuitDoesNotExistException
+    {
+        Championship c = ChampionshipDAO.getInstance().get(championship);
+        if (c == null)
+            throw new ChampionshipDoesNotExistException(championship);
 
-        if(r != null) {
+        Circuit t = CircuitDAO.getInstance().get(track);
+        if (t == null)
+            throw new CircuitDoesNotExistException(track);
+
+        List<Participant> participants = c.getParticipants().values().stream().toList();
+        Map<Participant, Boolean> ready = participants.stream().collect(Collectors.toMap(p -> p, p -> false));
+
+        Race r = new Race(championship, false, new Weather(weather), t, participants, ready);
+        RaceDAO.getInstance(championship).put(r);
+        return r;
+    }
+
+    @Override
+    public void prepareForRace(int championship, int race, String player) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
+    {
+        Race r = getRace(championship, race);
+
+        try {
             r.lock();
-            try {
-                r.setPlayerAsReady(player);
+            r.setPlayerAsReady(player);
 
-                if(r.areAllPlayersReady()) {
-                    r.simulate();
-                }
-            } finally {
-                r.unlock();
-            }
-
+            if(r.areAllPlayersReady())
+                r.simulate();
+        } finally {
+            r.unlock();
         }
     }
 
     @Override
-    public List<Participant> getRaceResults(int race) {
-        Race r = races.get(race);
+    public List<Participant> getRaceResults(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
+    {
+        Race r = getRace(championship, race);
 
-        if(r != null) {
+        try {
             r.lock();
-            try {
-                if(r.hasFinished()) {
-                    return r.getResults();
-                } else {
-                    return null;
-                }
-            } finally {
-                r.unlock();
-            }
+            return r.hasFinished() ? r.getResults() : null;
+        } finally {
+            r.unlock();
         }
-        return null;
     }
 
     @Override
-    public Race getRaceState(int race) {
-        Race r = races.get(race);
+    public Race getRaceState(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
+    {
+        Race r = getRace(championship, race);
 
-        if(r != null) {
+        try {
             r.lock();
-            try {
-                return new Race(r);
-            } finally {
-                r.unlock();
-            }
-        } else {
-            return null;
+            return new Race(r);
+        } finally {
+            r.unlock();
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.example.controllers;
 
 import org.example.annotations.API;
+import org.example.business.Championship;
 import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
@@ -41,12 +42,25 @@ public class ChampionshipController extends Controller {
     /*
      * COMMAND SUMMARY:
      *
+     * championship create <admin>
      * championship <championshipID> (standings|drivers)
      * championship <championshipID> player <username> signup <pilot> <car>
-     * championship <championshipID> player <username> setup (check|set <downforce>)
-     * championship <championshipID> player <username> strategy set <tire> <engine>
+     * championship <championshipID> player <username> setup [downforce]
+     * championship <championshipID> player <username> strategy <tire> <engine>
+     * car list
      *
      */
+
+    @Endpoint(regex = "championship create (\\S+)")
+    public void createChampionship(String admin)
+    {
+        try {
+            Championship c = getModel().createChampionship(admin);
+            getView().createSuccess(c);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
+    }
 
     @Endpoint(regex = "championship (\\d+) standings")
     public void getStandings(Integer championshipID)
@@ -57,7 +71,6 @@ public class ChampionshipController extends Controller {
         } catch (SystemException e) {
             getView().error(e.getMessage());
         }
-
     }
 
     @Endpoint(regex = "championship (\\d+) drivers")
@@ -90,7 +103,7 @@ public class ChampionshipController extends Controller {
         }
     }
 
-    @Endpoint(regex = "championship (\\d+) player (\\S+) setup check")
+    @Endpoint(regex = "championship (\\d+) player (\\S+) setup")
     public void canChangeSetup(Integer championshipID, String username)
     {
         try {
@@ -101,7 +114,7 @@ public class ChampionshipController extends Controller {
         }
     }
 
-    @Endpoint(regex = "championship (\\d+) player (\\S+) setup set (\\S+)")
+    @Endpoint(regex = "championship (\\d+) player (\\S+) setup (\\S+)")
     public void changeSetup(Integer championshipID, String username, String downforcePackage)
     {
         try {
@@ -116,7 +129,7 @@ public class ChampionshipController extends Controller {
         }
     }
 
-    @Endpoint(regex = "championship (\\d+) player (\\S+) strategy set (\\S+) (\\S+)")
+    @Endpoint(regex = "championship (\\d+) player (\\S+) strategy (\\S+) (\\S+)")
     public void setStrategy(Integer championshipID, String username, String tireType, String engineMode)
     {
         Tyre.TyreType tt;
@@ -142,5 +155,11 @@ public class ChampionshipController extends Controller {
         } catch (NoParticipantWithThatNameException | SystemException e) {
             getView().error(e.getMessage());
         }
+    }
+
+    @Endpoint(regex = "car list")
+    public void getRaceCars() {
+        List<CombustionRaceCar> cars = getModel().getRaceCars();
+        getView().printRaceCars(cars);
     }
 }

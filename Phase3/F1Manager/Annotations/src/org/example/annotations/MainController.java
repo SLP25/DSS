@@ -1,13 +1,3 @@
-/*
-
-=======================================================
-==     THIS IS AN AUTOMATICALLY GENERATED FILE       ==
-=======================================================
-
-                    DO NOT EDIT!
-
-*/
-
 package org.example.annotations;
 
 import org.example.annotations.MetaController;

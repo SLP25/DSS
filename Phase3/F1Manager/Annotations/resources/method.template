@@ -1,7 +1,7 @@
 {
     Pattern p = Pattern.compile("${regex}", Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(input);
-    if(m.find()) {
+    if(m.matches()) {
         ((${controller})controllers.get(${controller}.class)).${methodName}(${methodArgs});
         return true;
     }
