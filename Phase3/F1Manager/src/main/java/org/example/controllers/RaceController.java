@@ -6,6 +6,7 @@ import org.example.business.participants.Participant;
 import org.example.business.systems.ChampionshipSystem;
 import org.example.business.systems.RaceSystem;
 import org.example.business.systems.RaceSystemFacade;
+import org.example.exceptions.Systems.SystemException;
 import org.example.views.RaceView;
 import org.example.annotations.Endpoint;
 
@@ -31,27 +32,51 @@ public class RaceController extends Controller {
     /*
      * COMMAND SUMMARY:
      *
-     * race prepare <raceID> <username>
-     * race get (state|result) <raceID>
+     * race <championshipID> create <weather> <track>
+     * race <championshipID> <raceID> prepare <username>
+     * race <championshipID> <raceID> (state|result)
      *
      */
 
-    @Endpoint(regex = "race prepare (\\d+) (.+)")
-    public void prepareForRace(Integer raceID, String username)
+    @Endpoint(regex = "race (\\d+) create (\\d+\\.\\d+) (\\S+)")
+    public void createRace(Integer championshipID, Float weather, String track)
     {
-        getModel().prepareForRace(raceID, username);
-        getView().preparedForRace(username);
+        try {
+            Race race = getModel().createRace(championshipID, weather, track);
+            getView().createSuccess(race);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
     }
 
-    @Endpoint(regex = "race get state (\\d+)")
-    public void getRaceState(Integer raceID) {
-        Race r = getModel().getRaceState(raceID);
-        getView().printRaceState(r);
+    @Endpoint(regex = "race (\\d+) (\\d+) prepare (\\S+)")
+    public void prepareForRace(Integer championshipID, Integer raceID, String username)
+    {
+        try {
+            getModel().prepareForRace(championshipID, raceID, username);
+            getView().preparedForRace(username);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
     }
 
-    @Endpoint(regex = "race get result (\\d+)")
-    public void getRaceResults(Integer raceID) {
-        List<Participant> r = getModel().getRaceResults(raceID);
-        getView().printRaceResults(r);
+    @Endpoint(regex = "race (\\d+) (\\d+) state")
+    public void getRaceState(Integer championshipID, Integer raceID) {
+        try {
+            Race r = getModel().getRaceState(championshipID, raceID);
+            getView().printRaceState(r);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
+    }
+
+    @Endpoint(regex = "race (\\d+) (\\d+) result")
+    public void getRaceResults(Integer championshipID, Integer raceID) {
+        try {
+            List<Participant> r = getModel().getRaceResults(championshipID, raceID);
+            getView().printRaceResults(r);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package org.example.views;
 
+import org.example.business.Championship;
+import org.example.business.cars.CombustionRaceCar;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 
@@ -8,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ChampionshipView extends View {
+
+    public void createSuccess(Championship c) {
+        System.out.printf("Successfully created championship %d%n", c.getId());
+    }
 
     public void printStandings(Map<Participant, Integer> standings) {
         System.out.printf("Current standings:%n");
@@ -37,5 +43,12 @@ public class ChampionshipView extends View {
 
     public void setStrategySuccess() {
         System.out.printf("Strategy successfully set%n");
+    }
+
+    public void printRaceCars(List<CombustionRaceCar> cars) {
+        System.out.printf("Available cars:%n");
+
+        for (CombustionRaceCar c : cars)
+            System.out.printf("\t%d: %s (%s)%n", c.getId(), c.getCategory().getClass().getName(), c.getCombustionEngine().toString());
     }
 }
