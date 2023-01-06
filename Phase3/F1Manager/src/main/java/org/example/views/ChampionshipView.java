@@ -2,6 +2,7 @@ package org.example.views;
 
 import org.example.business.Championship;
 import org.example.business.cars.CombustionRaceCar;
+import org.example.business.circuit.Circuit;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 
@@ -49,5 +50,12 @@ public class ChampionshipView extends View {
 
         for (CombustionRaceCar c : cars)
             System.out.printf("\t%d: %s (%s)%n", c.getId(), c.getCategory().getClass().getName(), c.getCombustionEngine().toString());
+    }
+
+    public void printCircuits(List<Circuit> circuits) {
+        System.out.printf("Available circuits:%n");
+
+        for (Circuit c : circuits)
+            System.out.printf("\t%s (%.1fkm, %d laps)%n", c.getName(), c.getCircuitLength(), c.getNumberOfLaps());
     }
 }
