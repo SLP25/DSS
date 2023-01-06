@@ -6,6 +6,7 @@ import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
 import org.example.business.cars.Tyre;
+import org.example.business.circuit.Circuit;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 import org.example.business.systems.ChampionshipSystemFacade;
@@ -45,7 +46,7 @@ public class ChampionshipController extends Controller {
      * championship <championshipID> player <username> signup <pilot> <car>
      * championship <championshipID> player <username> setup [downforce]
      * championship <championshipID> player <username> strategy <tire> <engine>
-     * car list
+     * list (cars|circuits)
      *
      */
 
@@ -155,9 +156,15 @@ public class ChampionshipController extends Controller {
         }
     }
 
-    @Endpoint(regex = "car list")
+    @Endpoint(regex = "list cars")
     public void getRaceCars() {
         List<CombustionRaceCar> cars = getModel().getRaceCars();
         getView().printRaceCars(cars);
+    }
+
+    @Endpoint(regex = "list circuits")
+    public void getCircuits() {
+        List<Circuit> circuits = getModel().getCircuits();
+        getView().printCircuits(circuits);
     }
 }

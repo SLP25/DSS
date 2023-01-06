@@ -5,6 +5,7 @@ import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
 import org.example.business.cars.Tyre;
+import org.example.business.circuit.Circuit;
 import org.example.business.drivers.Driver;
 import org.example.business.participants.Participant;
 import org.example.exceptions.system.AdminDoesNotExistException;
@@ -35,4 +36,6 @@ public interface ChampionshipSystemFacade extends SystemFacade {
     void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException;
 
     List<CombustionRaceCar> getRaceCars();
+
+    List<Circuit> getCircuits();
 }
