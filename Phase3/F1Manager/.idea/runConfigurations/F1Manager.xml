@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="F1Manager" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.example.Main" />
+    <module name="F1Manager" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

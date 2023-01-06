@@ -31,12 +31,12 @@ public class EndpointProcessor extends AbstractProcessor {
     }
 
     /**
-     * Gets the supported version of java (16) of this processor
-     * @return 16
+     * Gets the supported version of java of this processor
+     * @return Latest
      */
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_16;
+        return SourceVersion.latest();
     }
 
     /**
