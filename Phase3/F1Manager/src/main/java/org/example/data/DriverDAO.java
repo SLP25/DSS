@@ -10,10 +10,7 @@ import java.util.stream.Collectors;
 /**
  * Class that represents and handles drivers.
  * It's technically a DAO, since data is hardcoded.
- * Implements Map<> methods for the ease of use.
- * @author Group 20
- * @version 1.0
- * @since 1.0
+ * Implements a map like interface for the ease of use.
  */
 public class DriverDAO implements Map<String, Driver> {
 
