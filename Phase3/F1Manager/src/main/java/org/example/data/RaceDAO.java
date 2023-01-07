@@ -304,6 +304,13 @@ public class RaceDAO implements Map<Integer, Race> {
             catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+            try(PreparedStatement ps = conn.prepareStatement("DELETE FROM raceResults WHERE ID=?;");){
+                ps.setInt(1, race.getId());
+                ps.execute();
+            }
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             try(PreparedStatement ps = conn.prepareStatement("INSERT INTO raceResults (Id,Position,Participant) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Position=?;");){
                 List<Participant> t = race.getResults();
                 for (int i=0;i<t.size();i++) {
