@@ -2,6 +2,10 @@ package org.example.databaseScripts;
 
 import org.example.data.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * A class that only used to destroy our database.
  * <p>
@@ -20,15 +24,20 @@ public class ThanosDB {
      */
     public static void main(String[] args) {
 
-        AdminDAO.getInstance().clear(); /* Get admin table. */
-        PlayerDAO.getInstance().clear(); /* Get player table. */
+        try(Connection conn = DatabaseData.getConnectionNoDatabase();
+            Statement stmt = conn.createStatement()) {
 
-        for (Integer c : ChampionshipDAO.getInstance().keySet()) {
-            ParticipantDAO.getInstance(c).clear();
-            RaceDAO.getInstance(c).clear();
+            String sql = "DROP DATABASE IF EXISTS " + DatabaseData.getDatabaseName() + ";";
+            int result = stmt.executeUpdate(sql);
+
+            if (result == 1) {
+                System.out.println("Database dropped successfully!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Something went wrong while dropped the database");
+            e.printStackTrace();
         }
-
-        ChampionshipDAO.getInstance().clear();
     }
 }
 
