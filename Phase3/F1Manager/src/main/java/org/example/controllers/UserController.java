@@ -50,7 +50,7 @@ public class UserController extends Controller {
     }
 
     @Endpoint(regex = "user (\\S+) register (premium )?admin (.+)")
-    public void registerAdmin(String _premium, String username, String password)
+    public void registerAdmin(String username,String _premium, String password)
     {
         boolean premium = !_premium.isEmpty();
 
