@@ -1,7 +1,10 @@
 package org.example.databaseScripts;
 
-import org.example.data.DatabaseData;
+import org.example.business.circuit.CircuitSection;
+import org.example.business.participants.Participant;
+import org.example.data.*;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
@@ -27,6 +30,20 @@ public class CreateDatabase {
 
             if (result == 1) {
                 System.out.println("Database created successfully!");
+                try {
+                    AdminDAO.getInstance();
+                    ChampionshipDAO.getInstance();
+                    CircuitDAO.getInstance();
+                    DriverDAO.getInstance();
+                    ParticipantDAO.getInstance(0);
+                    PlayerDAO.getInstance();
+                    RaceCarDAO.getInstance();
+                    RaceDAO.getInstance(0);
+                } catch(NullPointerException e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("An error occured creating tables");
+                }
+                System.out.println("Tables created successfully!");
             }
 
         } catch (SQLException e) {
