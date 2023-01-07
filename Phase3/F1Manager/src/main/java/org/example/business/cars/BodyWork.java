@@ -2,26 +2,25 @@ package org.example.business.cars;
 
 import java.util.Objects;
 
-public class BodyWork{
+public class BodyWork {
+    private DownforcePackage dfPackage;
+
+    public BodyWork(DownforcePackage df) {
+        dfPackage = df;
+    }
+
     @Override
     public BodyWork clone() {
         return new BodyWork(this.getDfPackage());
     }
 
-    public static enum DownforcePackage{
-        LOW,
-        MEDIUM,
-        HIGH
-    }
-    private DownforcePackage dfPackage;
-
-    public BodyWork(DownforcePackage df){
-        dfPackage=df;
+    public DownforcePackage getDfPackage() {
+        return dfPackage;
     }
 
-    public DownforcePackage getDfPackage() {return dfPackage;}
-
-    public void setDfPackage(DownforcePackage dfPackage) {this.dfPackage = dfPackage;}
+    public void setDfPackage(DownforcePackage dfPackage) {
+        this.dfPackage = dfPackage;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -41,5 +40,11 @@ public class BodyWork{
         return "BodyWork{" +
                 "dfPackage=" + dfPackage +
                 '}';
+    }
+
+    public static enum DownforcePackage {
+        LOW,
+        MEDIUM,
+        HIGH
     }
 }

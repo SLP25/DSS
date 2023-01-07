@@ -1,7 +1,7 @@
 package org.example;
 
-import org.example.data.DatabaseData;
 import org.example.annotations.MainController;
+import org.example.data.DatabaseData;
 
 import java.sql.SQLException;
 

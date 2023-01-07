@@ -7,29 +7,27 @@ import java.util.List;
  * A circuit where races can be held at
  */
 public class Circuit {
+    List<CircuitSection> circuitSections;
     /**
      * The name of the circuit
      */
     private String name;
-
     /**
      * The length of the circuit
      */
     private float circuitLength;
-
     /**
      * The number of laps a race at this circuit must have
      */
     private int numberOfLaps;
-    List<CircuitSection> circuitSections;
 
     /**
      * Parameterized constructor
-     * @param name the name of the circuit
-     * @param circuitLength the length of the circuit
-     * @param numberOfLaps the number of laps a race at this circuit must have
-     * @param circuitSections the list of all sections that make up the track
      *
+     * @param name            the name of the circuit
+     * @param circuitLength   the length of the circuit
+     * @param numberOfLaps    the number of laps a race at this circuit must have
+     * @param circuitSections the list of all sections that make up the track
      * @see CircuitSection
      */
     public Circuit(String name, float circuitLength, int numberOfLaps, List<CircuitSection> circuitSections) {
@@ -37,12 +35,13 @@ public class Circuit {
         this.circuitLength = circuitLength;
         this.numberOfLaps = numberOfLaps;
         this.circuitSections = new ArrayList<>();
-        for (CircuitSection c:circuitSections)
+        for (CircuitSection c : circuitSections)
             this.circuitSections.add(c.clone());
     }
 
     /**
      * Gets the name of the circuit
+     *
      * @return the name of the circuit
      */
     public String getName() {
@@ -51,6 +50,7 @@ public class Circuit {
 
     /**
      * Sets the name of the circuit
+     *
      * @param name the name of the circuit
      */
     public void setName(String name) {
@@ -59,6 +59,7 @@ public class Circuit {
 
     /**
      * Gets the length of the circuit
+     *
      * @return the length of the circuit
      */
     public float getCircuitLength() {
@@ -67,6 +68,7 @@ public class Circuit {
 
     /**
      * Sets the length of the circuit
+     *
      * @param circuitLength the length of the circuit
      */
     public void setCircuitLength(float circuitLength) {
@@ -75,6 +77,7 @@ public class Circuit {
 
     /**
      * Gets the number of laps of a race at this circuit
+     *
      * @return the number of laps of a race at this circuit
      */
     public int getNumberOfLaps() {
@@ -83,6 +86,7 @@ public class Circuit {
 
     /**
      * Sets the number of laps of a race at this circuit
+     *
      * @param numberOfLaps the number of laps of a race at this circuit
      */
     public void setNumberOfLaps(int numberOfLaps) {
@@ -92,16 +96,14 @@ public class Circuit {
     /**
      * Gets the sections that make up the track
      *
+     * @return the sections that make up the track
      * @implNote the sections returned are deep copies of those
      * stored inside the instance
-     *
-     * @return the sections that make up the track
-     *
      * @see CircuitSection
      */
     public List<CircuitSection> getCircuitSections() {
         List<CircuitSection> t = new ArrayList<>();
-        for (CircuitSection c:circuitSections)
+        for (CircuitSection c : circuitSections)
             t.add(c.clone());
         return t;
     }
@@ -109,16 +111,14 @@ public class Circuit {
     /**
      * Sets the sections that make up the track
      *
+     * @return the sections that make up the track
      * @implNote the sections stored are deep copies of those
      * stored inside the instance
-     *
-     * @return the sections that make up the track
-     *
      * @see CircuitSection
      */
     public void setCircuitSections(ArrayList<CircuitSection> circuitSections) {
         this.circuitSections = new ArrayList<>();
-        for (CircuitSection c:circuitSections)
+        for (CircuitSection c : circuitSections)
             this.circuitSections.add(c.clone());
     }
 }

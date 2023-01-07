@@ -1,7 +1,6 @@
 package org.example.data;
 
 import org.example.business.Championship;
-import org.example.business.users.Admin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +22,7 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
         ) {
             String sql = "CREATE TABLE IF NOT EXISTS championships (" +
                     "Id INT AUTO_INCREMENT PRIMARY KEY," +
-                    "Admin VARCHAR(255) NOT NULL,"+
+                    "Admin VARCHAR(255) NOT NULL," +
                     "FOREIGN KEY (Admin) REFERENCES users(Username) ON DELETE CASCADE ON UPDATE CASCADE" +
                     ");";
             stm.executeUpdate(sql);
@@ -35,8 +34,8 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
     }
 
     public static ChampionshipDAO getInstance() {
-        if (singleton==null)
-            singleton=new ChampionshipDAO();
+        if (singleton == null)
+            singleton = new ChampionshipDAO();
         return singleton;
     }
 
@@ -45,7 +44,7 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
         int i = 0;
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT COUNT(*) FROM championships;");){
+             ResultSet rs = stm.executeQuery("SELECT COUNT(*) FROM championships;");) {
             if (rs.next())
                 i = rs.getInt(1);
         } catch (SQLException e) {
@@ -56,17 +55,17 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
 
     @Override
     public boolean isEmpty() {
-        return size()==0;
+        return size() == 0;
     }
 
     @Override
     public boolean containsKey(Object key) {
         if (!(key instanceof Integer)) return false;
-        boolean r=false;
+        boolean r = false;
         try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM championships WHERE Id= ?;");){
-            ps.setInt(1,(Integer) key);
-            try (ResultSet rs = ps.executeQuery();){
+             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM championships WHERE Id= ?;");) {
+            ps.setInt(1, (Integer) key);
+            try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next())
                     r = true;
             }
@@ -91,8 +90,8 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
         try (Connection conn = DatabaseData.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT Id,Admin FROM championships WHERE Id= ?;");
         ) {
-            ps.setInt(1,(Integer)key);
-            try (ResultSet rs = ps.executeQuery();){
+            ps.setInt(1, (Integer) key);
+            try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next())
                     return new Championship(
                             rs.getInt("Id"),
@@ -135,7 +134,7 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
     }
 
     public Championship put(Championship value) {
-        return put(value.getId(),value);
+        return put(value.getId(), value);
     }
 
 
@@ -161,22 +160,22 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
 
         try (Connection conn = DatabaseData.getConnection();) {
             conn.setAutoCommit(false);
-            String sql="";
+            String sql = "";
             for (Entry e : m.entrySet()) {
-                if (e.getKey()!=null) sql="INSERT INTO championships (Id,Admin) VALUES (?,?);";
-                else sql="INSERT INTO championships (Admin) VALUES (?);";
-            try (PreparedStatement ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
-                int n = 1;
-                if (e.getKey() != null) {
-                    ps.setInt(n, (Integer) e.getKey());
-                    n++;
-                }
-                ps.setString(n, ((Championship)e.getValue()).getAdmin().getUsername());
-                ps.executeUpdate();
-                try (ResultSet rs = ps.getGeneratedKeys();) {
-                    if (rs.next())
-                        ((Championship)e.getValue()).setId(rs.getInt(1));
-                }
+                if (e.getKey() != null) sql = "INSERT INTO championships (Id,Admin) VALUES (?,?);";
+                else sql = "INSERT INTO championships (Admin) VALUES (?);";
+                try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    int n = 1;
+                    if (e.getKey() != null) {
+                        ps.setInt(n, (Integer) e.getKey());
+                        n++;
+                    }
+                    ps.setString(n, ((Championship) e.getValue()).getAdmin().getUsername());
+                    ps.executeUpdate();
+                    try (ResultSet rs = ps.getGeneratedKeys();) {
+                        if (rs.next())
+                            ((Championship) e.getValue()).setId(rs.getInt(1));
+                    }
                 }
             }
             conn.commit();
@@ -226,9 +225,9 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
             while (rs.next())
                 r.add(new Championship(rs.getInt("Id"),
                         adb.get(rs.getString("Admin"))));
-    } catch (SQLException e) {
-        throw new RuntimeException(e);
-    }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return r;
     }
 

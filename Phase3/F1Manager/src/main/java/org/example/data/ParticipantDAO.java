@@ -12,12 +12,10 @@ import java.util.stream.Collectors;
 
 public class ParticipantDAO implements Map<String, Participant> {
     private static Map<Integer, ParticipantDAO> singletons = new HashMap<>();
-    private int championship;
-
     private static RaceCarDAO rdb = RaceCarDAO.getInstance();
     private static DriverDAO ddb = DriverDAO.getInstance();
-
     private static PlayerDAO ppd = PlayerDAO.getInstance();
+    private int championship;
 
     private ParticipantDAO(int championship) {
         this.championship = championship;
@@ -202,9 +200,9 @@ public class ParticipantDAO implements Map<String, Participant> {
             ps.setInt(1, car.getId());
             ps.setString(2, part.getDriver().getDriverName());
             ps.setInt(3, part.getNumberOfSetupChanges());
-            ps.setString(4,car.getTyres().getType().name());
-            ps.setString(5,car.getDfPackage().getDfPackage().name());
-            ps.setString(6,car.getCombustionEngine().getMode().name());
+            ps.setString(4, car.getTyres().getType().name());
+            ps.setString(5, car.getDfPackage().getDfPackage().name());
+            ps.setString(6, car.getCombustionEngine().getMode().name());
             ps.setInt(7, championship);
             ps.setString(8, part.getManager().getUsername());
             ps.executeUpdate();
@@ -243,19 +241,19 @@ public class ParticipantDAO implements Map<String, Participant> {
     public void putAll(Map<? extends String, ? extends Participant> m) {
         try (Connection conn = DatabaseData.getConnection();) {
             conn.setAutoCommit(false);
-            try(
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode) VALUES (?,?,?,?,?,?,?,?);");
-        ){
-            for (Map.Entry e : m.entrySet()) {
-                ps.setString(1, ((String) e.getKey()));
-                ps.setInt(2, championship);
-                ps.setInt(3, ((Participant) e.getValue()).getCar().getId());
-                ps.setString(4, ((Participant) e.getValue()).getDriver().getDriverName());
-                ps.setInt(5, ((Participant) e.getValue()).getNumberOfSetupChanges());
-                ps.setString(6, ((Participant) e.getValue()).getCar().getTyres().getType().name());
-                ps.setString(7, ((Participant) e.getValue()).getCar().getDfPackage().getDfPackage().name());
-                ps.setString(8, ((Participant) e.getValue()).getCar().getCombustionEngine().getMode().name());
-                ps.executeUpdate();
+            try (
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO participants (Player,Championship,Car,Driver,NumberOfSetupChanges,Tyre,BodyWork,EngineMode) VALUES (?,?,?,?,?,?,?,?);");
+            ) {
+                for (Map.Entry e : m.entrySet()) {
+                    ps.setString(1, ((String) e.getKey()));
+                    ps.setInt(2, championship);
+                    ps.setInt(3, ((Participant) e.getValue()).getCar().getId());
+                    ps.setString(4, ((Participant) e.getValue()).getDriver().getDriverName());
+                    ps.setInt(5, ((Participant) e.getValue()).getNumberOfSetupChanges());
+                    ps.setString(6, ((Participant) e.getValue()).getCar().getTyres().getType().name());
+                    ps.setString(7, ((Participant) e.getValue()).getCar().getDfPackage().getDfPackage().name());
+                    ps.setString(8, ((Participant) e.getValue()).getCar().getCombustionEngine().getMode().name());
+                    ps.executeUpdate();
                 }
             }
             conn.commit();

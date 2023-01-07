@@ -6,6 +6,7 @@ package org.example.annotations;
 public class IllegalAnnotationException extends Exception {
     /**
      * Default constructor
+     *
      * @param message the exception message
      */
     public IllegalAnnotationException(String message) {

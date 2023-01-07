@@ -3,8 +3,6 @@ package org.example.business.systems;
 import org.example.business.users.Admin;
 import org.example.business.users.Player;
 import org.example.business.users.User;
-import org.example.data.AdminDAO;
-import org.example.data.PlayerDAO;
 import org.example.exceptions.authentication.UsernameAlreadyExistsException;
 import org.example.exceptions.authentication.UsernameDoesNotExistException;
 import org.example.exceptions.authentication.WrongPasswordException;
@@ -15,20 +13,18 @@ public class UserSystem implements UserSystemFacade {
 
     @Override
     public Player registerPlayer(String username, String password) throws UsernameAlreadyExistsException {
-        if (User.doesUserExists(username)){
+        if (User.doesUserExists(username)) {
             throw new UsernameAlreadyExistsException(username);
-        }
-        else {
+        } else {
             return Player.register(username, password);
         }
     }
 
     @Override
     public Admin registerAdmin(String username, String password, boolean premium) throws UsernameAlreadyExistsException {
-        if (User.doesUserExists(username)){
+        if (User.doesUserExists(username)) {
             throw new UsernameAlreadyExistsException(username);
-        }
-        else {
+        } else {
             return Admin.register(username, password, premium);
         }
     }

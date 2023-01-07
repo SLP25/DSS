@@ -7,19 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class CircuitDAO implements Map<String , Circuit> {
+public class CircuitDAO implements Map<String, Circuit> {
 
     private static CircuitDAO singleton = null;
-
-    public static CircuitDAO getInstance() {
-
-        if (CircuitDAO.singleton == null) CircuitDAO.singleton = new CircuitDAO();
-        return CircuitDAO.singleton;
-
-    }
-
-    private Map<String,Circuit> circuits=Map.of(
-            "Monza",new Circuit("Monza",5.793F,2, new ArrayList<CircuitSection>(Arrays.asList(
+    private Map<String, Circuit> circuits = Map.of(
+            "Monza", new Circuit("Monza", 5.793F, 2, new ArrayList<CircuitSection>(Arrays.asList(
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.75F),
                     new CircuitSection(CircuitSection.CircuitSectionType.CHICANE, 0.15F),
                     new CircuitSection(CircuitSection.CircuitSectionType.CURVE, 0.2F),
@@ -36,7 +28,7 @@ public class CircuitDAO implements Map<String , Circuit> {
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.8F),
                     new CircuitSection(CircuitSection.CircuitSectionType.CURVE, 0.15F)
             ))),
-            "SPA",new Circuit("SPA",7.004F,2,new ArrayList<CircuitSection>(Arrays.asList(
+            "SPA", new Circuit("SPA", 7.004F, 2, new ArrayList<CircuitSection>(Arrays.asList(
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.5F),
                     new CircuitSection(CircuitSection.CircuitSectionType.CURVE, 0.2F),
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.2F),
@@ -69,9 +61,16 @@ public class CircuitDAO implements Map<String , Circuit> {
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.15F),
                     new CircuitSection(CircuitSection.CircuitSectionType.CURVE, 0.15F),
                     new CircuitSection(CircuitSection.CircuitSectionType.STRAIGHT, 0.15F),
-                    new CircuitSection(CircuitSection.CircuitSectionType.CHICANE,0.2F)
+                    new CircuitSection(CircuitSection.CircuitSectionType.CHICANE, 0.2F)
             )))
     );
+
+    public static CircuitDAO getInstance() {
+
+        if (CircuitDAO.singleton == null) CircuitDAO.singleton = new CircuitDAO();
+        return CircuitDAO.singleton;
+
+    }
 
     @Override
     public int size() {

@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Annotations/Annotations.iml" filepath="$PROJECT_DIR$/Annotations/Annotations.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/F1Manager.iml" filepath="$PROJECT_DIR$/.idea/F1Manager.iml" />
     </modules>
   </component>
 </project>

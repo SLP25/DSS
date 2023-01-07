@@ -1,7 +1,5 @@
 package org.example.exceptions.logic;
 
-import org.example.exceptions.system.SystemException;
-
 public class PlayerAlreadyReachedLimitOfSetupChangesExceptions extends LogicException {
 
     public PlayerAlreadyReachedLimitOfSetupChangesExceptions(String player) {

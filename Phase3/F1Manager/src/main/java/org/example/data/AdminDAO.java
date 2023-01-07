@@ -4,10 +4,13 @@ package org.example.data;
 import org.example.business.users.Admin;
 
 import java.sql.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AdminDAO implements Map<String,Admin> {
+public class AdminDAO implements Map<String, Admin> {
     private static AdminDAO singleton = null;
 
     private AdminDAO() {

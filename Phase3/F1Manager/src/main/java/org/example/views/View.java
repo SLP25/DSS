@@ -3,6 +3,7 @@ package org.example.views;
 public class View {
     /**
      * Displays an error to the console
+     *
      * @param message the error message
      */
     public void error(String message) {
@@ -11,6 +12,7 @@ public class View {
 
     /**
      * Display a warning to the console
+     *
      * @param message the warning message
      */
     public void warning(String message) {

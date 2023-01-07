@@ -4,7 +4,10 @@ import org.example.business.users.Player;
 import org.example.business.users.User;
 
 import java.sql.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PlayerDAO implements Map<String, Player> {
@@ -218,7 +221,7 @@ public class PlayerDAO implements Map<String, Player> {
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement();
              ResultSet rs = stm.executeQuery("SELECT Username FROM users WHERE Premium IS NULL;");
-        ){
+        ) {
             while (rs.next())
                 r.add(rs.getString(1));
         } catch (SQLException e) {
@@ -233,7 +236,7 @@ public class PlayerDAO implements Map<String, Player> {
         try (Connection conn = DatabaseData.getConnection();
              Statement stm = conn.createStatement();
              ResultSet rs = stm.executeQuery("SELECT Username,Password FROM users WHERE Premium IS NULL;");
-        ){
+        ) {
             while (rs.next())
                 r.add(new Player(rs.getString(1), rs.getString(2)));
 

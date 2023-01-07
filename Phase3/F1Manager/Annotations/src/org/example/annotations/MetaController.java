@@ -1,7 +1,6 @@
 package org.example.annotations;
 
 import java.util.Map;
-import java.util.Set;
 
 abstract class MetaController {
     abstract Class<?> getModel();
@@ -10,5 +9,5 @@ abstract class MetaController {
 
     abstract String getDescription();
 
-    abstract boolean parseInput(String input, Map<Class<?>,Object> controllers);
+    abstract boolean parseInput(String input, Map<Class<?>, Object> controllers);
 }

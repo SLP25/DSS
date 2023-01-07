@@ -13,39 +13,14 @@ import java.util.stream.Collectors;
  */
 public class MainController {
 
-    //Warning: The following code is black magic. I have no idea how it works. Good luck debugging it.
-    private static Set<Class<? extends MetaController>> getMetaControllers() throws IOException
-    {
-        String packageName = MainController.class.getPackageName();
-        InputStream stream = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream(packageName.replaceAll("[.]", "/"));
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-            return reader.lines()
-                .filter(line -> line.endsWith(".class"))
-                .map(line -> {
-                    try {
-                        return Class.forName(packageName + "." + line.substring(0, line.lastIndexOf('.')));
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(c -> MetaController.class.isAssignableFrom(c) && !c.equals(MetaController.class))
-                .map(c -> (Class<? extends MetaController>)c)
-                .collect(Collectors.toSet());
-        }
-    }
-
     private final String help;
     private final Set<MetaController> metaControllers;
     private final Map<Class<?>, Object> controllers; /*! The map of controllers indexed by their class */
-
     /**
      * Constructor which loads all the controllers and sets each of their respective models
      * (if multiple controllers use the same model, a single instance is created for all)
      */
-    public MainController()
-    {
+    public MainController() {
         try {
             this.metaControllers = new HashSet<>();
             for (Class<? extends MetaController> m : getMetaControllers())
@@ -80,6 +55,28 @@ public class MainController {
                 race <championshipID> create <weather> <track>
                 race <championshipID> <raceID> prepare <username>
                 race <championshipID> <raceID> (state|result)""";
+    }
+
+    //Warning: The following code is black magic. I have no idea how it works. Good luck debugging it.
+    private static Set<Class<? extends MetaController>> getMetaControllers() throws IOException {
+        String packageName = MainController.class.getPackageName();
+        InputStream stream = ClassLoader.getSystemClassLoader()
+                .getResourceAsStream(packageName.replaceAll("[.]", "/"));
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            return reader.lines()
+                    .filter(line -> line.endsWith(".class"))
+                    .map(line -> {
+                        try {
+                            return Class.forName(packageName + "." + line.substring(0, line.lastIndexOf('.')));
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(c -> MetaController.class.isAssignableFrom(c) && !c.equals(MetaController.class))
+                    .map(c -> (Class<? extends MetaController>) c)
+                    .collect(Collectors.toSet());
+        }
     }
 
     /**

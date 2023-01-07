@@ -9,71 +9,21 @@ import java.util.Objects;
  */
 public class CircuitSection {
     /**
-     * The different types of circuit sections
-     */
-    public enum CircuitSectionType {
-        /**
-         * A corner
-         */
-        CURVE,
-        /**
-         * A chicane
-         */
-        CHICANE,
-        /**
-         * A straight
-         */
-        STRAIGHT,
-    }
-
-    /**
      * The type of section
      */
     private CircuitSectionType sectionType;
-
     /**
      * The difficulty of overtaking in this particular section from 0 to 1.
-     *
+     * <p>
      * 0 means it is trivial to overtake, and 1 means it is impossible to do so
      */
     private float sectionGDU;
 
     /**
-     * Gets the type of section
-     * @return the type of section
-     */
-    public CircuitSectionType getSectionType() {
-        return sectionType;
-    }
-
-    /**
-     * Sets the type of section
-     * @param sectionType the type of section
-     */
-    public void setSectionType(CircuitSectionType sectionType) {
-        this.sectionType = sectionType;
-    }
-
-    /**
-     * Gets the difficulty of overtaking in this section
-     * @return the difficulty of overtaking in this section
-     */
-    public float getSectionGDU() {
-        return sectionGDU;
-    }
-
-    /**
-     * Sets the difficulty of overtaking in this section
-     * @param sectionGDU the difficulty of overtaking in this section
-     */
-    public void setSectionGDU(float sectionGDU) {
-        this.sectionGDU = sectionGDU;
-    }
-
-    /**
      * Parameterized constructor
+     *
      * @param sectionType the type of section
-     * @param sectionGDU the difficulty of overtaking
+     * @param sectionGDU  the difficulty of overtaking
      */
     public CircuitSection(CircuitSectionType sectionType, float sectionGDU) {
         this.sectionType = sectionType;
@@ -82,11 +32,48 @@ public class CircuitSection {
 
     /**
      * Copy constructor
+     *
      * @param section the object to deep copy
      */
     public CircuitSection(CircuitSection section) {
         this.sectionType = section.getSectionType();
         this.sectionGDU = section.getSectionGDU();
+    }
+
+    /**
+     * Gets the type of section
+     *
+     * @return the type of section
+     */
+    public CircuitSectionType getSectionType() {
+        return sectionType;
+    }
+
+    /**
+     * Sets the type of section
+     *
+     * @param sectionType the type of section
+     */
+    public void setSectionType(CircuitSectionType sectionType) {
+        this.sectionType = sectionType;
+    }
+
+    /**
+     * Gets the difficulty of overtaking in this section
+     *
+     * @return the difficulty of overtaking in this section
+     */
+    public float getSectionGDU() {
+        return sectionGDU;
+    }
+
+    /**
+     * Sets the difficulty of overtaking in this section
+     *
+     * @param sectionGDU the difficulty of overtaking in this section
+     */
+    public void setSectionGDU(float sectionGDU) {
+        this.sectionGDU = sectionGDU;
     }
 
     @Override
@@ -111,7 +98,25 @@ public class CircuitSection {
     }
 
     @Override
-    public CircuitSection clone(){
+    public CircuitSection clone() {
         return new CircuitSection(this);
+    }
+
+    /**
+     * The different types of circuit sections
+     */
+    public enum CircuitSectionType {
+        /**
+         * A corner
+         */
+        CURVE,
+        /**
+         * A chicane
+         */
+        CHICANE,
+        /**
+         * A straight
+         */
+        STRAIGHT,
     }
 }

@@ -1,6 +1,7 @@
 package org.example.controllers;
 
 import org.example.annotations.API;
+import org.example.annotations.Endpoint;
 import org.example.business.Championship;
 import org.example.business.Race;
 import org.example.business.cars.BodyWork;
@@ -14,13 +15,12 @@ import org.example.business.systems.ChampionshipSystemFacade;
 import org.example.data.RaceCarDAO;
 import org.example.exceptions.logic.LogicException;
 import org.example.exceptions.system.SystemException;
-import org.example.exceptions.logic.DriverInUseException;
-import org.example.exceptions.logic.ParticipantDoesNotExistException;
-import org.example.exceptions.logic.PlayerAlreadyParticipatingException;
 import org.example.views.ChampionshipView;
-import org.example.annotations.Endpoint;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @API(model = "org.example.business.systems.ChampionshipSystem")
 public class ChampionshipController extends Controller {
@@ -31,12 +31,12 @@ public class ChampionshipController extends Controller {
 
     @Override
     protected ChampionshipSystemFacade getModel() {
-        return (ChampionshipSystemFacade)super.getModel();
+        return (ChampionshipSystemFacade) super.getModel();
     }
 
     @Override
     protected ChampionshipView getView() {
-        return (ChampionshipView)super.getView();
+        return (ChampionshipView) super.getView();
     }
 
     /*
@@ -52,8 +52,7 @@ public class ChampionshipController extends Controller {
      */
 
     @Endpoint(regex = "championship create (\\S+)")
-    public void createChampionship(String admin)
-    {
+    public void createChampionship(String admin) {
         try {
             Championship c = getModel().createChampionship(admin);
             getView().createSuccess(c);
@@ -63,8 +62,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) races")
-    public void getRaces(Integer championshipID)
-    {
+    public void getRaces(Integer championshipID) {
         try {
             List<Race> races = getModel().getRaces(championshipID);
             getView().printRaces(races);
@@ -74,8 +72,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) standings")
-    public void getStandings(Integer championshipID)
-    {
+    public void getStandings(Integer championshipID) {
         try {
             Map<Participant, Integer> standings = getModel().getStandings(championshipID);
             getView().printStandings(standings);
@@ -85,8 +82,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) drivers")
-    public void getAvailableDrivers(Integer championshipID)
-    {
+    public void getAvailableDrivers(Integer championshipID) {
         try {
             List<Driver> drivers = getModel().getAvailableDrivers(championshipID);
             getView().printDrivers(drivers);
@@ -115,8 +111,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) player (\\S+) setup")
-    public void canChangeSetup(Integer championshipID, String username)
-    {
+    public void canChangeSetup(Integer championshipID, String username) {
         try {
             boolean canChange = getModel().canChangeSetup(championshipID, username);
             getView().checkSetup(username, canChange);
@@ -126,8 +121,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) player (\\S+) setup (\\S+)")
-    public void changeSetup(Integer championshipID, String username, String downforcePackage)
-    {
+    public void changeSetup(Integer championshipID, String username, String downforcePackage) {
         try {
             BodyWork.DownforcePackage dp = BodyWork.DownforcePackage.valueOf(downforcePackage);
 
@@ -141,8 +135,7 @@ public class ChampionshipController extends Controller {
     }
 
     @Endpoint(regex = "championship (\\d+) player (\\S+) strategy (\\S+) (\\S+)")
-    public void setStrategy(Integer championshipID, String username, String tireType, String engineMode)
-    {
+    public void setStrategy(Integer championshipID, String username, String tireType, String engineMode) {
         Tyre.TyreType tt;
         Engine.EngineMode em;
 

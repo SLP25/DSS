@@ -3,16 +3,16 @@ package org.example.business.systems;
 import org.example.business.Championship;
 import org.example.business.Race;
 import org.example.business.Weather;
+import org.example.business.circuit.Circuit;
 import org.example.business.participants.Participant;
 import org.example.data.ChampionshipDAO;
 import org.example.data.CircuitDAO;
 import org.example.data.RaceDAO;
-import org.example.exceptions.system.RaceHasAlreadyFinishedException;
 import org.example.exceptions.system.ChampionshipDoesNotExistException;
 import org.example.exceptions.system.CircuitDoesNotExistException;
 import org.example.exceptions.system.RaceDoesNotExistException;
+import org.example.exceptions.system.RaceHasAlreadyFinishedException;
 import org.jetbrains.annotations.NotNull;
-import org.example.business.circuit.Circuit;
 
 import java.util.List;
 import java.util.Map;
@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 public class RaceSystem implements RaceSystemFacade {
 
     @NotNull
-    private Race getRace(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
-    {
+    private Race getRace(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException {
         if (!ChampionshipDAO.getInstance().containsKey(championship))
             throw new ChampionshipDoesNotExistException(championship);
 
@@ -34,8 +33,7 @@ public class RaceSystem implements RaceSystemFacade {
     }
 
     @Override
-    public Race createRace(int championship, float weather, String track) throws ChampionshipDoesNotExistException, CircuitDoesNotExistException
-    {
+    public Race createRace(int championship, float weather, String track) throws ChampionshipDoesNotExistException, CircuitDoesNotExistException {
         Championship c = ChampionshipDAO.getInstance().get(championship);
         if (c == null)
             throw new ChampionshipDoesNotExistException(championship);
@@ -53,8 +51,7 @@ public class RaceSystem implements RaceSystemFacade {
     }
 
     @Override
-    public void prepareForRace(int championship, int race, String player) throws ChampionshipDoesNotExistException, RaceDoesNotExistException,RaceHasAlreadyFinishedException
-    {
+    public void prepareForRace(int championship, int race, String player) throws ChampionshipDoesNotExistException, RaceDoesNotExistException, RaceHasAlreadyFinishedException {
         Race r = getRace(championship, race);
 
         try {
@@ -62,7 +59,7 @@ public class RaceSystem implements RaceSystemFacade {
             if (r.hasFinished()) throw new RaceHasAlreadyFinishedException(r);
             r.setPlayerAsReady(player);
 
-            if(r.areAllPlayersReady())
+            if (r.areAllPlayersReady())
                 r.simulate();
         } finally {
             r.unlock();
@@ -70,8 +67,7 @@ public class RaceSystem implements RaceSystemFacade {
     }
 
     @Override
-    public List<Participant> getRaceResults(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
-    {
+    public List<Participant> getRaceResults(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException {
         Race r = getRace(championship, race);
 
         try {
@@ -83,8 +79,7 @@ public class RaceSystem implements RaceSystemFacade {
     }
 
     @Override
-    public Race getRaceState(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
-    {
+    public Race getRaceState(int championship, int race) throws ChampionshipDoesNotExistException, RaceDoesNotExistException {
         Race r = getRace(championship, race);
 
         try {

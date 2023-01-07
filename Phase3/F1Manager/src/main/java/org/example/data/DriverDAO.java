@@ -3,7 +3,10 @@ package org.example.data;
 import org.example.business.drivers.Driver;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -23,26 +26,26 @@ public class DriverDAO implements Map<String, Driver> {
      * Hardcoded data for drivers.
      */
     private Map<String, Driver> drivers = Map.ofEntries(
-            Map.entry("Super_Max",new Driver("Super_Max",0.99F,0.99F)),
-            Map.entry("louis_Hamilton",new Driver("louis_Hamilton",0.99F,0.99F)),
-            Map.entry("Battery_Voltas",new Driver("Battery_Voltas",0.9F,0.9F)),
-            Map.entry("Minister_of_Defense",new Driver("Minister_of_Defense",0.9F,0.9F)),
-            Map.entry("KMAG",new Driver("KMAG",0.5F,0.5F)),
-            Map.entry("Smooth_Operator",new Driver("Smooth_Operator",0.5F,0.5F)),
-            Map.entry("DU_BIST_WELTMEISTER",new Driver("DU_BIST_WELTMEISTER",0.5F,0.5F)),
-            Map.entry("Shumi",new Driver("Shumi",0.75F,0.75F)),
-            Map.entry("Mazaspin",new Driver("Mazaspin",0.1F,0.1F)),
-            Map.entry("Goatifi",new Driver("Goatifi",0.1F,0.1F)),
-            Map.entry("Super_Max2",new Driver("Super_Max2",0.99F,0.99F)),
-            Map.entry("louis_Hamilton2",new Driver("louis_Hamilton2",0.99F,0.99F)),
-            Map.entry("Battery_Voltas2",new Driver("Battery_Voltas2",0.9F,0.9F)),
-            Map.entry("Minister_of_Defense2",new Driver("Minister_of_Defense2",0.9F,0.9F)),
-            Map.entry("KMAG2",new Driver("KMAG2",0.5F,0.5F)),
-            Map.entry("Smooth_Operator2",new Driver("Smooth_Operator2",0.5F,0.5F)),
-            Map.entry("DU_BIST_WELTMEISTER2",new Driver("DU_BIST_WELTMEISTER2",0.5F,0.5F)),
-            Map.entry("Shumi2",new Driver("Shumi2",0.75F,0.75F)),
-            Map.entry("Mazaspin2",new Driver("Mazaspin2",0.1F,0.1F)),
-            Map.entry("Goatifi2",new Driver("Goatifi2",0.1F,0.1F))
+            Map.entry("Super_Max", new Driver("Super_Max", 0.99F, 0.99F)),
+            Map.entry("louis_Hamilton", new Driver("louis_Hamilton", 0.99F, 0.99F)),
+            Map.entry("Battery_Voltas", new Driver("Battery_Voltas", 0.9F, 0.9F)),
+            Map.entry("Minister_of_Defense", new Driver("Minister_of_Defense", 0.9F, 0.9F)),
+            Map.entry("KMAG", new Driver("KMAG", 0.5F, 0.5F)),
+            Map.entry("Smooth_Operator", new Driver("Smooth_Operator", 0.5F, 0.5F)),
+            Map.entry("DU_BIST_WELTMEISTER", new Driver("DU_BIST_WELTMEISTER", 0.5F, 0.5F)),
+            Map.entry("Shumi", new Driver("Shumi", 0.75F, 0.75F)),
+            Map.entry("Mazaspin", new Driver("Mazaspin", 0.1F, 0.1F)),
+            Map.entry("Goatifi", new Driver("Goatifi", 0.1F, 0.1F)),
+            Map.entry("Super_Max2", new Driver("Super_Max2", 0.99F, 0.99F)),
+            Map.entry("louis_Hamilton2", new Driver("louis_Hamilton2", 0.99F, 0.99F)),
+            Map.entry("Battery_Voltas2", new Driver("Battery_Voltas2", 0.9F, 0.9F)),
+            Map.entry("Minister_of_Defense2", new Driver("Minister_of_Defense2", 0.9F, 0.9F)),
+            Map.entry("KMAG2", new Driver("KMAG2", 0.5F, 0.5F)),
+            Map.entry("Smooth_Operator2", new Driver("Smooth_Operator2", 0.5F, 0.5F)),
+            Map.entry("DU_BIST_WELTMEISTER2", new Driver("DU_BIST_WELTMEISTER2", 0.5F, 0.5F)),
+            Map.entry("Shumi2", new Driver("Shumi2", 0.75F, 0.75F)),
+            Map.entry("Mazaspin2", new Driver("Mazaspin2", 0.1F, 0.1F)),
+            Map.entry("Goatifi2", new Driver("Goatifi2", 0.1F, 0.1F))
     );
 
     /**
@@ -135,14 +138,14 @@ public class DriverDAO implements Map<String, Driver> {
      * provide the correct implementation for the collection. The provided driver is
      * stored as a deep copy to prevent modification of the internal data.
      *
-     * @param key The key with which the specified driver is to be associated.
+     * @param key    The key with which the specified driver is to be associated.
      * @param driver The driver to be associated with the specified key.
      * @return The driver previously associated with the key, or {@code null} if there was no such driver.
      */
     @Override
     public Driver put(String key, @NotNull Driver driver) {
         Driver d = this.drivers.put(key, driver.clone());
-        if (d==null) return null;
+        if (d == null) return null;
         return d.clone();
     }
 
@@ -156,7 +159,7 @@ public class DriverDAO implements Map<String, Driver> {
      * @return The driver previously associated with the key, or {@code null} if there was no such driver.
      */
     public Driver put(@NotNull Driver driver) {
-        return this.put(driver.getDriverName(),driver);
+        return this.put(driver.getDriverName(), driver);
     }
 
     /**
@@ -172,7 +175,7 @@ public class DriverDAO implements Map<String, Driver> {
     @Override
     public Driver remove(Object key) {
         Driver d = this.drivers.remove(key);
-        if (d==null) return null;
+        if (d == null) return null;
         return d.clone();
     }
 
@@ -188,10 +191,10 @@ public class DriverDAO implements Map<String, Driver> {
     @Override
     public void putAll(Map<? extends String, ? extends Driver> m) {
 
-        Map<String,Driver> m2 = new HashMap<>();
+        Map<String, Driver> m2 = new HashMap<>();
 
-        for (Entry<? extends String, ? extends Driver> e:m.entrySet()){
-            m2.put(e.getKey(),e.getValue().clone());
+        for (Entry<? extends String, ? extends Driver> e : m.entrySet()) {
+            m2.put(e.getKey(), e.getValue().clone());
         }
 
         this.drivers.putAll(m2);
@@ -206,7 +209,7 @@ public class DriverDAO implements Map<String, Driver> {
      */
     @Override
     public void clear() {
-       this.drivers.clear();
+        this.drivers.clear();
     }
 
 
@@ -250,6 +253,6 @@ public class DriverDAO implements Map<String, Driver> {
     @Override
     public Set<Entry<String, Driver>> entrySet() {
         return values().stream().collect(
-               Collectors.toMap(Driver::getDriverName, Driver::clone)).entrySet();
+                Collectors.toMap(Driver::getDriverName, Driver::clone)).entrySet();
     }
 }

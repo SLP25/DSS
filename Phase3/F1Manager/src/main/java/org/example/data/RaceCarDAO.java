@@ -2,9 +2,9 @@ package org.example.data;
 
 import org.example.business.cars.*;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
@@ -94,10 +94,11 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
 
     @Override
     public CombustionRaceCar put(Integer key, CombustionRaceCar car) {
-        CombustionRaceCar c = cars.put(key,car.clone());
-        if (c==null) return null;
+        CombustionRaceCar c = cars.put(key, car.clone());
+        if (c == null) return null;
         return c.clone();
     }
+
     public CombustionRaceCar put(CombustionRaceCar u) {
         return put(u.getId(), u);
     }
@@ -105,13 +106,13 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
     @Override
     public CombustionRaceCar remove(Object key) {
         CombustionRaceCar c = cars.remove(key);
-        if (c==null) return null;
+        if (c == null) return null;
         return c.clone();
     }
 
     @Override
     public void putAll(Map<? extends Integer, ? extends CombustionRaceCar> m) {
-        cars.putAll(m.entrySet().stream().collect(Collectors.toMap(Entry::getKey,e->e.getValue().clone())));
+        cars.putAll(m.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> e.getValue().clone())));
     }
 
 
@@ -122,7 +123,7 @@ public class RaceCarDAO implements Map<Integer, CombustionRaceCar> {
 
     @Override
     public Set<Integer> keySet() {
-        return  cars.keySet();
+        return cars.keySet();
     }
 
     @Override

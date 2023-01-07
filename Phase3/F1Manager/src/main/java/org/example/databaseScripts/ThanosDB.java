@@ -1,6 +1,6 @@
 package org.example.databaseScripts;
 
-import org.example.data.*;
+import org.example.data.DatabaseData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,12 +20,13 @@ public class ThanosDB {
 
     /**
      * This method gets each table of the database and destroys it.
+     *
      * @param args Argument list of passed parameters, never used.
      */
     public static void main(String[] args) {
 
-        try(Connection conn = DatabaseData.getConnectionNoDatabase();
-            Statement stmt = conn.createStatement()) {
+        try (Connection conn = DatabaseData.getConnectionNoDatabase();
+             Statement stmt = conn.createStatement()) {
 
             String sql = "DROP DATABASE IF EXISTS " + DatabaseData.getDatabaseName() + ";";
             int result = stmt.executeUpdate(sql);

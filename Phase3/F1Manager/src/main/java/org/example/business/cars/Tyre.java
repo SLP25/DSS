@@ -3,34 +3,30 @@ package org.example.business.cars;
 
 import java.util.Objects;
 
-public class Tyre{
+public class Tyre {
 
-    public static enum TyreType {
-        SOFT,
-        MEDIUM,
-        HARD,
-        INTERMEDIATE,
-        WET
-    }
     private TyreType type;
-
-    public TyreType getType() {return type;}
-
     private boolean isPunctured;
+
+    public Tyre(TyreType t) {
+        type = t;
+    }
+
+    public TyreType getType() {
+        return type;
+    }
+
+    public void setType(TyreType type) {
+        this.type = type;
+    }
 
     @Override
     public Tyre clone() {
         return new Tyre(this.getType());
     }
 
-    public void setType(TyreType type) {this.type = type;}
-
-    public Tyre (TyreType t){
-        type=t;
-    }
-
     public double getTyreWearStep() {
-        switch(this.type) {
+        switch (this.type) {
             case SOFT:
                 return 1.0;
             case MEDIUM:
@@ -53,6 +49,7 @@ public class Tyre{
     public void setPuncture(boolean puncture) {
         this.isPunctured = puncture;
     }
+
     public boolean isWet() {
         return type == TyreType.WET || type == TyreType.INTERMEDIATE;
     }
@@ -75,5 +72,13 @@ public class Tyre{
         return "Tyre{" +
                 "type=" + type +
                 '}';
+    }
+
+    public static enum TyreType {
+        SOFT,
+        MEDIUM,
+        HARD,
+        INTERMEDIATE,
+        WET
     }
 }

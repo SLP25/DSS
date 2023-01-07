@@ -17,6 +17,7 @@ public abstract class Controller {
 
     /**
      * Gets the model of the application
+     *
      * @return the model of the application
      */
     protected SystemFacade getModel() {
@@ -25,6 +26,7 @@ public abstract class Controller {
 
     /**
      * Gets the view the controller handles
+     *
      * @return the view the controller handles\
      */
     protected View getView() {

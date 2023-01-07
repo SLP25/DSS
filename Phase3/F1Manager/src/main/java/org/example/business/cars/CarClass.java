@@ -9,7 +9,7 @@ public abstract class CarClass {
     //static float reliability;
     private String reliabilityFormula;
 
-    public CarClass(String reliabilityFormula){
+    public CarClass(String reliabilityFormula) {
         this.reliabilityFormula = reliabilityFormula;
     }
 
@@ -18,13 +18,13 @@ public abstract class CarClass {
     public double calculateReliability(Map<String, Float> variables) {
         Expression formula = new Expression(this.reliabilityFormula);
 
-        for(Map.Entry<String, Float> entry : variables.entrySet()) {
+        for (Map.Entry<String, Float> entry : variables.entrySet()) {
             formula = formula.with(entry.getKey(), new BigDecimal(entry.getValue()));
         }
 
         try {
             return formula.eval().doubleValue();
-        } catch(Expression.ExpressionException e) {
+        } catch (Expression.ExpressionException e) {
             throw new RuntimeException(); //TODO:: MUDAR ISTO
         }
     }

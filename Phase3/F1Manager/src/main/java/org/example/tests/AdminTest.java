@@ -17,104 +17,119 @@ import java.util.Set;
 public class AdminTest {
     private static final AdminDAO adb = AdminDAO.getInstance();
 
-    public static Set<String> createAdmin(int n){
-        Set<String>s=new HashSet<>();
+    public static Set<String> createAdmin(int n) {
+        Set<String> s = new HashSet<>();
         int k = adb.size();
-        for (int i=1;i<=n;i++){
-            Admin u = new Admin("admin:"+i+k,false);
+        for (int i = 1; i <= n; i++) {
+            Admin u = new Admin("admin:" + i + k, false);
             u.setPassword("123456");
             adb.put(u);
             s.add(u.getUsername());
         }
         return s;
     }
+
     @BeforeEach
     public void init() {
         adb.clear();
     }
+
     @Test
     public void createAdminTest() {
         String username = "admin1";
         String password = "123456";
-        Admin u1 = new Admin(username,false);
+        Admin u1 = new Admin(username, false);
         u1.setPassword(password);
         adb.put(u1);
-        Assertions.assertEquals(u1,adb.get(u1.getUsername()));
-        Assertions.assertEquals(u1.getHashedPassword(),adb.get(u1.getUsername()).getHashedPassword());
+        Assertions.assertEquals(u1, adb.get(u1.getUsername()));
+        Assertions.assertEquals(u1.getHashedPassword(), adb.get(u1.getUsername()).getHashedPassword());
         Assertions.assertNull(adb.get("admin2"));
     }
+
     @Test
-    public void isEmptyTest(){
+    public void isEmptyTest() {
         Assertions.assertTrue(adb.isEmpty());
         createAdmin(10);
         Assertions.assertFalse(adb.isEmpty());
     }
+
     @Test
-    public void sizeTest(){
-        Assertions.assertEquals(adb.size(),0);
+    public void sizeTest() {
+        Assertions.assertEquals(adb.size(), 0);
         createAdmin(10);
-        Assertions.assertEquals(adb.size(),10);
+        Assertions.assertEquals(adb.size(), 10);
         createAdmin(20);
-        Assertions.assertEquals(adb.size(),30);
+        Assertions.assertEquals(adb.size(), 30);
     }
+
     @Test
-    public void containsKeyTest(){
-        Set<String> ids=createAdmin(5);
-        Assertions.assertFalse(adb.containsKey(ids.stream().max(String::compareTo).get()+"123"));
+    public void containsKeyTest() {
+        Set<String> ids = createAdmin(5);
+        Assertions.assertFalse(adb.containsKey(ids.stream().max(String::compareTo).get() + "123"));
         Assertions.assertTrue(adb.containsKey(ids.stream().max(String::compareTo).get()));
     }
+
     @Test
-    public void containsValueTest(){
-        Admin n = new Admin("test",false);
-        Set<String> admins=createAdmin(5);
+    public void containsValueTest() {
+        Admin n = new Admin("test", false);
+        Set<String> admins = createAdmin(5);
         Admin v = adb.get(admins.stream().max(String::compareTo).get());
 
         Assertions.assertFalse(adb.containsValue(n));
         Assertions.assertTrue(adb.containsValue(v));
     }
+
     @Test
-    public void removeTest(){
+    public void removeTest() {
         Set<String> admins = createAdmin(10);
-        int k=adb.size();
+        int k = adb.size();
         Admin v = adb.get(admins.stream().max(String::compareTo).get());
-        Assertions.assertEquals(adb.remove(v.getUsername()),v);
+        Assertions.assertEquals(adb.remove(v.getUsername()), v);
         Assertions.assertFalse(adb.containsValue(v));
-        Assertions.assertEquals(adb.size(),k-1);
+        Assertions.assertEquals(adb.size(), k - 1);
     }
+
     @Test
-    public void putAllTest(){
-        Admin u1 = new Admin("admin1",false);
-        Admin u2 = new Admin("admin2",false);
-        Admin u3 = new Admin("admin3",false);
-        Map<String,Admin> umap = new HashMap<>();
-        umap.put(u1.getUsername(),u1);
-        umap.put(u2.getUsername(),u2);
-        umap.put(u3.getUsername(),u3);
+    public void putAllTest() {
+        Admin u1 = new Admin("admin1", false);
+        Admin u2 = new Admin("admin2", false);
+        Admin u3 = new Admin("admin3", false);
+        Map<String, Admin> umap = new HashMap<>();
+        umap.put(u1.getUsername(), u1);
+        umap.put(u2.getUsername(), u2);
+        umap.put(u3.getUsername(), u3);
 
         adb.putAll(umap);
         Assertions.assertTrue(adb.containsValue(u1));
         Assertions.assertTrue(adb.containsValue(u2));
         Assertions.assertTrue(adb.containsValue(u3));
-        Assertions.assertEquals(adb.size(),3);
+        Assertions.assertEquals(adb.size(), 3);
     }
 
     @Test
     public void register() throws UsernameAlreadyExistsException {
-        Admin u1 = new Admin("admin1",false);
+        Admin u1 = new Admin("admin1", false);
         u1.setPassword("test");
-        Admin r=Admin.register("admin1","test",false);
-        Assertions.assertEquals(u1,r);
+        Admin r = Admin.register("admin1", "test", false);
+        Assertions.assertEquals(u1, r);
         Assertions.assertThrows(UsernameAlreadyExistsException.class,
-                ()->{Admin.register("admin1","test",false);});
+                () -> {
+                    Admin.register("admin1", "test", false);
+                });
     }
+
     @Test
     public void login() throws UsernameAlreadyExistsException, UsernameDoesNotExistException, WrongPasswordException {
-        Admin r=Admin.register("admin1","test",false);
-        Admin l=Admin.login("admin1","test");
-        Assertions.assertEquals(r,l);
+        Admin r = Admin.register("admin1", "test", false);
+        Admin l = Admin.login("admin1", "test");
+        Assertions.assertEquals(r, l);
         Assertions.assertThrows(UsernameDoesNotExistException.class,
-                ()->{Admin.login("admin2","test");});
+                () -> {
+                    Admin.login("admin2", "test");
+                });
         Assertions.assertThrows(WrongPasswordException.class,
-                ()->{Admin.login("admin1","wrongPassword");});
+                () -> {
+                    Admin.login("admin1", "wrongPassword");
+                });
     }
 }

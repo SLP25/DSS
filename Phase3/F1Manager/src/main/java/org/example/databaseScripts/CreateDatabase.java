@@ -1,13 +1,10 @@
 package org.example.databaseScripts;
 
-import org.example.business.circuit.CircuitSection;
-import org.example.business.participants.Participant;
 import org.example.data.*;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Utility 'static' class that creates the database used on this project.
@@ -17,13 +14,14 @@ public class CreateDatabase {
     /**
      * Run the script to create the database, its information
      * (name, type of database) are specified @ org.example.databaseScript.DatabaseData.
+     *
      * @param args Argument list of passed parameters, never used.
      */
     public static void main(String[] args) {
 
         /* Open a connection with the database, we're using MySQL */
-        try(Connection conn = DatabaseData.getConnectionNoDatabase();
-            Statement stmt = conn.createStatement()) {
+        try (Connection conn = DatabaseData.getConnectionNoDatabase();
+             Statement stmt = conn.createStatement()) {
 
             String sql = "CREATE DATABASE IF NOT EXISTS " + DatabaseData.getDatabaseName() + ";";
             int result = stmt.executeUpdate(sql);
@@ -39,7 +37,7 @@ public class CreateDatabase {
                     PlayerDAO.getInstance();
                     RaceCarDAO.getInstance();
                     RaceDAO.getInstance(0);
-                } catch(NullPointerException e) {
+                } catch (NullPointerException e) {
                     System.out.println(e.getMessage());
                     System.out.println("An error occured creating tables");
                 }

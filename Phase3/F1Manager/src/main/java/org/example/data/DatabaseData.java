@@ -14,11 +14,12 @@ public class DatabaseData {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "mysql";
 
-    private static final String DB_URL = DB_DRIVER+"://"+DB_HOST+":"+DB_PORT+"/";
+    private static final String DB_URL = DB_DRIVER + "://" + DB_HOST + ":" + DB_PORT + "/";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL + DB_DATABASE, DB_USER, DB_PASSWORD);
     }
+
     public static Connection getConnectionNoDatabase() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }

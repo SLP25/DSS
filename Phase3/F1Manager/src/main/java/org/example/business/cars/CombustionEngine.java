@@ -2,12 +2,21 @@ package org.example.business.cars;
 
 import java.util.Objects;
 
-public class CombustionEngine extends Engine{
+public class CombustionEngine extends Engine {
     private int capacity;
 
-    public int getCapacity() {return capacity;}
+    public CombustionEngine(EngineMode mode, int capacity) {
+        super(mode);
+        this.capacity = capacity;
+    }
 
-    public void setCapacity(int capacity) {this.capacity = capacity;}
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -22,11 +31,6 @@ public class CombustionEngine extends Engine{
         return Objects.hash(getCapacity());
     }
 
-    public CombustionEngine(EngineMode mode, int capacity) {
-        super(mode);
-        this.capacity=capacity;
-    }
-
     @Override
     public String toString() {
         return "CombustionEngine{" +
@@ -34,8 +38,9 @@ public class CombustionEngine extends Engine{
                 "mode=" + getMode().name() +
                 '}';
     }
+
     @Override
-    public CombustionEngine clone(){
-        return new CombustionEngine(this.getMode(),this.getCapacity());
+    public CombustionEngine clone() {
+        return new CombustionEngine(this.getMode(), this.getCapacity());
     }
 }

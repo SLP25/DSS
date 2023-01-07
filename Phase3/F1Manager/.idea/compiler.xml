@@ -9,11 +9,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="F1Manager" />
       </profile>
       <profile name="EndpointProcessor" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processor name="org.example.annotations.EndpointProcessor" />
-        <module name="F1Manager" />
       </profile>
     </annotationProcessing>
   </component>

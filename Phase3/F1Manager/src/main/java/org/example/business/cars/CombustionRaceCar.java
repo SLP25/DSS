@@ -1,7 +1,5 @@
 package org.example.business.cars;
 
-import org.example.data.RaceCarDAO;
-
 import java.util.Objects;
 
 public class CombustionRaceCar {
@@ -20,15 +18,54 @@ public class CombustionRaceCar {
     private double damage;
 
 
-    public Integer getId() {return id;}
+    public CombustionRaceCar(CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
+        this.id = null;
+        this.category = category;
+        this.tyres = tyres.clone();
+        this.combustionEngine = combustionEngine.clone();
+        this.dfPackage = dfPackage.clone();
+    }
 
-    public void setId(Integer id) {this.id = id;}
+    public CombustionRaceCar(Integer id, CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
+        this.id = id;
+        this.category = category;
+        this.tyres = tyres.clone();
+        this.combustionEngine = combustionEngine.clone();
+        this.dfPackage = dfPackage.clone();
+    }
 
-    public CarClass getCategory() {return category;}
+    public CombustionRaceCar(CombustionRaceCar c) {
+        this.id = c.getId();
+        this.category = c.getCategory();
+        this.tyres = c.getTyres().clone();
+        this.combustionEngine = c.getCombustionEngine().clone();
+        this.dfPackage = c.getDfPackage().clone();
 
-    public void setCategory(CarClass category) {this.category = category;}
+    }
 
-    public Tyre getTyres() {return tyres.clone();}
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public CarClass getCategory() {
+        return category;
+    }
+
+    public void setCategory(CarClass category) {
+        this.category = category;
+    }
+
+    public Tyre getTyres() {
+        return tyres.clone();
+    }
+
+    public void setTyres(Tyre tyres) {
+        this.tyres = tyres.clone();
+    }
 
     public double getDamage() {
         return damage;
@@ -38,25 +75,31 @@ public class CombustionRaceCar {
         this.damage = damage;
     }
 
-    public void setTyres(Tyre tyres) {this.tyres = tyres.clone();}
+    public CombustionEngine getCombustionEngine() {
+        return combustionEngine.clone();
+    }
 
-    public CombustionEngine getCombustionEngine() {return combustionEngine.clone();}
+    public void setCombustionEngine(CombustionEngine combustionEngine) {
+        this.combustionEngine = combustionEngine.clone();
+    }
 
-    public void setCombustionEngine(CombustionEngine combustionEngine) {this.combustionEngine = combustionEngine.clone();}
+    public BodyWork getDfPackage() {
+        return dfPackage.clone();
+    }
 
-    public BodyWork getDfPackage() {return dfPackage.clone();}
+    public void setDfPackage(BodyWork dfPackage) {
+        this.dfPackage = dfPackage.clone();
+    }
 
-    public void setDfPackage(BodyWork dfPackage) {this.dfPackage = dfPackage.clone();}
-
-    public void changeCarSetup(BodyWork.DownforcePackage df){
+    public void changeCarSetup(BodyWork.DownforcePackage df) {
         this.dfPackage.setDfPackage(df);
     }
 
-
-    public void setEngineMode(Engine.EngineMode engineMode){
+    public void setEngineMode(Engine.EngineMode engineMode) {
         this.combustionEngine.setMode(engineMode);
     }
-    public void setStrategy(Tyre.TyreType tyre,CombustionEngine.EngineMode engineMode){
+
+    public void setStrategy(Tyre.TyreType tyre, CombustionEngine.EngineMode engineMode) {
         this.setEngineMode(engineMode);
         this.tyres.setType(tyre);
     }
@@ -82,31 +125,8 @@ public class CombustionRaceCar {
         return Objects.hash(getCategory(), getTyres(), getCombustionEngine(), getDfPackage());
     }
 
-    public CombustionRaceCar(CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
-        this.id = null;
-        this.category = category;
-        this.tyres = tyres.clone();
-        this.combustionEngine = combustionEngine.clone();
-        this.dfPackage = dfPackage.clone();
-    }
-
-    public CombustionRaceCar(Integer id, CarClass category, Tyre tyres, CombustionEngine combustionEngine, BodyWork dfPackage) {
-        this.id = id;
-        this.category = category;
-        this.tyres = tyres.clone();
-        this.combustionEngine = combustionEngine.clone();
-        this.dfPackage = dfPackage.clone();
-    }
-    public CombustionRaceCar(CombustionRaceCar c){
-        this.id=c.getId();
-        this.category = c.getCategory();
-        this.tyres = c.getTyres().clone();
-        this.combustionEngine=c.getCombustionEngine().clone();
-        this.dfPackage = c.getDfPackage().clone();
-
-    }
     @Override
-    public CombustionRaceCar clone(){
+    public CombustionRaceCar clone() {
         return new CombustionRaceCar(this);
     }
 }
