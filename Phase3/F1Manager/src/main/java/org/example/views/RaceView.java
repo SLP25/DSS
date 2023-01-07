@@ -15,8 +15,8 @@ public class RaceView extends View {
         System.out.printf("Player %s is now prepared for the race%n", username);
     }
 
-    public void testRace(int id) {
-        System.out.println("Race created and started with id " + id);
+    public void testRace(int champId,int raceId) {
+        System.out.println("Race created and started in championship "+champId+" with id " + raceId);
     }
 
     public void printRaceState(Race race) {

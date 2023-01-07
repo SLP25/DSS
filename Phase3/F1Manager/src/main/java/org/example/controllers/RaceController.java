@@ -61,7 +61,7 @@ public class RaceController extends Controller {
             getModel().prepareForRace(c.getId(), r.getId(),p.getManager().getUsername());
         }
 
-        getView().testRace(r.getId());
+        getView().testRace(r.getChampionshipId(),r.getId());
     }
 
     @Endpoint(regex = "race (\\d+) create (\\d+\\.\\d+) (\\S+)")
