@@ -2,15 +2,18 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default">
+        <processorPath useClasspath="false" />
+      </profile>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="F1Manager" />
       </profile>
       <profile name="EndpointProcessor" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processor name="org.example.annotations.EndpointProcessor" />
+        <module name="F1Manager" />
       </profile>
     </annotationProcessing>
   </component>
