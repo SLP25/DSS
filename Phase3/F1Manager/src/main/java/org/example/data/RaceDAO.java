@@ -14,6 +14,18 @@ public class RaceDAO implements Map<Integer, Race> {
     private int championship;
     private static Map<Integer,RaceDAO> singletons = new HashMap<>();
 
+    private final Map<Integer,Race> runningRaces = new HashMap<>();
+
+    public void addRunningRace(Race r){
+        runningRaces.put(r.getId(),r);
+    }
+    public void removeRunningRace(Race r){
+        runningRaces.remove(r.getId());
+    }
+    private Race getRunningRace(Integer i){
+        return runningRaces.get(i);
+    }
+
     private RaceDAO(int championship) {
         this.championship=championship;
         try (Connection conn = DatabaseData.getConnection();
@@ -163,6 +175,8 @@ public class RaceDAO implements Map<Integer, Race> {
     public Race get(Object key) {
         if (!(Integer.class.isInstance(key)))
             return null;
+        Race r = runningRaces.get(key);
+        if (r!=null) return r;
         try (Connection conn = DatabaseData.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT Id,Championship,WeatherVariability,Circuit,Finished FROM races WHERE Championship=? AND Id= ?;");){
             ps.setInt(1,championship);
@@ -170,14 +184,15 @@ public class RaceDAO implements Map<Integer, Race> {
             try (ResultSet rs = ps.executeQuery();){
                 if (rs.next()) {
                     boolean b=rs.getBoolean("Finished");
+                    Map<Participant, Boolean> readys= ready((Integer) key);
                     return new Race(
                             rs.getInt("Id"),
                             rs.getInt("Championship"),
                             b,
                             new Weather(rs.getDouble("WeatherVariability")),
                             CircuitDAO.getInstance().get(rs.getString("Circuit")),
-                            b?participants((Integer) key): new ArrayList<Participant>(),
-                            ready((Integer) key)
+                            b?participants((Integer) key): readys.keySet().stream().toList(),
+                            readys
                     );
                 }
             }

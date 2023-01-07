@@ -231,6 +231,7 @@ public class Race {
     public void simulate() {
         new Thread(() -> {
             initializeRace();
+            RaceDAO.getInstance(this.championshipId).addRunningRace(this);
             while(!finished) {
                 lock.lock();
                 try {
@@ -251,7 +252,7 @@ public class Race {
                     throw new RuntimeException(e);
                 }
             }
-
+            RaceDAO.getInstance(this.championshipId).removeRunningRace(this);
             RaceDAO dao = RaceDAO.getInstance(championshipId);
             dao.update(this);
         }).start();

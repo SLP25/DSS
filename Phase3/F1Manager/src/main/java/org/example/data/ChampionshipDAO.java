@@ -64,7 +64,7 @@ public class ChampionshipDAO implements Map<Integer, Championship> {
         if (!(key instanceof Integer)) return false;
         boolean r=false;
         try (Connection conn = DatabaseData.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM drivers WHERE Id= ?;");){
+             PreparedStatement ps = conn.prepareStatement("SELECT Id FROM championships WHERE Id= ?;");){
             ps.setInt(1,(Integer) key);
             try (ResultSet rs = ps.executeQuery();){
                 if (rs.next())
