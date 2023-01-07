@@ -44,6 +44,7 @@ public class RaceController extends Controller {
      * race <championshipID> <raceID> (state|result)
      *
      */
+
     @Endpoint(regex = "race test create")
     public void createTestRace() {
         RaceSystem rs = new RaceSystem();

@@ -1,6 +1,7 @@
 package org.example.business.systems;
 
 import org.example.business.Championship;
+import org.example.business.Race;
 import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
@@ -48,9 +49,15 @@ public class ChampionshipSystem implements ChampionshipSystemFacade {
     }
 
     @Override
+    public List<Race> getRaces(int championship) throws ChampionshipDoesNotExistException {
+        Championship c = getChampionship(championship);
+        return c.getRaces().stream().toList();
+    }
+
+    @Override
     public Map<Participant, Integer> getStandings(int championship) throws ChampionshipDoesNotExistException {
         Championship c = getChampionship(championship);
-        return getChampionship(championship).getStandings();
+        return c.getStandings();
     }
 
     @Override
@@ -85,6 +92,11 @@ public class ChampionshipSystem implements ChampionshipSystemFacade {
     public void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException {
         Championship c = getChampionship(championship);
         c.setStrategy(player, tireType, engineMode);
+    }
+
+    @Override
+    public List<Championship> getChampionships() {
+        return ChampionshipDAO.getInstance().values().stream().toList();
     }
 
     @Override

@@ -29,15 +29,15 @@ public class UserController extends Controller {
     }
 
     /*
-    * COMMAND SUMMARY:
-    *
-    * register (player|[premium] admin) <username> <password>
-    * login (player|admin) <username> <password>
-    * checkusername <username>
-    *
-    */
+     * COMMAND SUMMARY:
+     *
+     * user <username> register (player|[premium] admin) <password>
+     * user <username> login (player|admin) <password>
+     * user <username> check
+     *
+     */
 
-    @Endpoint(regex = "register player (\\S+) (.+)")
+    @Endpoint(regex = "user (\\S+) register player (.+)")
     public void registerPlayer(String username, String password)
     {
         try {
@@ -49,7 +49,7 @@ public class UserController extends Controller {
         }
     }
 
-    @Endpoint(regex = "register (premium )?admin (\\S+) (.+)")
+    @Endpoint(regex = "user (\\S+) register (premium )?admin (.+)")
     public void registerAdmin(String _premium, String username, String password)
     {
         boolean premium = !_premium.isEmpty();
@@ -62,7 +62,7 @@ public class UserController extends Controller {
         }
     }
 
-    @Endpoint(regex = "login player (\\S+) (.+)")
+    @Endpoint(regex = "user (\\S+) login player (.+)")
     public void loginPlayer(String username, String password)
     {
         try {
@@ -73,7 +73,7 @@ public class UserController extends Controller {
         }
     }
 
-    @Endpoint(regex = "login admin (\\S+) (.+)")
+    @Endpoint(regex = "user (\\S+) login admin (.+)")
     public void loginAdmin(String username, String password)
     {
         try {
@@ -84,7 +84,7 @@ public class UserController extends Controller {
         }
     }
 
-    @Endpoint(regex = "checkusername (\\S+)")
+    @Endpoint(regex = "user (\\S+) check")
     public void checkUsername(String username)
     {
         boolean exists = getModel().doesUsernameExist(username);

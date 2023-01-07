@@ -2,6 +2,7 @@ package org.example.controllers;
 
 import org.example.annotations.API;
 import org.example.business.Championship;
+import org.example.business.Race;
 import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
@@ -42,11 +43,11 @@ public class ChampionshipController extends Controller {
      * COMMAND SUMMARY:
      *
      * championship create <admin>
-     * championship <championshipID> (standings|drivers)
+     * championship <championshipID> (races|standings|drivers)
      * championship <championshipID> player <username> signup <pilot> <car>
      * championship <championshipID> player <username> setup [downforce]
      * championship <championshipID> player <username> strategy <tire> <engine>
-     * list (cars|circuits)
+     * list (championships|cars|circuits)
      *
      */
 
@@ -56,6 +57,17 @@ public class ChampionshipController extends Controller {
         try {
             Championship c = getModel().createChampionship(admin);
             getView().createSuccess(c);
+        } catch (SystemException e) {
+            getView().error(e.getMessage());
+        }
+    }
+
+    @Endpoint(regex = "championship (\\d+) races")
+    public void getRaces(Integer championshipID)
+    {
+        try {
+            List<Race> races = getModel().getRaces(championshipID);
+            getView().printRaces(races);
         } catch (SystemException e) {
             getView().error(e.getMessage());
         }
@@ -154,6 +166,12 @@ public class ChampionshipController extends Controller {
         } catch (SystemException | LogicException e) {
             getView().error(e.getMessage());
         }
+    }
+
+    @Endpoint(regex = "list championships")
+    public void getChampionships() {
+        List<Championship> championships = getModel().getChampionships();
+        getView().printChampionships(championships);
     }
 
     @Endpoint(regex = "list cars")

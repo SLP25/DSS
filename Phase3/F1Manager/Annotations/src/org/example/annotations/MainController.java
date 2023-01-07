@@ -64,15 +64,28 @@ public class MainController {
             throw new RuntimeException(e);
         }
 
-        //TODO: generate help (use MetaController::getDescription)
-        this.help = "If you are reading this, Bace is lazy and hasn't implemented the help command yet";
+        //TODO: automatically generate help (use MetaController::getDescription)
+        //this.help = "If you are reading this, Bace is lazy and hasn't implemented the help command yet";
+
+        this.help = """
+                user <username> register (player|[premium] admin) <password>
+                user <username> login (player|admin) <password>
+                user <username> check
+                list (championships|cars|circuits)
+                championship create <admin>
+                championship <championshipID> (races|standings|drivers)
+                championship <championshipID> player <username> signup <pilot> <car>
+                championship <championshipID> player <username> setup [downforce]
+                championship <championshipID> player <username> strategy <tire> <engine>
+                race <championshipID> create <weather> <track>
+                race <championshipID> <raceID> prepare <username>
+                race <championshipID> <raceID> (state|result)""";
     }
 
     /**
      * The main application loop
      */
-    public void run()
-    {
+    public void run() {
         System.out.println("F1 MANAGER");
         System.out.println("TP DSS 2022 - Group 20");
         System.out.println("For more help, type 'help'");
@@ -87,10 +100,13 @@ public class MainController {
 
             if (input.equalsIgnoreCase("exit")) {
                 running = false;
-            } else if (!parseInput(input))
+            } else if (parseInput(input)) {
+                System.out.println();
+            } else {
                 System.out.println("Command not recognized");
             }
         }
+    }
 
     /**
      * Processes a command by the user.
