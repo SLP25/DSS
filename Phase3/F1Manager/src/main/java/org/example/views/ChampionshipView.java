@@ -9,6 +9,7 @@ import org.example.business.participants.Participant;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChampionshipView extends View {
 
@@ -25,9 +26,9 @@ public class ChampionshipView extends View {
 
     public void printStandings(Map<Participant, Integer> standings) {
         System.out.printf("Current standings:%n");
-
-        standings.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(e ->
-                System.out.printf("\t%d: %s%n", e.getValue(), e.getKey().getManager().getUsername()));
+        List<Map.Entry<Participant,Integer>> stands = standings.entrySet().stream().sorted((f1,f2)->Integer.compare(f2.getValue(),f1.getValue())).collect(Collectors.toList());
+        for (int i=0;i<stands.size();i++)
+            System.out.println((i+1)+"º: "+stands.get(i).getKey().getManager().getUsername()+" - "+stands.get(i).getValue());
     }
 
     public void printDrivers(List<Driver> drivers) {

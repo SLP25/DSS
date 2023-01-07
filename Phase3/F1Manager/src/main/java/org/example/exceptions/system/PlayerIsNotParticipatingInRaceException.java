@@ -1,4 +1,4 @@
-package org.example.exceptions.logic;
+package org.example.exceptions.system;
 
 import org.example.business.Race;
 import org.example.exceptions.system.SystemException;

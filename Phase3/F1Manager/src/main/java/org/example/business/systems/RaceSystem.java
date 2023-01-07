@@ -7,6 +7,7 @@ import org.example.business.participants.Participant;
 import org.example.data.ChampionshipDAO;
 import org.example.data.CircuitDAO;
 import org.example.data.RaceDAO;
+import org.example.exceptions.system.RaceHasAlreadyFinishedException;
 import org.example.exceptions.system.ChampionshipDoesNotExistException;
 import org.example.exceptions.system.CircuitDoesNotExistException;
 import org.example.exceptions.system.RaceDoesNotExistException;
@@ -52,12 +53,13 @@ public class RaceSystem implements RaceSystemFacade {
     }
 
     @Override
-    public void prepareForRace(int championship, int race, String player) throws ChampionshipDoesNotExistException, RaceDoesNotExistException
+    public void prepareForRace(int championship, int race, String player) throws ChampionshipDoesNotExistException, RaceDoesNotExistException,RaceHasAlreadyFinishedException
     {
         Race r = getRace(championship, race);
 
         try {
             r.lock();
+            if (r.hasFinished()) throw new RaceHasAlreadyFinishedException(r);
             r.setPlayerAsReady(player);
 
             if(r.areAllPlayersReady())
