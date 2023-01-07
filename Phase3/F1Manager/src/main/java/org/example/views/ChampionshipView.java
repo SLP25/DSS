@@ -1,6 +1,7 @@
 package org.example.views;
 
 import org.example.business.Championship;
+import org.example.business.Race;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.circuit.Circuit;
 import org.example.business.drivers.Driver;
@@ -13,6 +14,13 @@ public class ChampionshipView extends View {
 
     public void createSuccess(Championship c) {
         System.out.printf("Successfully created championship %d%n", c.getId());
+    }
+
+    public void printRaces(List<Race> races) {
+        System.out.printf("Championship races:%n");
+
+        for (Race r : races)
+            System.out.printf("\t%d: %s%n", r.getId(), r.getTrack().getName());
     }
 
     public void printStandings(Map<Participant, Integer> standings) {
@@ -43,6 +51,13 @@ public class ChampionshipView extends View {
 
     public void setStrategySuccess() {
         System.out.printf("Strategy successfully set%n");
+    }
+
+    public void printChampionships(List<Championship> championships) {
+        System.out.printf("Championships:%n");
+
+        for (Championship c : championships)
+            System.out.printf("\t%d: %s's championship%n", c.getId(), c.getAdmin().getUsername());
     }
 
     public void printRaceCars(List<CombustionRaceCar> cars) {

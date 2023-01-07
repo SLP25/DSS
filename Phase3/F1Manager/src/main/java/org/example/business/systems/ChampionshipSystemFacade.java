@@ -1,6 +1,7 @@
 package org.example.business.systems;
 
 import org.example.business.Championship;
+import org.example.business.Race;
 import org.example.business.cars.BodyWork;
 import org.example.business.cars.CombustionRaceCar;
 import org.example.business.cars.Engine;
@@ -23,6 +24,8 @@ public interface ChampionshipSystemFacade extends SystemFacade {
 
     Championship createChampionship(String admin) throws AdminDoesNotExistException;
 
+    List<Race> getRaces(int championship) throws ChampionshipDoesNotExistException;
+
     Map<Participant, Integer> getStandings(int championship) throws ChampionshipDoesNotExistException;
 
     void signUp(int championship, String player, Driver pilot, CombustionRaceCar car) throws ChampionshipDoesNotExistException, PlayerDoesNotExistException, PlayerAlreadyParticipatingException, DriverInUseException;
@@ -34,6 +37,8 @@ public interface ChampionshipSystemFacade extends SystemFacade {
     void changeSetup(int championship, String player, BodyWork.DownforcePackage aero) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException, PlayerAlreadyReachedLimitOfSetupChangesExceptions;
 
     void setStrategy(int championship, String player, Tyre.TyreType tireType, Engine.EngineMode engineMode) throws ChampionshipDoesNotExistException, ParticipantDoesNotExistException;
+
+    List<Championship> getChampionships();
 
     List<CombustionRaceCar> getRaceCars();
 
