@@ -197,6 +197,8 @@ public class Race {
     public void setPlayerAsReady(String player){
         Participant p = participants.get(player);
         ready.put(p,true);
+        RaceDAO dao = RaceDAO.getInstance(championshipId);
+        dao.update(this);
     }
 
     /**
@@ -334,12 +336,12 @@ public class Race {
         int n = track.getCircuitSections().size();
         for(int i = 0; i < result.size(); i++) {
             Map<String, Float> vars = new HashMap<>();
-            vars.put("laps", (float)currentLap);
+            vars.put("numberOfLaps", (float)currentLap);
             vars.put("sva", result.get(i).getDriver().getDriverSVA());
             vars.put("isHybrid", 0.0f);
             vars.put("pilotReliability", 1.0f);
             vars.put("classReliability", 0.95f);
-
+            vars.put("engineCapacity", (float)result.get(i).getCar().getCombustionEngine().getCapacity());
             double probability = result.get(i).getCar().getCategory().calculateReliability(vars);
             double r = rng.nextDouble();
 
@@ -348,7 +350,7 @@ public class Race {
             // is independent of the others, the probability of retiring in a single decision
             // equals prob ^ (1 / n)
             if(r > Math.pow(probability, 1.0 / (double)n)) {
-                System.out.println("Mechanical failure for driver in P" + (i + 1));
+                //System.out.println("Mechanical failure for driver in P" + (i + 1));
                 gaps.remove(i);
                 result.remove(i);
             }
@@ -416,7 +418,7 @@ public class Race {
                 c.setDamage(c.getDamage() + (timeLost - crashThreshold) / (dnfThreshold - crashThreshold));
 
                 if(c.getDamage() > maxDamage) {
-                    System.out.println("Crash for driver in P" + (i + 1));
+                    //System.out.println("Crash for driver in P" + (i + 1));
                     //Retire the car
                     gaps.remove(i);
                     result.remove(i);

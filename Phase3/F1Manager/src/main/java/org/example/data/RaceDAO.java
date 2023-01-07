@@ -191,7 +191,8 @@ public class RaceDAO implements Map<Integer, Race> {
                             b,
                             new Weather(rs.getDouble("WeatherVariability")),
                             CircuitDAO.getInstance().get(rs.getString("Circuit")),
-                            b?participants((Integer) key): readys.keySet().stream().toList(),
+                            b?participants((Integer) key) :
+                                    readys.keySet().stream().collect(Collectors.toCollection(ArrayList::new)),
                             readys
                     );
                 }

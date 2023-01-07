@@ -40,8 +40,9 @@ public class RaceView extends View {
 
     public void printRaceResults(List<Participant> participants) {
         System.out.printf("Race results:%n");
-        for (Participant p : participants) {
-            System.out.printf("\t%s: TODO%n", p.getManager().getUsername()); //TODO
+        for (int i = 0; i < participants.size(); i++) {
+            Participant p = participants.get(i);
+            System.out.printf("\t%d) %s%n", i + 1, p.getDriver().getDriverName());
         }
     }
 }
